@@ -24,6 +24,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.Size;
 import android.util.TypedValue;
 import android.view.Display;
@@ -37,6 +38,8 @@ import org.tensorflow.demo.R; // Explicit import needed for internal Google buil
 
 public class ClassifierActivity extends CameraActivity implements OnImageAvailableListener {
   private static final Logger LOGGER = new Logger();
+  private static final String TAG = "ClassifierActivity";
+
 
   protected static final boolean SAVE_PREVIEW_BITMAP = false;
 
@@ -64,16 +67,21 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
   // --input_node_names="Mul" \
   // --output_node_names="final_result" \
   // --input_binary=true
-  private static final int INPUT_SIZE = 224;
+//  private static final int INPUT_SIZE = 224;
+
+  private static final int INPUT_SIZE = 100 * 100 * 3;
+
   private static final int IMAGE_MEAN = 117;
   private static final float IMAGE_STD = 1;
   private static final String INPUT_NAME = "input";
-  private static final String OUTPUT_NAME = "output";
+  private static final String OUTPUT_NAME = "label";
 
 
-  private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
-  private static final String LABEL_FILE =
-      "file:///android_asset/imagenet_comp_graph_label_strings.txt";
+//  private static final String MODEL_FILE = "file:///android_asset/tensorflow_inception_graph.pb";
+  private static final String LABEL_FILE = "file:///android_asset/imagenet_comp_graph_label_strings.txt";
+
+  private static final String MODEL_FILE = "file:///android_asset/graph_full.pb";
+
 
 
   private static final boolean MAINTAIN_ASPECT = true;
@@ -123,6 +131,9 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
     previewWidth = size.getWidth();
     previewHeight = size.getHeight();
 
+    Log.d(TAG, "ClassifierActivity::getDefaultDisplay");
+
+
     final Display display = getWindowManager().getDefaultDisplay();
     final int screenOrientation = display.getRotation();
 
@@ -132,7 +143,10 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
     LOGGER.i("Initializing at size %dx%d", previewWidth, previewHeight);
     rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
-    croppedBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Config.ARGB_8888);
+    //croppedBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Config.ARGB_8888);
+
+    Log.d(TAG, "ClassifierActivity::frameToCropTransform");
+
 
     frameToCropTransform = ImageUtils.getTransformationMatrix(
         previewWidth, previewHeight,
@@ -141,6 +155,8 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
     cropToFrameTransform = new Matrix();
     frameToCropTransform.invert(cropToFrameTransform);
+
+    Log.d(TAG, "ClassifierActivity::addCallback");
 
     addCallback(
         new DrawCallback() {
@@ -153,9 +169,12 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
   @Override
   protected void processImage() {
+    Log.d(TAG, "ClassifierActivity::processImage");
+
+
     rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
-    final Canvas canvas = new Canvas(croppedBitmap);
-    canvas.drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
+  //  final Canvas canvas = new Canvas(croppedBitmap);
+  //  canvas.drawBitmap(rgbFrameBitmap, frameToCropTransform, null);
 
     // For examining the actual TF input.
     if (SAVE_PREVIEW_BITMAP) {
@@ -169,7 +188,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
             final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
             lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
             LOGGER.i("Detect: %s", results);
-            cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
+     //       cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
             if (resultsView == null) {
               resultsView = (ResultsView) findViewById(R.id.results);
             }

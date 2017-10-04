@@ -44,6 +44,14 @@ public class TensorFlowImageClassifier implements Classifier {
   private int inputSize;
   private int imageMean;
   private float imageStd;
+  private int batch = 25;
+//  private int batch = 50;
+
+  private int outputsize = 102;
+  private int image_width = 100;
+  private int image_length = 100;
+  private int num_channels = 3;
+
 
   // Pre-allocated buffers.
   private Vector<String> labels = new Vector<String>();
@@ -72,14 +80,15 @@ public class TensorFlowImageClassifier implements Classifier {
    * @throws IOException
    */
   public static Classifier create(
-      AssetManager assetManager,
-      String modelFilename,
-      String labelFilename,
-      int inputSize,
-      int imageMean,
-      float imageStd,
-      String inputName,
-      String outputName) {
+
+          AssetManager assetManager,
+          String modelFilename,
+          String labelFilename,
+          int inputSize,
+          int imageMean,
+          float imageStd,
+          String inputName,
+          String outputName) {
     TensorFlowImageClassifier c = new TensorFlowImageClassifier();
     c.inputName = inputName;
     c.outputName = outputName;
@@ -99,78 +108,194 @@ public class TensorFlowImageClassifier implements Classifier {
     } catch (IOException e) {
       throw new RuntimeException("Problem reading label file!" , e);
     }
-
+    Log.d(TAG, "Classifier::create");
     c.inferenceInterface = new TensorFlowInferenceInterface(assetManager, modelFilename);
 
     // The shape of the output is [N, NUM_CLASSES], where N is the batch size.
     final Operation operation = c.inferenceInterface.graphOperation(outputName);
-    final int numClasses = (int) operation.output(0).shape().size(1);
+    Log.d(TAG, String.valueOf(operation.output(0)));
+
+    final int numClasses = (int) operation.output(0).shape().size(0);
+    // final int numClasses = 25;
     Log.i(TAG, "Read " + c.labels.size() + " labels, output layer size is " + numClasses);
 
     // Ideally, inputSize could have been retrieved from the shape of the input operation.  Alas,
     // the placeholder node for input in the graphdef typically used does not specify a shape, so it
     // must be passed in as a parameter.
+    Log.d(TAG, "Classifier::inputSize");
     c.inputSize = inputSize;
     c.imageMean = imageMean;
     c.imageStd = imageStd;
 
+    final int batch = 25;
+    final int outputsize = 102;
+
     // Pre-allocate buffers.
+    Log.d(TAG, "Classifier::Pre-allocate buffers");
     c.outputNames = new String[] {outputName};
-    c.intValues = new int[inputSize * inputSize];
-    c.floatValues = new float[inputSize * inputSize * 3];
-    c.outputs = new float[numClasses];
+    c.intValues = new int[100 * 100 * 3];
+    //c.floatValues = new float[inputSize * inputSize * 3];
+    c.floatValues = new float[inputSize * batch];
+//    c.outputs = new float[numClasses];
+
+//    c.outputs = new float[batch * outputsize];
+    c.outputs = new float[batch];
+
 
     return c;
   }
 
+
+  // Add a function to measure time
+  long lastTime=0;
+  public void reportTime(String str){
+    long time = System.currentTimeMillis();
+    long elapsed = time-lastTime;
+    int Pid = android.os.Process.myPid();
+    int Tid = android.os.Process.myTid();
+    // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
+    Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
+    lastTime=System.currentTimeMillis();
+
+  }
+
   @Override
   public List<Recognition> recognizeImage(final Bitmap bitmap) {
+    // Log.d(TAG, "Classifier::recognizeImage");
+
     // Log this method so that it can be analyzed with systrace.
     Trace.beginSection("recognizeImage");
 
     Trace.beginSection("preprocessBitmap");
     // Preprocess the image data from 0-255 int to normalized float based
     // on the provided parameters.
-    bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-    for (int i = 0; i < intValues.length; ++i) {
-      final int val = intValues[i];
-      floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - imageMean) / imageStd;
-      floatValues[i * 3 + 1] = (((val >> 8) & 0xFF) - imageMean) / imageStd;
-      floatValues[i * 3 + 2] = ((val & 0xFF) - imageMean) / imageStd;
+    //Log.d(TAG, "Classifier::recognizeImage:preprocess");
+//    bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+//    for (int i = 0; i < intValues.length; ++i) {
+//      final int val = intValues[i];
+//      floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - imageMean) / imageStd;
+//      floatValues[i * 3 + 1] = (((val >> 8) & 0xFF) - imageMean) / imageStd;
+//      floatValues[i * 3 + 2] = ((val & 0xFF) - imageMean) / imageStd;
+//    }
+    Trace.endSection();
+
+    reportTime("Create empty array");
+    float[] inputSignals = new float[batch * inputSize];
+//    float[][][][] inputSignals = new float[batch][image_width][image_length][num_channels];
+    float[] outSignals = new float[batch];
+    reportTime("Start filling array");
+    for ( int i = 0; i < inputSize * batch; i ++) {
+      inputSignals[i] = (float) Math.random();
     }
-    Trace.endSection();
 
-    // Copy the input data into TensorFlow.
-    Trace.beginSection("feed");
-    inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 3);
-    Trace.endSection();
+//    for ( int i = 0; i < batch; i ++) {
+//      for (int j = 0; j < image_width; j ++) {
+//        for (int k = 0; k < image_length; k ++) {
+//          for (int l = 0; l < num_channels; l ++) {
+//            inputSignals[i][j][k][l] = (float) Math.random();
+//          }
+//        }
+//      }
+//    }
+    Log.d(TAG, "Classifier::filled array");
 
-    // Run the inference call.
-    Trace.beginSection("run");
-    inferenceInterface.run(outputNames, logStats);
-    Trace.endSection();
+    for ( int i = 0; i < batch; i ++) {
+      outSignals[i] = (float) Math.random();
+    }
+    reportTime("End filling array");
+    inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
+    reportTime("init_all_vars_op");
+    Log.d(TAG, "Classifier::variables initialization");
 
-    // Copy the output Tensor back into the output array.
-    Trace.beginSection("fetch");
-    inferenceInterface.fetch(outputName, outputs);
-    Trace.endSection();
+
+    for (int i = 0; i < 10; i++) {
+      Log.d(TAG, "The " + i + " iteration:");
+
+      // Copy the input data into TensorFlow.
+      Log.d(TAG, "Classifier::feed");
+//    Trace.beginSection("feed");
+//    inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 3);
+
+    /*
+    Need to make sure the content of src float array can feed the tensor with a size of the tensor
+    For example, here float[] inputSignals is a [100 * 32] vector; the content is fed into a tensor
+    of 100 (batch size defined here) * 32
+     */
+
+//    inferenceInterface.feed("x", inputSignals, batch, 32);
+//    inferenceInterface.feed("input", inputSignals, batch, inputSize);
+      inferenceInterface.feed("input", inputSignals, batch, inputSize);
+      reportTime("feed input\t" + "iteration\t" + i);
+      Log.d(TAG, "Classifier::feed input");
+
+//    inferenceInterface.feed("x", floatValues, batch, 32);
+      // floatValues = new float[inputSize * 100];
+      //  Log.d(TAG,"feed x");
+      inferenceInterface.feed("label", outSignals, batch);
+      reportTime("feed label\t" + "iteration\t" + i);
+      //  Log.d(TAG, "Classifier::feed label");
+//    inferenceInterface.feed("y", outputs, batch, 8);
+      // outputs = new float[800];
+      //  Log.d(TAG,"feed y");
+
+//    Trace.endSection();
+
+      // Run the inference call.
+      Log.d(TAG, "Classifier::recognizeImage:inferenceCall");
+
+      //  Trace.beginSection("run");
+
+//    inferenceInterface.run(outputNames, logStats);
+      inferenceInterface.run(new String[]{"loss"}, logStats);
+
+      reportTime("run loss\t" + "iteration\t" + i);
+//      inferenceInterface.run(new String[]{"loss"}, logStats);
+//      Trace.endSection();
+
+      // Copy the output Tensor back into the output array.
+      Log.d(TAG, "Classifier::fetch");
+      Trace.beginSection("fetch");
+//    inferenceInterface.fetch(outputName, outputs);
+      float[] resu = new float[1];
+//      inferenceInterface.fetch("loss", resu);
+      inferenceInterface.fetch("loss", resu);
+      Log.d(TAG, "The loss of " + i + " iteration is " + resu[0]);
+
+      Trace.endSection();
+
+/*
+  Feed x and y again for the training
+ */
+
+      inferenceInterface.feed("input", inputSignals, batch, inputSize);
+
+      // Log.d(TAG, "feed x");
+      inferenceInterface.feed("label", outSignals, batch);
+
+      //  Log.d(TAG, "feed y");
+
+      reportTime("training start:\t" + "iteration\t" + i);
+      inferenceInterface.runTarget(new String[]{"train"});
+      reportTime("training end:\t" + "iteration\t" + i);
+    }
+
 
     // Find the best classifications.
     PriorityQueue<Recognition> pq =
-        new PriorityQueue<Recognition>(
-            3,
-            new Comparator<Recognition>() {
-              @Override
-              public int compare(Recognition lhs, Recognition rhs) {
-                // Intentionally reversed to put high confidence at the head of the queue.
-                return Float.compare(rhs.getConfidence(), lhs.getConfidence());
-              }
-            });
+            new PriorityQueue<Recognition>(
+                    3,
+                    new Comparator<Recognition>() {
+                      @Override
+                      public int compare(Recognition lhs, Recognition rhs) {
+                        // Intentionally reversed to put high confidence at the head of the queue.
+                        return Float.compare(rhs.getConfidence(), lhs.getConfidence());
+                      }
+                    });
     for (int i = 0; i < outputs.length; ++i) {
       if (outputs[i] > THRESHOLD) {
         pq.add(
-            new Recognition(
-                "" + i, labels.size() > i ? labels.get(i) : "unknown", outputs[i], null));
+                new Recognition(
+                        "" + i, labels.size() > i ? labels.get(i) : "unknown", outputs[i], null));
       }
     }
     final ArrayList<Recognition> recognitions = new ArrayList<Recognition>();
