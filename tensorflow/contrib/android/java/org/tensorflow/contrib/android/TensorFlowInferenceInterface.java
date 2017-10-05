@@ -161,6 +161,26 @@ public class TensorFlowInferenceInterface {
     }
   }
 
+  /**
+   * 2017/7/29 yitao
+   * Add one more interface function for running a node without output for initialization.
+   * This function only takes one argument with ending with :0 to indicate that there is no output
+   */
+
+  public void runTarget(String[] outputNames){
+    Log.d(TAG, "start of the runTarget");
+    for (String t : outputNames) {
+      runner.addTarget(t);
+      // runner.runAndFetchMetadata();
+    }
+    Log.d(TAG, "finished adding target");
+
+    runner.runAndFetchMetadata();
+    Log.d(TAG,"runAndFetchMetadata");
+    runner = sess.runner();
+    Log.d(TAG,"sess.runner");
+
+  }
   /** Returns a reference to the Graph describing the computation run during inference. */
   public Graph graph() {
     return g;
