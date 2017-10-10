@@ -18,11 +18,16 @@ package org.tensorflow.demo;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.os.Trace;
 import android.util.Log;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -147,6 +152,72 @@ public class TensorFlowImageClassifier implements Classifier {
   }
 
 
+  /*
+  The method checkExternalMedia and writeToDisk are used to store the logcat
+  info in a file so that the data processing will be easier.
+     */
+  /** Method to check whether external media available and writable. This is adapted from
+   http://developer.android.com/guide/topics/data/data-storage.html#filesExternal */
+
+  private void checkExternalMedia(){
+    boolean mExternalStorageAvailable = false;
+    boolean mExternalStorageWriteable = false;
+    String state = Environment.getExternalStorageState();
+
+    if (Environment.MEDIA_MOUNTED.equals(state)) {
+      // Can read and write the media
+      mExternalStorageAvailable = mExternalStorageWriteable = true;
+    } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+      // Can only read the media
+      mExternalStorageAvailable = true;
+      mExternalStorageWriteable = false;
+    } else {
+      // Can't read or write
+      mExternalStorageAvailable = mExternalStorageWriteable = false;
+    }
+    Log.d("writeTofile", "\n\nExternal Media: readable="   +mExternalStorageAvailable+" writable="+mExternalStorageWriteable);
+    //tv.append("\n\nExternal Media: readable="   +mExternalStorageAvailable+" writable="+mExternalStorageWriteable);
+  }
+
+  private void writeToSDFile(String str){
+
+    // Find the root of the external storage.
+    // See http://developer.android.com/guide/topics/data/data-  storage.html#filesExternal
+
+    File root = android.os.Environment.getExternalStorageDirectory();
+    //tv.append("\nExternal file system root: "+root);
+    Log.d("writeTofile", "\nExternal file system root: "+root);
+
+
+    // See http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
+    File sdCard = Environment.getExternalStorageDirectory();
+    File dir = new File (sdCard.getAbsolutePath() + "/measurements");
+    //File dir = new File (root.getAbsolutePath() + "/sdcard");
+    dir.mkdirs();
+    File file = new File(dir, "myData.txt");
+
+    try {
+      FileOutputStream f = new FileOutputStream((file), true);
+      PrintWriter pw = new PrintWriter(f);
+      //pw.println("Hi , How are you");
+      //pw.println("Hello");
+      pw.println(str);
+      pw.flush();
+      pw.close();
+      f.close();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      Log.i(TAG, "******* File not found. Did you" +
+              " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    //tv.append("\n\nFile written to "+file);
+    Log.d("writeTofile","\n\nFile written to "+file);
+
+  }
+
+
   // Add a function to measure time
   long lastTime=0;
   public void reportTime(String str){
@@ -156,6 +227,7 @@ public class TensorFlowImageClassifier implements Classifier {
     int Tid = android.os.Process.myTid();
     // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
     Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
+    writeToSDFile("Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
     lastTime=System.currentTimeMillis();
 
   }
@@ -180,6 +252,7 @@ public class TensorFlowImageClassifier implements Classifier {
 //    }
     Trace.endSection();
 
+    checkExternalMedia();
     reportTime("Create empty array");
     float[] inputSignals = new float[batch * inputSize];
 //    float[][][][] inputSignals = new float[batch][image_width][image_length][num_channels];
@@ -209,7 +282,7 @@ public class TensorFlowImageClassifier implements Classifier {
     Log.d(TAG, "Classifier::variables initialization");
 
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1; i++) {
       Log.d(TAG, "The " + i + " iteration:");
 
       // Copy the input data into TensorFlow.
@@ -278,8 +351,13 @@ public class TensorFlowImageClassifier implements Classifier {
       reportTime("training start:\t" + "iteration\t" + i);
       inferenceInterface.runTarget(new String[]{"train"});
       reportTime("training end:\t" + "iteration\t" + i);
+
     }
 
+
+    /*Write to a file for plotting */
+
+    writeToSDFile("hello");
 
     // Find the best classifications.
     PriorityQueue<Recognition> pq =
