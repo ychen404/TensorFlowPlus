@@ -47,7 +47,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
   // --input_binary=true
 //  private static final int INPUT_SIZE = 224;
 //  private static final int INPUT_SIZE = 32;
-  private static final int INPUT_SIZE = 100 * 100 * 3;
+  private static final int INPUT_SIZE = 32 * 32 * 3;
 
   private static final int IMAGE_MEAN = 117;
   private static final float IMAGE_STD = 1;
@@ -61,7 +61,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 //  private static final String MODEL_FILE = "file:///android_asset/mlp.pb";
 //  private static final String MODEL_FILE = "file:///android_asset/graph.pb";
 //  private static final String MODEL_FILE = "file:///android_asset/graph_simplified.pb";
-  private static final String MODEL_FILE = "file:///android_asset/graph_full.pb";
+  private static final String MODEL_FILE = "file:///android_asset/graph_fc_2_bat_4_64.pb";
 //  private static final String MODEL_FILE = "file:///android_asset/graph_full_50.pb";
 
 //  private static final String MODEL_FILE = "file:///android_asset/graph_saman.pb";

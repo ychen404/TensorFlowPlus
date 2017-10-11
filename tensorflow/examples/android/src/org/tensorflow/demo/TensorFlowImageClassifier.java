@@ -18,6 +18,7 @@ package org.tensorflow.demo;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.os.Trace;
 import android.util.Log;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import org.tensorflow.Operation;
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
@@ -50,7 +52,10 @@ public class TensorFlowImageClassifier implements Classifier {
   private int inputSize;
   private int imageMean;
   private float imageStd;
-  private int batch = 25;
+  private int batch = 4;
+  private int total_pic = 8;
+  private int bat = 4; // temp variable for grouping as a batch
+
 //  private int batch = 50;
 
   private int outputsize = 102;
@@ -65,6 +70,10 @@ public class TensorFlowImageClassifier implements Classifier {
   private float[] floatValues;
   private float[] outputs;
   private String[] outputNames;
+
+  // For storing the size of an image in the dataset
+  int width = 32;
+  int height = 32;
 
   private boolean logStats = false;
 
@@ -133,7 +142,7 @@ public class TensorFlowImageClassifier implements Classifier {
     c.imageMean = imageMean;
     c.imageStd = imageStd;
 
-    final int batch = 25;
+    final int batch = 4;
     final int outputsize = 102;
 
     // Pre-allocate buffers.
@@ -151,6 +160,97 @@ public class TensorFlowImageClassifier implements Classifier {
     return c;
   }
 
+  private float[] readImages() {
+//    int intArray[];
+//    float bmpFloatArray[];
+//    float floatArray[];
+    int name;
+    float smCon[];
+    float bigCon[];
+    int len = 0;
+    smCon = new float[width * height * 3];
+    bigCon = new float[width * height * 3 * bat];
+
+    String fpath1;
+    String filename;
+    String fpath = Environment.getExternalStorageDirectory() + "/cifar/10000.png";
+    Log.d("readImages", String.valueOf(fpath));
+    String path = Environment.getExternalStorageDirectory() + "/cifar/";
+    File dir = new File(path);
+    File[] directoryListing = dir.listFiles();
+
+    if (directoryListing != null) {
+      for (File child : directoryListing){
+          Log.d("readImages", String.valueOf(child.getName()));
+      }
+    } else {
+      // Handle problems
+    }
+
+//    smCon = bmpToArray(fpath);
+
+//    Log.d("imageReads", "The array is " + smCon[0] + "," + smCon[1] + "," + smCon[2]);
+
+    for (int i = 0; i < total_pic/bat; i++)
+    {
+      for (int j = 0; j < bat; j++)
+      {
+        Log.d("readImages", "Inside for loop");
+        name = 10000 + i * bat + j;
+      //  test = 10000;
+        //filename = String.valueOf(test);
+        fpath1 = Environment.getExternalStorageDirectory() + "/cifar/" + name + ".png";
+        Log.d("readImages", "The file name is " + String.valueOf(fpath1));
+        smCon = bmpToArray(fpath1);
+        Log.d("readImages", "The smCon contains useful data");
+        for (int k = 0; k < smCon.length; k ++, len++)
+        {
+          bigCon[len] = smCon[k];
+        }
+        len += smCon.length;
+      }
+      len = 0;
+
+      //tf
+    }
+    return bigCon;
+  }
+
+
+  private float[] bmpToArray(String fpath) {
+    int intArray[];
+    float bmpFloatArray[];
+    float floatArray[];
+    int name;
+
+    Bitmap bmp = BitmapFactory.decodeFile(fpath);
+    Log.d("readImages", "Read image");
+    bmp = bmp.copy(Bitmap.Config.ARGB_8888, true);
+//    width = bmp.getWidth();
+//    height = bmp.getHeight();
+
+    // Init array
+    intArray = new int[bmp.getWidth() * bmp.getHeight()];
+    bmpFloatArray = new float[bmp.getWidth() * bmp.getHeight()];
+    bmp.getPixels(intArray, 0, bmp.getWidth(), 0, 0, bmp.getWidth(), bmp.getHeight());
+    Log.d("readImages", "Init array");
+
+    floatArray = new float[intArray.length * 3];
+    for (int i = 0; i < intArray.length; i++)
+    {
+      // decode
+      int A = (intArray[i] >> 24) & 0xff; // or color >>> 24
+      int R = (intArray[i] >> 16) & 0xff;
+      int G = (intArray[i] >>  8) & 0xff;
+      int B = (intArray[i]      ) & 0xff;
+      // floatArray[4*i] = (float) A;
+      floatArray[3*i +0] = (float) R;
+      floatArray[3*i +1] = (float) G;
+      floatArray[3*i +2] = (float) B;
+    }
+
+    return floatArray;
+  }
 
   /*
   The method checkExternalMedia and writeToDisk are used to store the logcat
@@ -253,7 +353,12 @@ public class TensorFlowImageClassifier implements Classifier {
     Trace.endSection();
 
     checkExternalMedia();
+    readImages();
     reportTime("Create empty array");
+
+    // Get the input from images
+    //float[] inputSignals = readImages();
+
     float[] inputSignals = new float[batch * inputSize];
 //    float[][][][] inputSignals = new float[batch][image_width][image_length][num_channels];
     float[] outSignals = new float[batch];
