@@ -26,10 +26,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -54,7 +56,7 @@ public class TensorFlowImageClassifier implements Classifier {
   private float imageStd;
   private int batch = 4;
   private int total_pic = 8;
-  private int bat = 4; // temp variable for grouping as a batch
+  //private int bat = 4; // temp variable for grouping as a batch
 
   private int outputsize = 102;
   private int image_width = 100;
@@ -77,6 +79,7 @@ public class TensorFlowImageClassifier implements Classifier {
   float smCon[];
   // float array for a batch
   float bigCon[];
+  float[] labels_float = new float[batch];
 
 
   private boolean logStats = false;
@@ -171,7 +174,7 @@ public class TensorFlowImageClassifier implements Classifier {
     int name;
     int len = 0;
     smCon = new float[width * height * 3];
-    bigCon = new float[width * height * 3 * bat];
+    bigCon = new float[width * height * 3 * batch];
 
     String fpath1;
     String filename;
@@ -189,12 +192,12 @@ public class TensorFlowImageClassifier implements Classifier {
       // Handle problems
     }
 
-    for (int i = 0; i < total_pic/bat; i++)
+    for (int i = 0; i < total_pic/batch; i++)
     {
-      for (int j = 0; j < bat; j++)
+      for (int j = 0; j < batch; j++)
       {
         Log.d("readImages", "Inside for loop");
-        name = 10000 + i * bat + j;
+        name = 10000 + i * batch + j;
 
         fpath1 = Environment.getExternalStorageDirectory() + "/cifar/" + name + ".png";
         Log.d("readImages", "The file name is " + String.valueOf(fpath1));
@@ -204,7 +207,7 @@ public class TensorFlowImageClassifier implements Classifier {
         {
           bigCon[len] = smCon[k];
         }
-        //len += smCon.length;
+        readLabels(i,j,batch);
       }
       len = 0;
       //tf related code
@@ -213,18 +216,19 @@ public class TensorFlowImageClassifier implements Classifier {
 
       float[] outSignals = new float[batch];
       for ( int index = 0; index < batch; index ++) {
-        outSignals[index] = (float) Math.random();
+        outSignals[index] = 10000 + index;
       }
 
-    //  inferenceInterface.feed("input", bigCon, batch, inputSize);
-
       inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
-
       inferenceInterface.feed("input", bigCon, batch, inputSize);
       Log.d("readImages", "feed input");
 
+//      for (int k = 0; k < labels_float.length; k++){
+//        Log.d("readImages", "The labels being fed is " + String.valueOf(labels_float[k]));
+      //}
       // Log.d(TAG, "feed x");
-      inferenceInterface.feed("label", outSignals, batch);
+      inferenceInterface.feed("label", labels_float, batch);
+
 
       //  Log.d(TAG, "feed y");
 
@@ -274,6 +278,48 @@ public class TensorFlowImageClassifier implements Classifier {
     return floatArray;
   }
 
+
+  private float[] readLabels(int idx_i, int idx_j, int batch) {
+    // i and j are corresponding to the i and j from the outer loop
+    String fpath = Environment.getExternalStorageDirectory() + "/cifar/new.csv";
+    String csvFile = fpath;
+    BufferedReader br = null;
+    String line = "";
+    String cvsSplitBy = ",";
+    String[] labels_str;
+   // float[] labels_float = new float[batch];
+
+    try {
+      br = new BufferedReader(new FileReader(csvFile));
+      while ((line = br.readLine()) != null) {
+        // use comma as separator
+        labels_str = line.split(cvsSplitBy);
+        System.out.println(labels_str.length);
+        System.out.println("labels_str [code= " + labels_str[3] + " , name=" + labels_str[4] + "]");
+        System.out.println(labels_str.length);
+     //   labels_float = new float[labels_str.length];
+
+          labels_float[idx_j] = Float.parseFloat(labels_str[idx_i * batch + idx_j]);
+
+      }
+
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (br != null) {
+        try {
+          br.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+
+    System.out.println(Arrays.toString(labels_float));
+    return labels_float;
+  }
   /*
   The method checkExternalMedia and writeToDisk are used to store the logcat
   info in a file so that the data processing will be easier.
