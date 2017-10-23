@@ -54,15 +54,9 @@ public class TensorFlowImageClassifier implements Classifier {
   private int inputSize;
   private int imageMean;
   private float imageStd;
-  private int batch = 4;
-  private int total_pic = 8;
+  private int batch = 256;
+  private int total_pic = 1024;
   //private int bat = 4; // temp variable for grouping as a batch
-
-  private int outputsize = 102;
-  private int image_width = 100;
-  private int image_length = 100;
-  private int num_channels = 3;
-
 
   // Pre-allocated buffers.
   private Vector<String> labels = new Vector<String>();
@@ -149,13 +143,12 @@ public class TensorFlowImageClassifier implements Classifier {
     c.imageMean = imageMean;
     c.imageStd = imageStd;
 
-    final int batch = 4;
-    final int outputsize = 102;
+    final int batch = 256;
 
     // Pre-allocate buffers.
     Log.d(TAG, "Classifier::Pre-allocate buffers");
     c.outputNames = new String[] {outputName};
-    c.intValues = new int[100 * 100 * 3];
+    c.intValues = new int[32 * 32 * 3];
     //c.floatValues = new float[inputSize * inputSize * 3];
     c.floatValues = new float[inputSize * batch];
 //    c.outputs = new float[numClasses];
@@ -179,63 +172,76 @@ public class TensorFlowImageClassifier implements Classifier {
     String fpath1;
     String filename;
     String fpath = Environment.getExternalStorageDirectory() + "/cifar/10000.png";
-    Log.d("readImages", String.valueOf(fpath));
-    String path = Environment.getExternalStorageDirectory() + "/cifar/";
-    File dir = new File(path);
-    File[] directoryListing = dir.listFiles();
+   // Log.d("readImages", String.valueOf(fpath));
+    /*
+    For reading all the files in a directory: start
+     */
+//    String path = Environment.getExternalStorageDirectory() + "/cifar/";
+//    File dir = new File(path);
+//    File[] directoryListing = dir.listFiles();
 
-    if (directoryListing != null) {
-      for (File child : directoryListing){
-          Log.d("readImages", String.valueOf(child.getName()));
-      }
-    } else {
-      // Handle problems
-    }
+//    if (directoryListing != null) {
+//      for (File child : directoryListing){
+//          Log.d("readImages", String.valueOf(child.getName()));
+//      }
+//    } else {
+//      // Handle problems
+//    }
 
-    for (int i = 0; i < total_pic/batch; i++)
+    /*
+    For reading all the files in a directory: end
+     */
+
+    for (int iter = 0; iter < total_pic/batch; iter++)
     {
       for (int j = 0; j < batch; j++)
       {
-        Log.d("readImages", "Inside for loop");
-        name = 10000 + i * batch + j;
+     //   Log.d("readImages", "Inside for loop");
+        name = 1 + iter * batch + j;
 
         fpath1 = Environment.getExternalStorageDirectory() + "/cifar/" + name + ".png";
-        Log.d("readImages", "The file name is " + String.valueOf(fpath1));
+     //   Log.d("readImages", "The file name is " + String.valueOf(fpath1));
         smCon = bmpToArray(fpath1);
-        Log.d("readImages", "The smCon contains useful data");
+     //   Log.d("readImages", "The smCon contains useful data");
         for (int k = 0; k < smCon.length; k ++, len++)
         {
           bigCon[len] = smCon[k];
         }
-        readLabels(i,j,batch);
+        readLabels(iter,j,batch);
       }
       len = 0;
       //tf related code
 
-      Log.d("readImages", "init label array");
+     // Log.d("readImages", "init label array");
 
-      float[] outSignals = new float[batch];
-      for ( int index = 0; index < batch; index ++) {
-        outSignals[index] = 10000 + index;
-      }
+//      float[] outSignals = new float[batch];
+//      for ( int index = 0; index < batch; index ++) {
+//        outSignals[index] = (float) Math.random();
+//      }
 
+
+      writeToSDFile("Start batch size of " + String.valueOf(batch));
       inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
-      inferenceInterface.feed("input", bigCon, batch, inputSize);
-      Log.d("readImages", "feed input");
+        inferenceInterface.feed("input", bigCon, batch, inputSize);
+    //    Log.d("readImages", "feed input");
+        inferenceInterface.feed("label", labels_float, batch);
+//      inferenceInterface.feed("label", outSignals, batch);
 
-//      for (int k = 0; k < labels_float.length; k++){
-//        Log.d("readImages", "The labels being fed is " + String.valueOf(labels_float[k]));
-      //}
-      // Log.d(TAG, "feed x");
-      inferenceInterface.feed("label", labels_float, batch);
+        inferenceInterface.run(new String[]{"loss"}, logStats);
 
+        float[] resu = new float[1];
+//      inferenceInterface.fetch("loss", resu);
+        inferenceInterface.fetch("loss", resu);
+        Log.d(TAG, "The loss is " + resu[0]);
 
-      //  Log.d(TAG, "feed y");
+        inferenceInterface.feed("input", bigCon, batch, inputSize);
+        inferenceInterface.feed("label", labels_float, batch);
+//      inferenceInterface.feed("label", outSignals, batch);
 
-      inferenceInterface.runTarget(new String[]{"train"});
-
-      Log.d("readImages", "done training");
-
+        reportTime("training start:\t" + "iteration\t" + iter);
+        inferenceInterface.runTarget(new String[]{"train"});
+        reportTime("training ends:\t" + "iteration\t" + iter);
+        //Log.d("readImages", "done training");
 
     }
 
@@ -250,7 +256,7 @@ public class TensorFlowImageClassifier implements Classifier {
     int name;
 
     Bitmap bmp = BitmapFactory.decodeFile(fpath);
-    Log.d("readImages", "Read image");
+  //  Log.d("readImages", "Read image");
     bmp = bmp.copy(Bitmap.Config.ARGB_8888, true);
 //    width = bmp.getWidth();
 //    height = bmp.getHeight();
@@ -259,7 +265,7 @@ public class TensorFlowImageClassifier implements Classifier {
     intArray = new int[bmp.getWidth() * bmp.getHeight()];
     bmpFloatArray = new float[bmp.getWidth() * bmp.getHeight()];
     bmp.getPixels(intArray, 0, bmp.getWidth(), 0, 0, bmp.getWidth(), bmp.getHeight());
-    Log.d("readImages", "Init array");
+  //  Log.d("readImages", "Init array");
 
     floatArray = new float[intArray.length * 3];
     for (int i = 0; i < intArray.length; i++)
@@ -281,7 +287,7 @@ public class TensorFlowImageClassifier implements Classifier {
 
   private float[] readLabels(int idx_i, int idx_j, int batch) {
     // i and j are corresponding to the i and j from the outer loop
-    String fpath = Environment.getExternalStorageDirectory() + "/cifar/new.csv";
+    String fpath = Environment.getExternalStorageDirectory() + "/label_number.csv";
     String csvFile = fpath;
     BufferedReader br = null;
     String line = "";
@@ -294,13 +300,12 @@ public class TensorFlowImageClassifier implements Classifier {
       while ((line = br.readLine()) != null) {
         // use comma as separator
         labels_str = line.split(cvsSplitBy);
-        System.out.println(labels_str.length);
-        System.out.println("labels_str [code= " + labels_str[3] + " , name=" + labels_str[4] + "]");
-        System.out.println(labels_str.length);
+     //   System.out.println(labels_str.length);
+     //   System.out.println("labels_str [code= " + labels_str[3] + " , name=" + labels_str[4] + "]");
+     //   System.out.println(labels_str.length);
      //   labels_float = new float[labels_str.length];
 
           labels_float[idx_j] = Float.parseFloat(labels_str[idx_i * batch + idx_j]);
-
       }
 
     } catch (FileNotFoundException e) {
@@ -317,7 +322,7 @@ public class TensorFlowImageClassifier implements Classifier {
       }
     }
 
-    System.out.println(Arrays.toString(labels_float));
+  //  System.out.println(Arrays.toString(labels_float));
     return labels_float;
   }
   /*
@@ -432,9 +437,9 @@ public class TensorFlowImageClassifier implements Classifier {
     // Assign image array to input
 //    inputSignals = readImages();
 
-//    for ( int i = 0; i < inputSize * batch; i ++) {
-//      inputSignals[i] = (float) Math.random();
-//    }
+    for ( int i = 0; i < inputSize * batch; i ++) {
+      inputSignals[i] = (float) Math.random();
+    }
 
     Log.d(TAG, "Classifier::filled array");
 
@@ -442,7 +447,7 @@ public class TensorFlowImageClassifier implements Classifier {
       outSignals[i] = (float) Math.random();
     }
     reportTime("End filling array");
-   // inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
+    inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
     reportTime("init_all_vars_op");
     Log.d(TAG, "Classifier::variables initialization");
 
@@ -500,7 +505,7 @@ public class TensorFlowImageClassifier implements Classifier {
       float[] resu = new float[1];
 //      inferenceInterface.fetch("loss", resu);
       inferenceInterface.fetch("loss", resu);
-      Log.d(TAG, "The loss of " + i + " iteration is " + resu[0]);
+//      Log.d(TAG, "The loss of " + i + " iteration is " + resu[0]);
 
       Trace.endSection();
 /*
@@ -514,15 +519,14 @@ public class TensorFlowImageClassifier implements Classifier {
 
       //  Log.d(TAG, "feed y");
 
-      reportTime("training start:\t" + "iteration\t" + i);
+    //  reportTime("training start dummy:\t" + "iteration\t" + i);
       inferenceInterface.runTarget(new String[]{"train"});
-      reportTime("training end:\t" + "iteration\t" + i);
+    //  reportTime("training end dummy:\t" + "iteration\t" + i);
 
     }
+   /*Write to a file for plotting */
 
-    /*Write to a file for plotting */
-
-    writeToSDFile("hello");
+    writeToSDFile("Hello!!");
 
     // Find the best classifications.
     PriorityQueue<Recognition> pq =
