@@ -89,4 +89,5 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 tensorflow/examples/android/gradleBuild/
-tensorflow/examples/android/assets/tensorflow_inception_graph.pb
+#tensorflow/examples/android/assets/tensorflow_inception_graph.pb
+

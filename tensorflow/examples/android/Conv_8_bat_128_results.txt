@@ -1,0 +1,34 @@
+Time elapsed:	1509483703198		training start:	iteration	0	
+Time elapsed:	25224		training ends:	iteration	0	
+Time elapsed:	312		feed label	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_64.pb" 1 ends
+Time elapsed:	1509483787987		training start:	iteration	0	
+Time elapsed:	23842		training ends:	iteration	0	
+Time elapsed:	350		feed label	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_64.pb" 2 ends
+Time elapsed:	1509483881353		training start:	iteration	0	
+Time elapsed:	24081		training ends:	iteration	0	
+Time elapsed:	349		feed label	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_64.pb" 3 ends
+Time elapsed:	1509484021714		training start:	iteration	0	
+Time elapsed:	67785		training ends:	iteration	0	
+Time elapsed:	369		feed label	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_128.pb" 1 ends
+Time elapsed:	1509484223881		training start:	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_128.pb" 2 ends
+Time elapsed:	1509484291545		training start:	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_128.pb" 3 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_8_bat_128_w_256.pb" 1 ends
+Time elapsed:	1509484507648		training start:	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_256.pb" 2 ends
+Time elapsed:	1509484657678		training start:	iteration	0	
+Time elapsed:	225242		training ends:	iteration	0	
+Time elapsed:	668		feed label	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_256.pb" 3 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_8_bat_128_w_512.pb" 1 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_8_bat_128_w_512.pb" 2 ends
+Time elapsed:	1509485959421		training start:	iteration	0	
+run "file:///android_asset/graph_conv_8_bat_128_w_512.pb" 3 ends

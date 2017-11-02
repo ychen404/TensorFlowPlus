@@ -1,0 +1,252 @@
+Time elapsed:	1509090080566		training start:	iteration	0	
+Time elapsed:	228		training ends:	iteration	0	
+Time elapsed:	82		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_64.pb" 1 ends
+Time elapsed:	1509090099666		training start:	iteration	0	
+Time elapsed:	217		training ends:	iteration	0	
+Time elapsed:	100		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_64.pb" 2 ends
+Time elapsed:	1509090119233		training start:	iteration	0	
+Time elapsed:	228		training ends:	iteration	0	
+Time elapsed:	81		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_64.pb" 3 ends
+Time elapsed:	1509090163834		training start:	iteration	0	
+Time elapsed:	233		training ends:	iteration	0	
+Time elapsed:	83		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_128.pb" 1 ends
+Time elapsed:	1509090183662		training start:	iteration	0	
+Time elapsed:	239		training ends:	iteration	0	
+Time elapsed:	97		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_128.pb" 2 ends
+Time elapsed:	1509090202984		training start:	iteration	0	
+Time elapsed:	234		training ends:	iteration	0	
+Time elapsed:	104		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_128.pb" 3 ends
+Time elapsed:	1509090250242		training start:	iteration	0	
+Time elapsed:	269		training ends:	iteration	0	
+Time elapsed:	91		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_256.pb" 1 ends
+Time elapsed:	1509090269733		training start:	iteration	0	
+Time elapsed:	251		training ends:	iteration	0	
+Time elapsed:	91		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_256.pb" 2 ends
+Time elapsed:	1509090289054		training start:	iteration	0	
+Time elapsed:	228		training ends:	iteration	0	
+Time elapsed:	92		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_256.pb" 3 ends
+Time elapsed:	1509090337932		training start:	iteration	0	
+Time elapsed:	275		training ends:	iteration	0	
+Time elapsed:	97		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_512.pb" 1 ends
+Time elapsed:	1509090356864		training start:	iteration	0	
+Time elapsed:	286		training ends:	iteration	0	
+Time elapsed:	93		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_512.pb" 2 ends
+Time elapsed:	1509090376463		training start:	iteration	0	
+Time elapsed:	227		training ends:	iteration	0	
+Time elapsed:	94		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_512.pb" 3 ends
+Time elapsed:	1509090424255		training start:	iteration	0	
+Time elapsed:	219		training ends:	iteration	0	
+Time elapsed:	94		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_1024.pb" 1 ends
+Time elapsed:	1509090444903		training start:	iteration	0	
+Time elapsed:	291		training ends:	iteration	0	
+Time elapsed:	114		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_1024.pb" 2 ends
+Time elapsed:	1509090464533		training start:	iteration	0	
+Time elapsed:	300		training ends:	iteration	0	
+Time elapsed:	122		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_1024.pb" 3 ends
+Time elapsed:	1509090511257		training start:	iteration	0	
+Time elapsed:	244		training ends:	iteration	0	
+Time elapsed:	97		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_2048.pb" 1 ends
+Time elapsed:	1509090531949		training start:	iteration	0	
+Time elapsed:	288		training ends:	iteration	0	
+Time elapsed:	109		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_2048.pb" 2 ends
+Time elapsed:	1509090551536		training start:	iteration	0	
+Time elapsed:	330		training ends:	iteration	0	
+Time elapsed:	105		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_2048.pb" 3 ends
+Time elapsed:	1509090600634		training start:	iteration	0	
+Time elapsed:	376		training ends:	iteration	0	
+Time elapsed:	109		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_4096.pb" 1 ends
+Time elapsed:	1509090620328		training start:	iteration	0	
+Time elapsed:	339		training ends:	iteration	0	
+Time elapsed:	106		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_4096.pb" 2 ends
+Time elapsed:	1509090640418		training start:	iteration	0	
+Time elapsed:	336		training ends:	iteration	0	
+Time elapsed:	152		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_1_bat_64_w_4096.pb" 3 ends
+Time elapsed:	1509090690865		training start:	iteration	0	
+Time elapsed:	1288		training ends:	iteration	0	
+Time elapsed:	140		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_64.pb" 1 ends
+Time elapsed:	1509090710786		training start:	iteration	0	
+Time elapsed:	1283		training ends:	iteration	0	
+Time elapsed:	113		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_64.pb" 2 ends
+Time elapsed:	1509090730349		training start:	iteration	0	
+Time elapsed:	1265		training ends:	iteration	0	
+Time elapsed:	131		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_64.pb" 3 ends
+Time elapsed:	1509090783275		training start:	iteration	0	
+Time elapsed:	1270		training ends:	iteration	0	
+Time elapsed:	109		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_128.pb" 1 ends
+Time elapsed:	1509090802954		training start:	iteration	0	
+Time elapsed:	1282		training ends:	iteration	0	
+Time elapsed:	134		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_128.pb" 2 ends
+Time elapsed:	1509090825163		training start:	iteration	0	
+Time elapsed:	1786		training ends:	iteration	0	
+Time elapsed:	149		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_128.pb" 3 ends
+Time elapsed:	1509090874666		training start:	iteration	0	
+Time elapsed:	1289		training ends:	iteration	0	
+Time elapsed:	117		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_256.pb" 1 ends
+Time elapsed:	1509090896366		training start:	iteration	0	
+Time elapsed:	1821		training ends:	iteration	0	
+Time elapsed:	173		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_256.pb" 2 ends
+Time elapsed:	1509090916634		training start:	iteration	0	
+Time elapsed:	1802		training ends:	iteration	0	
+Time elapsed:	194		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_256.pb" 3 ends
+Time elapsed:	1509090971217		training start:	iteration	0	
+Time elapsed:	1765		training ends:	iteration	0	
+Time elapsed:	137		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_512.pb" 1 ends
+Time elapsed:	1509090991373		training start:	iteration	0	
+Time elapsed:	1826		training ends:	iteration	0	
+Time elapsed:	159		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_512.pb" 2 ends
+Time elapsed:	1509091011876		training start:	iteration	0	
+Time elapsed:	1783		training ends:	iteration	0	
+Time elapsed:	171		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_512.pb" 3 ends
+Time elapsed:	1509091066178		training start:	iteration	0	
+Time elapsed:	1797		training ends:	iteration	0	
+Time elapsed:	156		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_1024.pb" 1 ends
+Time elapsed:	1509091086404		training start:	iteration	0	
+Time elapsed:	1794		training ends:	iteration	0	
+Time elapsed:	142		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_1024.pb" 2 ends
+Time elapsed:	1509091106483		training start:	iteration	0	
+Time elapsed:	1792		training ends:	iteration	0	
+Time elapsed:	168		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_1024.pb" 3 ends
+Time elapsed:	1509091162779		training start:	iteration	0	
+Time elapsed:	1867		training ends:	iteration	0	
+Time elapsed:	159		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_2048.pb" 1 ends
+Time elapsed:	1509091183171		training start:	iteration	0	
+Time elapsed:	1886		training ends:	iteration	0	
+Time elapsed:	168		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_2048.pb" 2 ends
+Time elapsed:	1509091203166		training start:	iteration	0	
+Time elapsed:	1874		training ends:	iteration	0	
+Time elapsed:	171		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_2048.pb" 3 ends
+Time elapsed:	1509091258362		training start:	iteration	0	
+Time elapsed:	1872		training ends:	iteration	0	
+Time elapsed:	143		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_4096.pb" 1 ends
+Time elapsed:	1509091278827		training start:	iteration	0	
+Time elapsed:	1894		training ends:	iteration	0	
+Time elapsed:	151		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_4096.pb" 2 ends
+Time elapsed:	1509091299145		training start:	iteration	0	
+Time elapsed:	1823		training ends:	iteration	0	
+Time elapsed:	155		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_64_w_4096.pb" 3 ends
+Time elapsed:	1509091356590		training start:	iteration	0	
+Time elapsed:	3632		training ends:	iteration	0	
+Time elapsed:	148		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_64.pb" 1 ends
+Time elapsed:	1509091387227		training start:	iteration	0	
+Time elapsed:	3643		training ends:	iteration	0	
+Time elapsed:	157		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_64.pb" 2 ends
+Time elapsed:	1509091417722		training start:	iteration	0	
+Time elapsed:	3667		training ends:	iteration	0	
+Time elapsed:	170		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_64.pb" 3 ends
+Time elapsed:	1509091483972		training start:	iteration	0	
+Time elapsed:	3598		training ends:	iteration	0	
+Time elapsed:	158		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_128.pb" 1 ends
+Time elapsed:	1509091504664		training start:	iteration	0	
+Time elapsed:	3647		training ends:	iteration	0	
+Time elapsed:	143		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_128.pb" 2 ends
+Time elapsed:	1509091535370		training start:	iteration	0	
+Time elapsed:	3653		training ends:	iteration	0	
+Time elapsed:	169		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_128.pb" 3 ends
+Time elapsed:	1509091599249		training start:	iteration	0	
+Time elapsed:	3625		training ends:	iteration	0	
+Time elapsed:	166		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_256.pb" 1 ends
+Time elapsed:	1509091629716		training start:	iteration	0	
+Time elapsed:	3598		training ends:	iteration	0	
+Time elapsed:	179		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_256.pb" 2 ends
+Time elapsed:	1509091660320		training start:	iteration	0	
+Time elapsed:	3669		training ends:	iteration	0	
+Time elapsed:	156		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_256.pb" 3 ends
+Time elapsed:	1509091727253		training start:	iteration	0	
+Time elapsed:	3613		training ends:	iteration	0	
+Time elapsed:	145		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_512.pb" 1 ends
+Time elapsed:	1509091757763		training start:	iteration	0	
+Time elapsed:	3663		training ends:	iteration	0	
+Time elapsed:	151		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_512.pb" 2 ends
+Time elapsed:	1509091788355		training start:	iteration	0	
+Time elapsed:	3665		training ends:	iteration	0	
+Time elapsed:	179		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_512.pb" 3 ends
+Time elapsed:	1509091853737		training start:	iteration	0	
+Time elapsed:	3579		training ends:	iteration	0	
+Time elapsed:	147		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_1024.pb" 1 ends
+Time elapsed:	1509091884278		training start:	iteration	0	
+Time elapsed:	3645		training ends:	iteration	0	
+Time elapsed:	187		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_1024.pb" 2 ends
+Time elapsed:	1509091915046		training start:	iteration	0	
+Time elapsed:	3640		training ends:	iteration	0	
+Time elapsed:	185		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_1024.pb" 3 ends
+Time elapsed:	1509091982937		training start:	iteration	0	
+Time elapsed:	3650		training ends:	iteration	0	
+Time elapsed:	146		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_2048.pb" 1 ends
+Time elapsed:	1509092013553		training start:	iteration	0	
+Time elapsed:	3605		training ends:	iteration	0	
+Time elapsed:	227		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_2048.pb" 2 ends
+Time elapsed:	1509092044115		training start:	iteration	0	
+Time elapsed:	3748		training ends:	iteration	0	
+Time elapsed:	196		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_2048.pb" 3 ends
+Time elapsed:	1509092108891		training start:	iteration	0	
+Time elapsed:	3685		training ends:	iteration	0	
+Time elapsed:	191		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_4096.pb" 1 ends
+Time elapsed:	1509092139329		training start:	iteration	0	
+Time elapsed:	3731		training ends:	iteration	0	
+Time elapsed:	167		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_4096.pb" 2 ends
+Time elapsed:	1509092170056		training start:	iteration	0	
+Time elapsed:	3774		training ends:	iteration	0	
+Time elapsed:	187		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_4096.pb" 3 ends

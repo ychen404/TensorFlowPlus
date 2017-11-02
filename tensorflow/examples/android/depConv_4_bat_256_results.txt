@@ -1,0 +1,18 @@
+Time elapsed:	1509341068958		training start:	iteration	0	
+Time elapsed:	1509387419366		training start:	iteration	0	
+Time elapsed:	1509387756251		training start:	iteration	0	
+Time elapsed:	1509388466320		training start:	iteration	0	
+Time elapsed:	9113		training ends:	iteration	0	
+Time elapsed:	483		feed label	iteration	0	
+Time elapsed:	1509388539075		training start:	iteration	0	
+Time elapsed:	9921		training ends:	iteration	0	
+Time elapsed:	415		feed label	iteration	0	
+Time elapsed:	1509388607307		training start:	iteration	0	
+Time elapsed:	10500		training ends:	iteration	0	
+Time elapsed:	445		feed label	iteration	0	
+Time elapsed:	1509388811813		training start:	iteration	0	
+Time elapsed:	1509388963108		training start:	iteration	0	
+Time elapsed:	1509389928467		training start:	iteration	0	
+Time elapsed:	3234		training ends:	iteration	0	
+Time elapsed:	352		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_4_bat_256_w_256.pb" 1 ends

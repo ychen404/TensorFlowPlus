@@ -1,0 +1,94 @@
+Time elapsed:	1509389971462		training start:	iteration	0	
+Time elapsed:	3578		training ends:	iteration	0	
+Time elapsed:	392		feed label	iteration	0	
+Time elapsed:	1509390238678		training start:	iteration	0	
+Time elapsed:	1509393712205		training start:	iteration	0	
+Time elapsed:	1509393871352		training start:	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_64.pb" 1 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_1_bat_64_w_64.pb" 2 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_1_bat_64_w_64.pb" 3 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_1_bat_64_w_128.pb" 1 ends
+Time elapsed:	1509397858589		training start:	iteration	0	
+Time elapsed:	231		training ends:	iteration	0	
+Time elapsed:	82		feed label	iteration	0	
+Time elapsed:	1509397961062		training start:	iteration	0	
+Time elapsed:	265		training ends:	iteration	0	
+Time elapsed:	80		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_64.pb" 1 ends
+Time elapsed:	1509397980498		training start:	iteration	0	
+Time elapsed:	208		training ends:	iteration	0	
+Time elapsed:	76		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_64.pb" 2 ends
+Time elapsed:	1509397999511		training start:	iteration	0	
+Time elapsed:	214		training ends:	iteration	0	
+Time elapsed:	77		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_64.pb" 3 ends
+Time elapsed:	1509398051690		training start:	iteration	0	
+Time elapsed:	363		training ends:	iteration	0	
+Time elapsed:	76		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_128.pb" 1 ends
+Time elapsed:	1509398070932		training start:	iteration	0	
+Time elapsed:	290		training ends:	iteration	0	
+Time elapsed:	76		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_128.pb" 2 ends
+Time elapsed:	1509398090381		training start:	iteration	0	
+Time elapsed:	286		training ends:	iteration	0	
+Time elapsed:	76		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_128.pb" 3 ends
+Time elapsed:	1509398137074		training start:	iteration	0	
+Time elapsed:	543		training ends:	iteration	0	
+Time elapsed:	79		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_256.pb" 1 ends
+Time elapsed:	1509398156845		training start:	iteration	0	
+Time elapsed:	572		training ends:	iteration	0	
+Time elapsed:	84		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_256.pb" 2 ends
+Time elapsed:	1509398176323		training start:	iteration	0	
+Time elapsed:	573		training ends:	iteration	0	
+Time elapsed:	83		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_256.pb" 3 ends
+Time elapsed:	1509398224575		training start:	iteration	0	
+Time elapsed:	1117		training ends:	iteration	0	
+Time elapsed:	85		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_512.pb" 1 ends
+Time elapsed:	1509398243802		training start:	iteration	0	
+Time elapsed:	1162		training ends:	iteration	0	
+Time elapsed:	89		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_512.pb" 2 ends
+Time elapsed:	1509398263661		training start:	iteration	0	
+Time elapsed:	1114		training ends:	iteration	0	
+Time elapsed:	85		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_512.pb" 3 ends
+Time elapsed:	1509398310608		training start:	iteration	0	
+Time elapsed:	2075		training ends:	iteration	0	
+Time elapsed:	89		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_1024.pb" 1 ends
+Time elapsed:	1509398331274		training start:	iteration	0	
+Time elapsed:	2371		training ends:	iteration	0	
+Time elapsed:	116		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_1024.pb" 2 ends
+Time elapsed:	1509398350840		training start:	iteration	0	
+Time elapsed:	2404		training ends:	iteration	0	
+Time elapsed:	111		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_1024.pb" 3 ends
+Time elapsed:	1509398401964		training start:	iteration	0	
+Time elapsed:	4824		training ends:	iteration	0	
+Time elapsed:	127		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_2048.pb" 1 ends
+Time elapsed:	1509398434728		training start:	iteration	0	
+Time elapsed:	7284		training ends:	iteration	0	
+Time elapsed:	166		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_2048.pb" 2 ends
+Time elapsed:	1509398476220		training start:	iteration	0	
+Time elapsed:	6636		training ends:	iteration	0	
+Time elapsed:	160		feed label	iteration	0	
+run "file:///android_asset/graph_conv_1_bat_64_w_2048.pb" 3 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_1_bat_64_w_4096.pb" 1 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_1_bat_64_w_4096.pb" 2 ends
+/system/bin/sh: cat: /sdcard/measurements/myData.txt: No such file or directory
+run "file:///android_asset/graph_conv_1_bat_64_w_4096.pb" 3 ends

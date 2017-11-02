@@ -1,0 +1,48 @@
+--------- beginning of system
+10-26 23:34:09.932   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+--------- beginning of main
+10-26 23:34:30.688 25902 24946 V NativeCrypto: Read error: ssl=0x9b5a2200: I/O error during system call, Connection reset by peer
+10-26 23:34:30.691 25902 24946 V NativeCrypto: SSL shutdown failed: ssl=0x9b5a2200: I/O error during system call, Broken pipe
+10-26 23:34:30.693   881 27723 D ConnectivityService: reportNetworkConnectivity(100, false) by 10010
+10-26 23:34:30.693   881  2789 D NetworkMonitor/NetworkAgentInfo [WIFI () - 100]: Forcing reevaluation for UID 10010
+10-26 23:34:30.708   881  2789 D NetworkMonitor/NetworkAgentInfo [WIFI () - 100]: Checking http://connectivitycheck.gstatic.com/generate_204 on "asu", connectivitycheck.gstatic.com=172.217.11.67
+10-26 23:34:30.745   881  2789 D NetworkMonitor/NetworkAgentInfo [WIFI () - 100]: isCaptivePortal: ret=204 headers={null=[HTTP/1.1 204 No Content], Content-Length=[0], Date=[Fri, 27 Oct 2017 03:34:31 GMT], X-Android-Received-Millis=[1509075270743], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1509075270727]}
+10-26 23:34:30.747   881   989 D ConnectivityService: setProvNotificationVisibleIntent null visible=false networkType=MOBILE extraInfo=null highPriority=false
+10-26 23:34:30.749   881   989 D ConnectivityService: NetworkAgentInfo [WIFI () - 100] validation  passed
+10-26 23:34:35.697   881  2791 D NetlinkSocketObserver: NeighborEvent{elapsedMs=246496345, 10.152.64.1, [2C36F8D38C00], RTM_NEWNEIGH, NUD_REACHABLE}
+10-26 23:34:53.597   881  2791 D NetlinkSocketObserver: NeighborEvent{elapsedMs=246514245, 10.152.64.1, [2C36F8D38C00], RTM_NEWNEIGH, NUD_STALE}
+10-26 23:36:46.914   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:36:49.942   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:36:52.962   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:37:32.221   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:37:33.020 26593 26607 I Process : Sending signal. PID: 26593 SIG: 9
+10-26 23:37:33.061 25965 25965 I Keyboard.Facilitator: onFinishInput()
+10-26 23:37:33.088 25928 25928 W LocationOracleImpl: Best location was null
+10-26 23:37:33.136 25928 31050 I MicroRecognitionRnrImpl: Starting detection.
+10-26 23:37:33.137 25928 31063 I MicrophoneInputStream: mic_starting com.google.android.apps.gsa.speech.audio.x@e6b6deb
+10-26 23:37:33.139   290 31071 I AudioFlinger: AudioFlinger's thread 0xb2440000 ready to run
+10-26 23:37:33.144 25928 31063 I MicrophoneInputStream: mic_started com.google.android.apps.gsa.speech.audio.x@e6b6deb
+10-26 23:37:33.153   881   891 D GraphicsStats: Buffer count: 4
+10-26 23:37:33.154   290 31071 D audio_hw_primary: select_devices: out_snd_device(0: none) in_snd_device(61: voice-rec-mic)
+10-26 23:37:33.154   290 31071 D msm8974_platform: platform_send_audio_calibration: sending audio calibration for snd_device(61) acdb_id(62)
+10-26 23:37:33.154   290 31071 D         : Failed to fetch the lookup information of the device 0000003E 
+10-26 23:37:33.154   290 31071 E ACDB-LOADER: Error: ACDB AudProc vol returned = -19
+10-26 23:37:33.154   290 31071 D audio_hw_primary: enable_snd_device: snd_device(61: voice-rec-mic)
+10-26 23:37:33.158   290 31071 D audio_hw_primary: enable_audio_route: apply and update mixer path: audio-record
+10-26 23:37:33.198   881   892 I ActivityManager: Process org.tensorflow.demo (pid 26593) has died
+10-26 23:37:33.202 25941 26072 W GCoreFlp: No location to return for getLastLocation()
+10-26 23:37:33.202   881   899 W AppOps  : Finishing op nesting under-run: uid 1000 pkg android code 24 time=0 duration=0 nesting=0
+10-26 23:37:33.214 25941 26072 W GCoreFlp: No location to return for getLastLocation()
+10-26 23:37:33.220 25941 26072 W GCoreFlp: No location to return for getLastLocation()
+10-26 23:37:33.224 25928 25928 E LocationReceiver: Received bad location: null
+10-26 23:37:33.228 25941 26072 D GCoreFlp: FLP HAL exists but batch size is <= 0.  Disabling FLP HAL.
+10-26 23:37:33.231 25941 26072 W GCoreFlp: No location to return for getLastLocation()
+10-26 23:37:33.235 25928 25928 E LocationReceiver: Received bad location: null
+10-26 23:37:33.243 25928 25928 I HotwordWorkerImpl: onReady
+10-26 23:37:47.366   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:37:53.442   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:38:05.582   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:38:08.629   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:38:11.679   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:38:17.762   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]
+10-26 23:38:20.815   881   989 D ConnectivityService: notifyType CAP_CHANGED for NetworkAgentInfo [WIFI () - 100]

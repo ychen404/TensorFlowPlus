@@ -1,0 +1,24 @@
+Time elapsed:	1509077755148		training start:	iteration	0	
+Time elapsed:	46		training ends:	iteration	0	
+Time elapsed:	23		feed label	iteration	0	
+run "file:///android_asset/graph_fc_1_bat_8_w_64.pb" 1 ends
+Time elapsed:	1509077774348		training start:	iteration	0	
+Time elapsed:	39		training ends:	iteration	0	
+Time elapsed:	30		feed label	iteration	0	
+run "file:///android_asset/graph_fc_1_bat_8_w_64.pb" 2 ends
+Time elapsed:	1509077793704		training start:	iteration	0	
+Time elapsed:	29		training ends:	iteration	0	
+Time elapsed:	33		feed label	iteration	0	
+run "file:///android_asset/graph_fc_1_bat_8_w_64.pb" 3 ends
+Time elapsed:	1509077840194		training start:	iteration	0	
+Time elapsed:	33		training ends:	iteration	0	
+Time elapsed:	43		feed label	iteration	0	
+run "file:///android_asset/graph_fc_2_bat_8_w_64.pb" 1 ends
+Time elapsed:	1509077859348		training start:	iteration	0	
+Time elapsed:	44		training ends:	iteration	0	
+Time elapsed:	41		feed label	iteration	0	
+run "file:///android_asset/graph_fc_2_bat_8_w_64.pb" 2 ends
+Time elapsed:	1509077878588		training start:	iteration	0	
+Time elapsed:	30		training ends:	iteration	0	
+Time elapsed:	38		feed label	iteration	0	
+run "file:///android_asset/graph_fc_2_bat_8_w_64.pb" 3 ends

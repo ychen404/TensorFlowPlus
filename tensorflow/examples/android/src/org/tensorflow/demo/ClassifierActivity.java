@@ -58,7 +58,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
 
 //  private static final String MODEL_FILE = "file:///android_asset/graph_fc_2_bat_4_64.pb";
-private static final String MODEL_FILE = "file:///android_asset/graph_fc_2_bat_256_w_256.pb";
+private static final String MODEL_FILE = "file:///android_asset/graph_conv_8_bat_128_w_512.pb";
 
 //  private static final String MODEL_FILE = "file:///android_asset/graph_saman.pb";
 

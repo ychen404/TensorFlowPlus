@@ -1,0 +1,39 @@
+Time elapsed:	1509338754573		training start:	iteration	0	
+Time elapsed:	1509339827356		training start:	iteration	0	
+Time elapsed:	1509340027492		training start:	iteration	0	
+Time elapsed:	1509340441181		training start:	iteration	0	
+Time elapsed:	2894		training ends:	iteration	0	
+Time elapsed:	113		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_64.pb" 1 ends
+Time elapsed:	1509340474381		training start:	iteration	0	
+Time elapsed:	3909		training ends:	iteration	0	
+Time elapsed:	149		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_64.pb" 2 ends
+Time elapsed:	1509340510126		training start:	iteration	0	
+Time elapsed:	3958		training ends:	iteration	0	
+Time elapsed:	156		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_64.pb" 3 ends
+Time elapsed:	1509340575493		training start:	iteration	0	
+Time elapsed:	6192		training ends:	iteration	0	
+Time elapsed:	131		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_128.pb" 1 ends
+Time elapsed:	1509340619369		training start:	iteration	0	
+Time elapsed:	8492		training ends:	iteration	0	
+Time elapsed:	168		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_128.pb" 2 ends
+Time elapsed:	1509340665742		training start:	iteration	0	
+Time elapsed:	8467		training ends:	iteration	0	
+Time elapsed:	168		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_128.pb" 3 ends
+Time elapsed:	1509340745361		training start:	iteration	0	
+Time elapsed:	29258		training ends:	iteration	0	
+Time elapsed:	220		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_256.pb" 1 ends
+Time elapsed:	1509340843252		training start:	iteration	0	
+Time elapsed:	24060		training ends:	iteration	0	
+Time elapsed:	229		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_256.pb" 2 ends
+Time elapsed:	1509340930563		training start:	iteration	0	
+Time elapsed:	23725		training ends:	iteration	0	
+Time elapsed:	215		feed label	iteration	0	
+run "file:///android_asset/graph_conv_depth_8_bat_64_w_256.pb" 3 ends

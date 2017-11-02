@@ -4257,6 +4257,7 @@ filegroup(
         "deep_conv2d.cc",
         "deep_conv2d.h",
         "depthwise_conv_op.cc",
+	"depthwise_conv_grad_op.cc",
         "dynamic_partition_op.cc",
         "fake_quant_ops.cc",
         "fifo_queue.cc",

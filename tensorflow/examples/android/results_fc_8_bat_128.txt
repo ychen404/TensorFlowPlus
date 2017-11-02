@@ -1,0 +1,147 @@
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832594759		training start:	iteration	0	
+Time elapsed:	85		training ends:	iteration	0	
+End an iteration
+Time elapsed:	221		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832612044		training start:	iteration	0	
+Time elapsed:	67		training ends:	iteration	0	
+End an iteration
+Time elapsed:	229		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832631775		training start:	iteration	0	
+Time elapsed:	98		training ends:	iteration	0	
+End an iteration
+Time elapsed:	249		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832680978		training start:	iteration	0	
+Time elapsed:	120		training ends:	iteration	0	
+End an iteration
+Time elapsed:	300		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832698543		training start:	iteration	0	
+Time elapsed:	121		training ends:	iteration	0	
+End an iteration
+Time elapsed:	348		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832716008		training start:	iteration	0	
+Time elapsed:	132		training ends:	iteration	0	
+End an iteration
+Time elapsed:	286		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832767700		training start:	iteration	0	
+Time elapsed:	190		training ends:	iteration	0	
+End an iteration
+Time elapsed:	304		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832787744		training start:	iteration	0	
+Time elapsed:	225		training ends:	iteration	0	
+End an iteration
+Time elapsed:	397		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832817248		training start:	iteration	0	
+Time elapsed:	226		training ends:	iteration	0	
+End an iteration
+Time elapsed:	414		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832874602		training start:	iteration	0	
+Time elapsed:	373		training ends:	iteration	0	
+End an iteration
+Time elapsed:	448		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832895758		training start:	iteration	0	
+Time elapsed:	455		training ends:	iteration	0	
+End an iteration
+Time elapsed:	591		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832924717		training start:	iteration	0	
+Time elapsed:	466		training ends:	iteration	0	
+End an iteration
+Time elapsed:	594		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508832988054		training start:	iteration	0	
+Time elapsed:	1061		training ends:	iteration	0	
+End an iteration
+Time elapsed:	1146		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508833021365		training start:	iteration	0	
+Time elapsed:	1093		training ends:	iteration	0	
+End an iteration
+Time elapsed:	1047		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508833054908		training start:	iteration	0	
+Time elapsed:	1077		training ends:	iteration	0	
+End an iteration
+Time elapsed:	1050		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508833125088		training start:	iteration	0	
+Time elapsed:	2843		training ends:	iteration	0	
+End an iteration
+Time elapsed:	2815		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508833163650		training start:	iteration	0	
+Time elapsed:	2882		training ends:	iteration	0	
+End an iteration
+Time elapsed:	2907		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508833202946		training start:	iteration	0	
+Time elapsed:	2997		training ends:	iteration	0	
+End an iteration
+Time elapsed:	2914		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508833286745		training start:	iteration	0	
+Time elapsed:	9162		training ends:	iteration	0	
+End an iteration
+Time elapsed:	10213		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508833356324		training start:	iteration	0	
+Time elapsed:	9091		training ends:	iteration	0	
+End an iteration
+Time elapsed:	9547		feed label	iteration	0	
+Hello!!
+Start batch size of 128
+Start a new iteration
+Time elapsed:	1508833426754		training start:	iteration	0	
+Time elapsed:	9154		training ends:	iteration	0	
+End an iteration
+Time elapsed:	9549		feed label	iteration	0	
+Hello!!
