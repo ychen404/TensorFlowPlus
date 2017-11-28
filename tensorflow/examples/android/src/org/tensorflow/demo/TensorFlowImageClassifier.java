@@ -54,7 +54,7 @@ public class TensorFlowImageClassifier implements Classifier {
   private int inputSize;
   private int imageMean;
   private float imageStd;
-  private int batch = 128;
+  private int batch = 64;
   private int total_pic = 1024;
   //private int bat = 4; // temp variable for grouping as a batch
 
@@ -143,7 +143,7 @@ public class TensorFlowImageClassifier implements Classifier {
     c.imageMean = imageMean;
     c.imageStd = imageStd;
 
-    final int batch = 128;
+    final int batch = 64;
 
     // Pre-allocate buffers.
     Log.d(TAG, "Classifier::Pre-allocate buffers");

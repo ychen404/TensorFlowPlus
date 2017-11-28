@@ -58,7 +58,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
 
 
 //  private static final String MODEL_FILE = "file:///android_asset/graph_fc_2_bat_4_64.pb";
-private static final String MODEL_FILE = "file:///android_asset/graph_conv_8_bat_128_w_512.pb";
+private static final String MODEL_FILE = "file:///android_asset/graph_conv_4_bat_64_w_1024.pb";
 
 //  private static final String MODEL_FILE = "file:///android_asset/graph_saman.pb";
 
@@ -235,6 +235,7 @@ private static final String MODEL_FILE = "file:///android_asset/graph_conv_8_bat
                 final long startTime = SystemClock.uptimeMillis();
                 final List<Classifier.Recognition> results = classifier.recognizeImage(croppedBitmap);
                 lastProcessingTimeMs = SystemClock.uptimeMillis() - startTime;
+		Log.i("TF_ANDROID_LOG", "Path time: " + lastProcessingTimeMs + "ms");
 
                 cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
                 resultsView.setResults(results);
