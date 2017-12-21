@@ -11,7 +11,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6238b043-f18f-4fa5-b767-aef480faa091" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../cnn-cplusplus-TF" afterPath="$PROJECT_DIR$/../../cnn-cplusplus-TF" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h" afterPath="$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="android.iws" />
@@ -47,18 +46,10 @@
       <file leaf-file-name="TensorFlowImageClassifier.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2040">
-              <caret line="137" column="97" lean-forward="false" selection-start-line="137" selection-start-column="97" selection-end-line="137" selection-end-column="97" />
+            <state relative-caret-position="360">
+              <caret line="242" column="31" lean-forward="false" selection-start-line="242" selection-start-column="31" selection-end-line="242" selection-end-column="31" />
               <folding>
-                <element signature="e#0#19997#0" expanded="false" />
-                <element signature="imports" expanded="false" />
                 <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
-                <element signature="e#19789#19790#0" expanded="false" />
-                <element signature="e#19823#19824#0" expanded="false" />
-                <element signature="e#19870#19871#0" expanded="false" />
-                <element signature="e#19921#19922#0" expanded="false" />
-                <element signature="e#19958#19959#0" expanded="false" />
-                <element signature="e#19994#19995#0" expanded="false" />
                 <marker date="1511655488939" expanded="false" signature="18745:18758" ph="&lt;~&gt;" />
               </folding>
             </state>
@@ -68,24 +59,18 @@
       <file leaf-file-name="ClassifierActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
+            <state relative-caret-position="620">
               <caret line="53" column="51" lean-forward="false" selection-start-line="53" selection-start-column="51" selection-end-line="53" selection-end-column="51" />
-              <folding>
-                <element signature="e#5615#5788#0" expanded="true" />
-                <element signature="e#5787#5788#0" expanded="true" />
-                <element signature="e#7288#7900#0" expanded="true" />
-                <element signature="e#7899#7900#0" expanded="true" />
-                <element signature="e#8636#8644#0" expanded="true" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="rsConv.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="rsConv.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="9" column="78" lean-forward="true" selection-start-line="9" selection-start-column="78" selection-end-line="9" selection-end-column="78" />
+            <state relative-caret-position="280">
+              <caret line="14" column="30" lean-forward="false" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
               <folding />
             </state>
           </provider>
@@ -94,34 +79,36 @@
       <file leaf-file-name="TensorFlowInferenceInterface.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="42" column="17" lean-forward="false" selection-start-line="42" selection-start-column="17" selection-end-line="42" selection-end-column="17" />
+            <state relative-caret-position="599">
+              <caret line="499" column="19" lean-forward="true" selection-start-line="499" selection-start-column="19" selection-end-line="499" selection-end-column="19" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Session.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="439">
+              <caret line="373" column="53" lean-forward="true" selection-start-line="373" selection-start-column="53" selection-end-line="373" selection-end-column="53" />
               <folding>
-                <element signature="e#0#18570#0" expanded="false" />
-                <element signature="imports" expanded="false" />
-                <element signature="e#4176#4177#0" expanded="false" />
-                <element signature="e#4209#4210#0" expanded="false" />
-                <element signature="e#6489#6490#0" expanded="false" />
-                <element signature="e#6507#6508#0" expanded="false" />
-                <element signature="e#6912#6913#0" expanded="false" />
-                <element signature="e#6973#6974#0" expanded="false" />
-                <element signature="e#12237#12238#0" expanded="false" />
-                <element signature="e#12287#12288#0" expanded="false" />
-                <element signature="e#12609#12610#0" expanded="false" />
-                <element signature="e#12657#12658#0" expanded="false" />
-                <element signature="e#12982#12983#0" expanded="false" />
-                <element signature="e#13033#13034#0" expanded="false" />
-                <element signature="e#13356#13357#0" expanded="false" />
-                <element signature="e#13405#13406#0" expanded="false" />
-                <element signature="e#13799#13800#0" expanded="false" />
-                <element signature="e#13843#13844#0" expanded="false" />
-                <element signature="e#14235#14236#0" expanded="false" />
-                <element signature="e#14279#14280#0" expanded="false" />
-                <element signature="e#14674#14675#0" expanded="false" />
-                <element signature="e#14718#14719#0" expanded="false" />
-                <element signature="e#15111#15112#0" expanded="false" />
-                <element signature="e#15155#15156#0" expanded="false" />
+                <element signature="e#4723#4724#0" expanded="true" />
+                <element signature="e#4775#4776#0" expanded="true" />
+                <element signature="e#13020#13028#0" expanded="true" />
+                <element signature="e#13090#13098#0" expanded="true" />
+                <element signature="e#13155#13163#0" expanded="true" />
+                <element signature="e#13223#13234#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Tensor.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Tensor.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="620">
+              <caret line="65" column="71" lean-forward="true" selection-start-line="65" selection-start-column="71" selection-end-line="65" selection-end-column="71" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -1153,7 +1140,7 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="65" />
+    <option name="x" value="1985" />
     <option name="y" value="-4" />
     <option name="width" value="1855" />
     <option name="height" value="1084" />
@@ -1174,6 +1161,21 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="android">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -1238,7 +1240,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="AndroidView">
         <subPane>
           <PATH>
@@ -1253,20 +1254,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="android">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
       <pane id="Scratches" />
     </panes>
   </component>
@@ -1274,9 +1261,9 @@
     <property name="android.sdk.path" value="$USER_HOME$/Android/Sdk" />
     <property name="settings.editor.selected.configurable" value="android.sdk-updates" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/rsbookexamples/ExampleRGBAToGray" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="show.do.not.ask.upgrade.gradle.plugin" value="2.3.0" />
-    <property name="device.picker.selection" value="0621dc000060da0d" />
+    <property name="device.picker.selection" value="HT7AG1A03681" />
     <property name="android.project.structure.last.selected" value="SDK Location" />
     <property name="android.project.structure.proportion" value="0.15" />
     <property name="android.profiler.active" value="true" />
@@ -1376,7 +1363,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513193983697" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513896188403" />
       </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
@@ -1431,7 +1418,7 @@
       </Profilers>
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513193983697" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513896188404" />
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -1603,7 +1590,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513193983698" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1513896188405" />
       </method>
     </configuration>
     <list size="1">
@@ -1651,9 +1638,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
+    <frame x="1985" y="-4" width="1855" height="1084" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.32984293" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277487" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
@@ -1664,7 +1652,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19371727" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39581153" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4106583" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -1672,9 +1660,9 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.249309" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42258066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Device File Explorer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42258066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1715,15 +1703,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#19997#0" expanded="false" />
-            <element signature="imports" expanded="false" />
             <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
-            <element signature="e#19789#19790#0" expanded="false" />
-            <element signature="e#19823#19824#0" expanded="false" />
-            <element signature="e#19870#19871#0" expanded="false" />
-            <element signature="e#19921#19922#0" expanded="false" />
-            <element signature="e#19958#19959#0" expanded="false" />
-            <element signature="e#19994#19995#0" expanded="false" />
             <marker date="1511655488939" expanded="false" signature="18745:18758" ph="&lt;~&gt;" />
           </folding>
         </state>
@@ -1740,32 +1720,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3528">
           <caret line="234" column="14" lean-forward="false" selection-start-line="234" selection-start-column="14" selection-end-line="234" selection-end-column="14" />
-          <folding>
-            <element signature="e#0#18570#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#4176#4177#0" expanded="false" />
-            <element signature="e#4209#4210#0" expanded="false" />
-            <element signature="e#6489#6490#0" expanded="false" />
-            <element signature="e#6507#6508#0" expanded="false" />
-            <element signature="e#6912#6913#0" expanded="false" />
-            <element signature="e#6973#6974#0" expanded="false" />
-            <element signature="e#12237#12238#0" expanded="false" />
-            <element signature="e#12287#12288#0" expanded="false" />
-            <element signature="e#12609#12610#0" expanded="false" />
-            <element signature="e#12657#12658#0" expanded="false" />
-            <element signature="e#12982#12983#0" expanded="false" />
-            <element signature="e#13033#13034#0" expanded="false" />
-            <element signature="e#13356#13357#0" expanded="false" />
-            <element signature="e#13405#13406#0" expanded="false" />
-            <element signature="e#13799#13800#0" expanded="false" />
-            <element signature="e#13843#13844#0" expanded="false" />
-            <element signature="e#14235#14236#0" expanded="false" />
-            <element signature="e#14279#14280#0" expanded="false" />
-            <element signature="e#14674#14675#0" expanded="false" />
-            <element signature="e#14718#14719#0" expanded="false" />
-            <element signature="e#15111#15112#0" expanded="false" />
-            <element signature="e#15155#15156#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1823,15 +1778,7 @@
         <state relative-caret-position="5292">
           <caret line="294" column="26" lean-forward="false" selection-start-line="294" selection-start-column="15" selection-end-line="294" selection-end-column="26" />
           <folding>
-            <element signature="e#0#19997#0" expanded="false" />
-            <element signature="imports" expanded="false" />
             <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
-            <element signature="e#19789#19790#0" expanded="false" />
-            <element signature="e#19823#19824#0" expanded="false" />
-            <element signature="e#19870#19871#0" expanded="false" />
-            <element signature="e#19921#19922#0" expanded="false" />
-            <element signature="e#19958#19959#0" expanded="false" />
-            <element signature="e#19994#19995#0" expanded="false" />
             <marker date="1511655488939" expanded="false" signature="18745:18758" ph="&lt;~&gt;" />
           </folding>
         </state>
@@ -1848,32 +1795,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7794">
           <caret line="487" column="16" lean-forward="false" selection-start-line="487" selection-start-column="16" selection-end-line="487" selection-end-column="16" />
-          <folding>
-            <element signature="e#0#18570#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#4176#4177#0" expanded="false" />
-            <element signature="e#4209#4210#0" expanded="false" />
-            <element signature="e#6489#6490#0" expanded="false" />
-            <element signature="e#6507#6508#0" expanded="false" />
-            <element signature="e#6912#6913#0" expanded="false" />
-            <element signature="e#6973#6974#0" expanded="false" />
-            <element signature="e#12237#12238#0" expanded="false" />
-            <element signature="e#12287#12288#0" expanded="false" />
-            <element signature="e#12609#12610#0" expanded="false" />
-            <element signature="e#12657#12658#0" expanded="false" />
-            <element signature="e#12982#12983#0" expanded="false" />
-            <element signature="e#13033#13034#0" expanded="false" />
-            <element signature="e#13356#13357#0" expanded="false" />
-            <element signature="e#13405#13406#0" expanded="false" />
-            <element signature="e#13799#13800#0" expanded="false" />
-            <element signature="e#13843#13844#0" expanded="false" />
-            <element signature="e#14235#14236#0" expanded="false" />
-            <element signature="e#14279#14280#0" expanded="false" />
-            <element signature="e#14674#14675#0" expanded="false" />
-            <element signature="e#14718#14719#0" expanded="false" />
-            <element signature="e#15111#15112#0" expanded="false" />
-            <element signature="e#15155#15156#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1938,15 +1860,7 @@
         <state relative-caret-position="4014">
           <caret line="249" column="27" lean-forward="false" selection-start-line="249" selection-start-column="27" selection-end-line="249" selection-end-column="27" />
           <folding>
-            <element signature="e#0#19997#0" expanded="false" />
-            <element signature="imports" expanded="false" />
             <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
-            <element signature="e#19789#19790#0" expanded="false" />
-            <element signature="e#19823#19824#0" expanded="false" />
-            <element signature="e#19870#19871#0" expanded="false" />
-            <element signature="e#19921#19922#0" expanded="false" />
-            <element signature="e#19958#19959#0" expanded="false" />
-            <element signature="e#19994#19995#0" expanded="false" />
             <marker date="1511655488939" expanded="false" signature="18745:18758" ph="&lt;~&gt;" />
           </folding>
         </state>
@@ -1956,32 +1870,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2592">
           <caret line="178" column="37" lean-forward="false" selection-start-line="178" selection-start-column="37" selection-end-line="178" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#18570#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#4176#4177#0" expanded="false" />
-            <element signature="e#4209#4210#0" expanded="false" />
-            <element signature="e#6489#6490#0" expanded="false" />
-            <element signature="e#6507#6508#0" expanded="false" />
-            <element signature="e#6912#6913#0" expanded="false" />
-            <element signature="e#6973#6974#0" expanded="false" />
-            <element signature="e#12237#12238#0" expanded="false" />
-            <element signature="e#12287#12288#0" expanded="false" />
-            <element signature="e#12609#12610#0" expanded="false" />
-            <element signature="e#12657#12658#0" expanded="false" />
-            <element signature="e#12982#12983#0" expanded="false" />
-            <element signature="e#13033#13034#0" expanded="false" />
-            <element signature="e#13356#13357#0" expanded="false" />
-            <element signature="e#13405#13406#0" expanded="false" />
-            <element signature="e#13799#13800#0" expanded="false" />
-            <element signature="e#13843#13844#0" expanded="false" />
-            <element signature="e#14235#14236#0" expanded="false" />
-            <element signature="e#14279#14280#0" expanded="false" />
-            <element signature="e#14674#14675#0" expanded="false" />
-            <element signature="e#14718#14719#0" expanded="false" />
-            <element signature="e#15111#15112#0" expanded="false" />
-            <element signature="e#15155#15156#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2090,24 +1979,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2361">
-          <caret line="406" column="22" lean-forward="false" selection-start-line="406" selection-start-column="22" selection-end-line="406" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/nio/FloatBuffer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="205">
           <caret line="443" column="0" lean-forward="false" selection-start-line="443" selection-start-column="0" selection-end-line="443" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Tensor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="389" column="0" lean-forward="false" selection-start-line="389" selection-start-column="0" selection-end-line="389" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -2140,6 +2015,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
+      <provider editor-type-id="android-manifest">
+        <state />
+      </provider>
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="8" column="47" lean-forward="false" selection-start-line="8" selection-start-column="47" selection-end-line="8" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="160">
@@ -2150,88 +2036,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
+    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Tensor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="8" column="47" lean-forward="false" selection-start-line="8" selection-start-column="47" selection-end-line="8" selection-end-column="47" />
+        <state relative-caret-position="620">
+          <caret line="65" column="71" lean-forward="true" selection-start-line="65" selection-start-column="71" selection-end-line="65" selection-end-column="71" />
           <folding />
         </state>
-      </provider>
-      <provider editor-type-id="android-manifest">
-        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="42" column="17" lean-forward="false" selection-start-line="42" selection-start-column="17" selection-end-line="42" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#18570#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#4176#4177#0" expanded="false" />
-            <element signature="e#4209#4210#0" expanded="false" />
-            <element signature="e#6489#6490#0" expanded="false" />
-            <element signature="e#6507#6508#0" expanded="false" />
-            <element signature="e#6912#6913#0" expanded="false" />
-            <element signature="e#6973#6974#0" expanded="false" />
-            <element signature="e#12237#12238#0" expanded="false" />
-            <element signature="e#12287#12288#0" expanded="false" />
-            <element signature="e#12609#12610#0" expanded="false" />
-            <element signature="e#12657#12658#0" expanded="false" />
-            <element signature="e#12982#12983#0" expanded="false" />
-            <element signature="e#13033#13034#0" expanded="false" />
-            <element signature="e#13356#13357#0" expanded="false" />
-            <element signature="e#13405#13406#0" expanded="false" />
-            <element signature="e#13799#13800#0" expanded="false" />
-            <element signature="e#13843#13844#0" expanded="false" />
-            <element signature="e#14235#14236#0" expanded="false" />
-            <element signature="e#14279#14280#0" expanded="false" />
-            <element signature="e#14674#14675#0" expanded="false" />
-            <element signature="e#14718#14719#0" expanded="false" />
-            <element signature="e#15111#15112#0" expanded="false" />
-            <element signature="e#15155#15156#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2040">
-          <caret line="137" column="97" lean-forward="false" selection-start-line="137" selection-start-column="97" selection-end-line="137" selection-end-column="97" />
-          <folding>
-            <element signature="e#0#19997#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
-            <element signature="e#19789#19790#0" expanded="false" />
-            <element signature="e#19823#19824#0" expanded="false" />
-            <element signature="e#19870#19871#0" expanded="false" />
-            <element signature="e#19921#19922#0" expanded="false" />
-            <element signature="e#19958#19959#0" expanded="false" />
-            <element signature="e#19994#19995#0" expanded="false" />
-            <marker date="1511655488939" expanded="false" signature="18745:18758" ph="&lt;~&gt;" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="53" column="51" lean-forward="false" selection-start-line="53" selection-start-column="51" selection-end-line="53" selection-end-column="51" />
-          <folding>
-            <element signature="e#5615#5788#0" expanded="true" />
-            <element signature="e#5787#5788#0" expanded="true" />
-            <element signature="e#7288#7900#0" expanded="true" />
-            <element signature="e#7899#7900#0" expanded="true" />
-            <element signature="e#8636#8644#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="599">
+          <caret line="499" column="19" lean-forward="true" selection-start-line="499" selection-start-column="19" selection-end-line="499" selection-end-column="19" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="9" column="78" lean-forward="true" selection-start-line="9" selection-start-column="78" selection-end-line="9" selection-end-column="78" />
+        <state relative-caret-position="280">
+          <caret line="14" column="30" lean-forward="false" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="620">
+          <caret line="53" column="51" lean-forward="false" selection-start-line="53" selection-start-column="51" selection-end-line="53" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="242" column="31" lean-forward="false" selection-start-line="242" selection-start-column="31" selection-end-line="242" selection-end-column="31" />
+          <folding>
+            <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+            <marker date="1511655488939" expanded="false" signature="18745:18758" ph="&lt;~&gt;" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="439">
+          <caret line="373" column="53" lean-forward="true" selection-start-line="373" selection-start-column="53" selection-end-line="373" selection-end-column="53" />
+          <folding>
+            <element signature="e#4723#4724#0" expanded="true" />
+            <element signature="e#4775#4776#0" expanded="true" />
+            <element signature="e#13020#13028#0" expanded="true" />
+            <element signature="e#13090#13098#0" expanded="true" />
+            <element signature="e#13155#13163#0" expanded="true" />
+            <element signature="e#13223#13234#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
