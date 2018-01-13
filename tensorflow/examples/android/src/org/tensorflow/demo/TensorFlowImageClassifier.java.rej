@@ -1,0 +1,63 @@
+--- tensorflow/examples/android/src/org/tensorflow/demo/TensorFlowImageClassifier.java
++++ tensorflow/examples/android/src/org/tensorflow/demo/TensorFlowImageClassifier.java
+@@ -228,27 +228,26 @@ public class TensorFlowImageClassifier implements Classifier {
+     //    Log.d("readImages", "feed input");
+         inferenceInterface.feed("label", labels_float, batch);
+ //      inferenceInterface.feed("label", outSignals, batch);
++      reportTime("loss start:\t" + "iteration\t" + iter);
++      inferenceInterface.run(new String[]{"loss"}, logStats);
++      reportTime("loss end:\t" + "iteration\t" + iter);
+ 
+-        inferenceInterface.run(new String[]{"loss"}, logStats);
+-
+-        float[] resu = new float[1];
++      float[] resu = new float[1];
+ //      inferenceInterface.fetch("loss", resu);
+         inferenceInterface.fetch("loss", resu);
+         Log.d(TAG, "The loss is " + resu[0]);
+ 
+ 
+-        // The training is commented out for measuring the inference 1/3/2018
+-
+-    ////    inferenceInterface.feed("input", bigCon, batch, inputSize);
+-    ////    inferenceInterface.feed("label", labels_float, batch);
++        inferenceInterface.feed("input", bigCon, batch, inputSize);
++        inferenceInterface.feed("label", labels_float, batch);
+ //      inferenceInterface.feed("label", outSignals, batch);
+         //writeToSDFile("Start a new iteration");
+-    ////    reportTime("training start:\t" + "iteration\t" + iter);
+-    ////    inferenceInterface.runTarget(new String[]{"train"});
+-    ////    reportTime("training ends:\t" + "iteration\t" + iter);
++       reportTime("training start:\t" + "iteration\t" + iter);
++        inferenceInterface.runTarget(new String[]{"train"});
++        reportTime("training ends:\t" + "iteration\t" + iter);
++        currentTime("training ends");
+     //    writeToSDFile("End an iteration");
+       //Log.d("readImages", "done training");
+-
+     }
+ 
+     return bigCon;
+@@ -409,9 +408,21 @@ public class TensorFlowImageClassifier implements Classifier {
+ 
+   }
+ 
++
++  // Add a function for current time
++  public void currentTime(String str) {
++    long time = System.currentTimeMillis();
++    //long time = System.nanoTime();
++    //long elapsed = time-lastTime;
++    int Pid = android.os.Process.myPid();
++    int Tid = android.os.Process.myTid();
++     Log.d("TFClassifier",str + "\t" + "Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
++
++  }
++
+   @Override
+   public List<Recognition> recognizeImage(final Bitmap bitmap) {
+-   
++
+     // Get the input from images
+     float[] inputSignals = readImages();
+ //    readImages();

@@ -15,6 +15,8 @@ limitations under the License.
 
 package org.tensorflow;
 
+import android.util.Log;
+
 /**
  * A data flow graph representing a TensorFlow computation.
  *
@@ -24,14 +26,17 @@ package org.tensorflow;
  * the {@link #close()} method then the Graph object is no longer needed.
  */
 public final class Graph implements AutoCloseable {
+  String TAG = "Graph";
 
   /** Create an empty Graph. */
   public Graph() {
+    Log.d(TAG, "create an empty graph");
     nativeHandle = allocate();
   }
 
   /** Create a Graph from an existing handle (takes ownership). */
   Graph(long nativeHandle) {
+    Log.d(TAG,"Create a graph from existing handler");
     this.nativeHandle = nativeHandle;
   }
 
@@ -43,6 +48,7 @@ public final class Graph implements AutoCloseable {
    */
   @Override
   public void close() {
+    Log.d(TAG, "Release resourses");
     synchronized (nativeHandleLock) {
       if (nativeHandle == 0) {
         return;
@@ -61,12 +67,30 @@ public final class Graph implements AutoCloseable {
     }
   }
 
+
+  /**
+  Add a function to measure time
+   */
+  long lastTime=0;
+  public void reportTime(String str){
+    long time = System.currentTimeMillis();
+    long elapsed = time-lastTime;
+    int Pid = android.os.Process.myPid();
+    int Tid = android.os.Process.myTid();
+    // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
+    Log.d("Graph","Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
+    lastTime=System.currentTimeMillis();
+
+  }
+
   /**
    * Returns the operation (node in the Graph) with the provided name.
    *
    * <p>Or {@code null} if no such operation exists in the Graph.
    */
   public Operation operation(String name) {
+    Log.d(TAG, "Graph::operation starts");
+   // reportTime("Graph::operation starts");
     synchronized (nativeHandleLock) {
       long oph = operation(nativeHandle, name);
       if (oph == 0) {
@@ -74,6 +98,7 @@ public final class Graph implements AutoCloseable {
       }
       return new Operation(this, oph);
     }
+
   }
 
   /**
@@ -86,6 +111,7 @@ public final class Graph implements AutoCloseable {
    *     then some resources may leak.
    */
   public OperationBuilder opBuilder(String type, String name) {
+    Log.d(TAG,"opBuilder");
     return new OperationBuilder(this, type, name);
   }
 
@@ -99,6 +125,7 @@ public final class Graph implements AutoCloseable {
    * @see #importGraphDef(byte[], String)
    */
   public void importGraphDef(byte[] graphDef) throws IllegalArgumentException {
+    Log.d(TAG, "importGraphDef ");
     importGraphDef(graphDef, "");
   }
 
@@ -111,6 +138,7 @@ public final class Graph implements AutoCloseable {
    * @see #importGraphDef(byte[])
    */
   public void importGraphDef(byte[] graphDef, String prefix) throws IllegalArgumentException {
+    Log.d(TAG, "importGraphDef_String");
     if (graphDef == null || prefix == null) {
       throw new IllegalArgumentException("graphDef and prefix cannot be null");
     }

@@ -19,9 +19,41 @@ limitations under the License.
 #include "tensorflow/c/c_api.h"
 #include "tensorflow/java/src/main/native/exception_jni.h"
 #include "tensorflow/java/src/main/native/session_jni.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <android/log.h>
+#include <sstream>
+#include <iostream>
+#include <sys/time.h>
+#include <fstream>
+
+// Android log
+#include <stdio.h>
+#include <stdlib.h>
+#include <android/log.h>
+
+
+#define LOG_TAG "JNI_LOG"
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+
+
+//#include <sys/time.h>
+#include <jni.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+#include <unistd.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/errno.h>
+
 
 namespace {
 TF_Session* requireHandle(JNIEnv* env, jlong handle) {
+  LOGD("Session_jni::requireHandle");
   static_assert(sizeof(jlong) >= sizeof(TF_Session*),
                 "Cannot package C object pointers as a Java long");
   if (handle == 0) {
@@ -35,6 +67,7 @@ TF_Session* requireHandle(JNIEnv* env, jlong handle) {
 template <class T>
 void resolveHandles(JNIEnv* env, const char* type, jlongArray src_array,
                     T** dst, jint n) {
+//  LOGD("Session_jni::resolveHandles");
   if (env->ExceptionCheck()) return;
   jint len = env->GetArrayLength(src_array);
   if (len != n) {
@@ -55,8 +88,49 @@ void resolveHandles(JNIEnv* env, const char* type, jlongArray src_array,
   env->ReleaseLongArrayElements(src_array, src_start, JNI_ABORT);
 }
 
+  double elapse;
+  struct timespec currentTime, lastTime;
+
+  void reportTime(const char* str) {
+    std::stringstream stringstream;
+    clock_gettime(CLOCK_MONOTONIC, &currentTime);
+    elapse = ( currentTime.tv_sec - lastTime.tv_sec) + (double)( currentTime.tv_nsec - lastTime.tv_nsec)/1E9;
+    LOGI("%s, time elapse:\t%f", str, elapse);
+    //stringstream << " Time is " << elapse << " sec";
+    //android_log_print(stringstream.str().c_str());
+    lastTime = currentTime;
+  }
+
+
+  // Rewrite the timing function for reporting timestamp only with a precision of millisecond
+  void currentTimeCheck(const char* str) {
+    struct timeval tp;
+    std::stringstream stringstream;
+    gettimeofday(&tp, NULL);
+    long long int ms = tp.tv_sec * 1000 + tp.tv_usec/1000;
+    LOGI("%s, \t%lld", str, ms);
+    //std::cout << ms << "millisecond\n";
+
+    const char * internalStoragePath;
+    char fName[64];
+    
+    internalStoragePath = "/mnt/sdcard";
+    strcpy(fName,internalStoragePath);
+    strcat(fName,"/myfile.txt");
+    
+    LOGI("fname = %s", fName);
+    FILE *file_ptr = fopen(fName, "w+");
+    fprintf (file_ptr, "The UTC time is %lld\n", ms);
+    fclose(file_ptr);
+
+    //stringstream << " Time is " << ms << " millisecond";
+    //androidrs::conv::android_log_print(stringstream.str().c_str());
+  }
+
+
 void resolveOutputs(JNIEnv* env, const char* type, jlongArray src_op,
                     jintArray src_index, TF_Output* dst, jint n) {
+  LOGD("Session_jni::resolveOutputs");
   if (env->ExceptionCheck()) return;
   jint len = env->GetArrayLength(src_op);
   if (len != n) {
@@ -87,6 +161,8 @@ void resolveOutputs(JNIEnv* env, const char* type, jlongArray src_op,
 }
 
 void TF_MaybeDeleteBuffer(TF_Buffer* buf) {
+  LOGD("Session_jni::TF_MaybeDeleteBuffer");
+
   if (buf == nullptr) return;
   TF_DeleteBuffer(buf);
 }
@@ -102,6 +178,7 @@ unique_tf_buffer MakeUniqueBuffer(TF_Buffer* buf) {
 
 JNIEXPORT jlong JNICALL Java_org_tensorflow_Session_allocate(
     JNIEnv* env, jclass clazz, jlong graph_handle) {
+  LOGD("Java_org_tensorflow_Session_allocate");
   return Java_org_tensorflow_Session_allocate2(env, clazz, graph_handle,
                                                nullptr, nullptr);
 }
@@ -113,6 +190,8 @@ JNIEXPORT jlong JNICALL Java_org_tensorflow_Session_allocate2(
     throwException(env, kNullPointerException, "Graph has been close()d");
     return 0;
   }
+  LOGD("Java_org_tensorflow_Session_allocate2");
+
   TF_Graph* graph = reinterpret_cast<TF_Graph*>(graph_handle);
   TF_Status* status = TF_NewStatus();
   TF_SessionOptions* opts = TF_NewSessionOptions();
@@ -147,6 +226,8 @@ JNIEXPORT jlong JNICALL Java_org_tensorflow_Session_allocate2(
 JNIEXPORT void JNICALL Java_org_tensorflow_Session_delete(JNIEnv* env,
                                                           jclass clazz,
                                                           jlong handle) {
+  LOGD("Java_org_tensorflow_Session_delete");
+
   TF_Session* session = requireHandle(env, handle);
   if (session == nullptr) return;
   TF_Status* status = TF_NewStatus();
@@ -163,7 +244,11 @@ JNIEXPORT jbyteArray JNICALL Java_org_tensorflow_Session_run(
     jintArray input_op_indices, jlongArray output_op_handles,
     jintArray output_op_indices, jlongArray target_op_handles,
     jboolean want_run_metadata, jlongArray output_tensor_handles) {
+  LOGD("Java_org_tensorflow_Session_run");
+  reportTime("Java_org_tensorflow_Session_run starts");
+  currentTimeCheck("Session_jni::currentTimeCheck");
   TF_Session* session = requireHandle(env, handle);
+  reportTime("Session_jni::requireHandle");
   if (session == nullptr) return nullptr;
 
   const jint ninputs = env->GetArrayLength(input_tensor_handles);
@@ -180,12 +265,16 @@ JNIEXPORT jbyteArray JNICALL Java_org_tensorflow_Session_run(
 
   resolveHandles(env, "input Tensors", input_tensor_handles, input_values.get(),
                  ninputs);
+  reportTime("Session_jni::resolve input tensors");
   resolveOutputs(env, "input", input_op_handles, input_op_indices, inputs.get(),
                  ninputs);
+  reportTime("Session_jni::resolve input");
   resolveOutputs(env, "output", output_op_handles, output_op_indices,
                  outputs.get(), noutputs);
+  reportTime("Session_jni::resolve output");
   resolveHandles(env, "target Operations", target_op_handles, targets.get(),
                  ntargets);
+  reportTime("Session_jni::resolve target Operations");
   if (env->ExceptionCheck()) return nullptr;
 
   TF_Status* status = TF_NewStatus();
@@ -200,11 +289,15 @@ JNIEXPORT jbyteArray JNICALL Java_org_tensorflow_Session_run(
           TF_NewBufferFromString(static_cast<void*>(jrun_options_data), sz));
     }
   }
+  //LOGD("Session_jni::TFSessionRun");
 
+  reportTime("Session_jni::TF_SessionRun starts");
   TF_SessionRun(session, run_options.get(), inputs.get(), input_values.get(),
                 static_cast<int>(ninputs), outputs.get(), output_values.get(),
                 static_cast<int>(noutputs), targets.get(),
                 static_cast<int>(ntargets), run_metadata.get(), status);
+
+  reportTime("Session_jni::TF_SessionRun ends");
 
   if (jrun_options_data != nullptr) {
     env->ReleaseByteArrayElements(jrun_options, jrun_options_data, JNI_ABORT);
@@ -228,5 +321,6 @@ JNIEXPORT jbyteArray JNICALL Java_org_tensorflow_Session_run(
     env->ReleaseByteArrayElements(ret, elems, JNI_COMMIT);
   }
   TF_DeleteStatus(status);
+  reportTime("Java_org_tensorflow_Session_run ends");
   return ret;
 }

@@ -44,6 +44,7 @@ final class NativeLibrary {
       System.getProperty("org.tensorflow.NativeLibrary.DEBUG") != null;
   private static final String LIBNAME = "tensorflow_jni";
 
+
   public static void load() {
     if (isLoaded() || tryLoadLibrary()) {
       // Either:
@@ -82,6 +83,7 @@ final class NativeLibrary {
 
   private static boolean tryLoadLibrary() {
     try {
+      System.out.println("tryLoadLibrary");
       System.loadLibrary(LIBNAME);
       return true;
     } catch (UnsatisfiedLinkError e) {

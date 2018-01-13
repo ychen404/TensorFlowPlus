@@ -15,8 +15,11 @@ limitations under the License.
 
 package org.tensorflow;
 
+import android.util.Log;
+
 /** Static utility methods describing the TensorFlow runtime. */
 public final class TensorFlow {
+    String TAG = "TensorFlow";
   /** Returns the version of the underlying TensorFlow runtime. */
   public static native String version();
 
@@ -33,6 +36,7 @@ public final class TensorFlow {
 
   /** Load the TensorFlow runtime C library. */
   static void init() {
+    Log.d("TensorFlow", "Load TF runtime C library");
     NativeLibrary.load();
   }
 

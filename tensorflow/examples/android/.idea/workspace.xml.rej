@@ -1,0 +1,1040 @@
+--- tensorflow/examples/android/.idea/workspace.xml
++++ tensorflow/examples/android/.idea/workspace.xml
+@@ -10,14 +10,37 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="6238b043-f18f-4fa5-b767-aef480faa091" name="Default" comment="">
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../contrib/BUILD" afterPath="$PROJECT_DIR$/../../contrib/BUILD" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_1024.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_128.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_2048.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_256.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_4096.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_512.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_64.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_1024.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_128.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_2048.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_256.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_4096.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_512.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_64.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/ssd_mobilenet_v1_android_export.pb" afterPath="" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../c/c_api.cc" afterPath="$PROJECT_DIR$/../../c/c_api.cc" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/RunStats.java" afterPath="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/RunStats.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java" afterPath="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../core/kernels/conv_ops.cc" afterPath="$PROJECT_DIR$/../../core/kernels/conv_ops.cc" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android.iml" afterPath="$PROJECT_DIR$/android.iml" />
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_64.pb" afterPath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_64.pb" />
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" afterPath="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java" afterPath="$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/NativeLibrary.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/NativeLibrary.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/native/graph_jni.cc" afterPath="$PROJECT_DIR$/../../java/src/main/native/graph_jni.cc" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/native/session_jni.cc" afterPath="$PROJECT_DIR$/../../java/src/main/native/session_jni.cc" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/native/tensorflow_jni.cc" afterPath="$PROJECT_DIR$/../../java/src/main/native/tensorflow_jni.cc" />
+     </list>
+     <ignored path="android.iws" />
+     <ignored path=".idea/workspace.xml" />
+@@ -52,14 +75,14 @@
+       <file leaf-file-name="TensorFlowImageClassifier.java" pinned="false" current-in-tab="true">
+         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="1400">
+-              <caret line="413" column="3" lean-forward="false" selection-start-line="413" selection-start-column="3" selection-end-line="413" selection-end-column="3" />
++            <state relative-caret-position="180">
++              <caret line="244" column="0" lean-forward="false" selection-start-line="244" selection-start-column="0" selection-end-line="244" selection-end-column="0" />
+               <folding>
++                <element signature="e#0#16448#0" expanded="true" />
+                 <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-                <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+                 <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+                 <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-                <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
++                <element signature="method#recognizeImage#0;class#TensorFlowImageClassifier#0" expanded="false" />
+               </folding>
+             </state>
+           </provider>
+@@ -68,43 +91,154 @@
+       <file leaf-file-name="ClassifierActivity.java" pinned="false" current-in-tab="false">
+         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="280">
+-              <caret line="64" column="42" lean-forward="false" selection-start-line="64" selection-start-column="42" selection-end-line="64" selection-end-column="42" />
+-              <folding />
++            <state relative-caret-position="-1528">
++              <caret line="60" column="76" lean-forward="false" selection-start-line="60" selection-start-column="76" selection-end-line="60" selection-end-column="76" />
++              <folding>
++                <element signature="e#5616#5789#0" expanded="true" />
++                <element signature="e#5788#5789#0" expanded="true" />
++                <element signature="e#7289#7901#0" expanded="true" />
++                <element signature="e#7900#7901#0" expanded="true" />
++                <element signature="e#8637#8645#0" expanded="true" />
++              </folding>
+             </state>
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="rsConv.h" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h">
++      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/build.gradle">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="2960">
+-              <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
++            <state relative-caret-position="-2240">
++              <caret line="42" column="3" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="3" />
+               <folding />
+             </state>
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="TensorFlowInferenceInterface.java" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++      <file leaf-file-name="Classifier.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/Classifier.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="165">
+-              <caret line="169" column="14" lean-forward="false" selection-start-line="169" selection-start-column="14" selection-end-line="169" selection-end-column="14" />
++            <state relative-caret-position="180">
++              <caret line="24" column="17" lean-forward="false" selection-start-line="24" selection-start-column="17" selection-end-line="24" selection-end-column="17" />
++              <folding>
++                <element signature="e#0#2738#0" expanded="false" />
++                <element signature="imports" expanded="false" />
++                <element signature="e#1819#1820#0" expanded="false" />
++                <element signature="e#1842#1843#0" expanded="false" />
++                <element signature="e#1874#1875#0" expanded="false" />
++                <element signature="e#1900#1901#0" expanded="false" />
++                <element signature="e#1936#1937#0" expanded="false" />
++                <element signature="e#1967#1968#0" expanded="false" />
++                <element signature="e#2001#2002#0" expanded="false" />
++                <element signature="e#2041#2042#0" expanded="false" />
++                <element signature="e#2088#2089#0" expanded="false" />
++                <element signature="e#2126#2127#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="TensorFlow.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="160">
++              <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
++              <folding>
++                <element signature="e#0#1533#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="Session.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="680">
++              <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
++              <folding>
++                <element signature="e#0#18114#0" expanded="false" />
++                <element signature="e#6795#6796#0" expanded="false" />
++                <element signature="e#6845#6846#0" expanded="false" />
++                <element signature="e#9647#9648#0" expanded="false" />
++                <element signature="e#9692#9693#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/gradle.properties">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="40">
++              <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+               <folding />
+             </state>
+           </provider>
+         </entry>
+       </file>
++      <file leaf-file-name="Graph.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="1840">
++              <caret line="105" column="4" lean-forward="false" selection-start-line="105" selection-start-column="4" selection-end-line="105" selection-end-column="4" />
++              <folding>
++                <element signature="e#0#6989#0" expanded="false" />
++                <element signature="e#6568#6569#0" expanded="false" />
++                <element signature="e#6600#6601#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="Operation.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="1120">
++              <caret line="69" column="5" lean-forward="false" selection-start-line="69" selection-start-column="5" selection-end-line="69" selection-end-column="5" />
++              <folding>
++                <element signature="e#0#7244#0" expanded="false" />
++                <element signature="e#4484#4485#0" expanded="false" />
++                <element signature="e#4522#4523#0" expanded="false" />
++                <element signature="e#4561#4562#0" expanded="false" />
++                <element signature="e#4621#4622#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
+     </leaf>
+   </component>
+   <component name="FindInProjectRecents">
+     <findStrings>
+-      <find>batch</find>
+-      <find>bat</find>
+-      <find>adreno</find>
+-      <find>androidrs::mRS</find>
+-      <find>rsConv_script</find>
+-      <find>runTarget</find>
++      <find>renderDebug</find>
++      <find>TensorFlow native methods not found, attempting to load via tensorflow_inference</find>
++      <find>FileInputStream</find>
++      <find>sess.runner</find>
++      <find>native</find>
++      <find>i</find>
++      <find>int</find>
++      <find>inter</find>
++      <find>interfac</find>
++      <find>interface</find>
++      <find>model</find>
++      <find>modelFilename</find>
++      <find>start operation</find>
++      <find>Graph</find>
++      <find>synchronized nativeHandleLock</find>
++      <find>importGraphDef_String</find>
++      <find>Start</find>
++      <find>operationB</find>
++      <find>Start Runner</find>
++      <find>add tar</find>
++      <find>end operation</find>
++      <find>reportTime</find>
++      <find>Start operationByName</find>
++      <find>runHelper</find>
++      <find>getUnsafeNativeHandle ends</find>
++      <find>TF_SessionRun ends</find>
++      <find>conv_ops::Conv2Dop:Compute starts</find>
++      <find>def</find>
++      <find>current</find>
++      <find>train</find>
+     </findStrings>
+     <replaceStrings>
+       <replace>androidrs::conv::mRS</replace>
+@@ -1092,17 +1226,26 @@
+   <component name="IdeDocumentHistory">
+     <option name="CHANGED_PATHS">
+       <list>
+-        <option value="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java" />
+         <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/examples/LabelImage.java" />
+         <option value="$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h" />
+         <option value="$PROJECT_DIR$/build.gradle" />
+-        <option value="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/NativeLibrary.java" />
++        <option value="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/RunStats.java" />
++        <option value="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java" />
++        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.properties" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java" />
++        <option value="$PROJECT_DIR$/../../core/kernels/conv_ops.cc" />
++        <option value="$PROJECT_DIR$/gradle.properties" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java" />
+         <option value="$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java" />
++        <option value="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" />
+       </list>
+     </option>
+   </component>
+   <component name="ProjectFrameBounds">
+-    <option name="x" value="1985" />
++    <option name="x" value="65" />
+     <option name="y" value="-4" />
+     <option name="width" value="1855" />
+     <option name="height" value="1084" />
+@@ -1199,48 +1342,19 @@
+               <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidModuleNode" />
+             </PATH_ELEMENT>
+           </PATH>
+-          <PATH>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="android" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="android" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidModuleNode" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="assets" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidSourceTypeNode" />
+-            </PATH_ELEMENT>
+-          </PATH>
+-          <PATH>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="android" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="android" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidModuleNode" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="java" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidSourceTypeNode" />
+-            </PATH_ELEMENT>
+-          </PATH>
+         </subPane>
+       </pane>
+     </panes>
+   </component>
+   <component name="PropertiesComponent">
+     <property name="android.sdk.path" value="$USER_HOME$/Android/Sdk" />
+-    <property name="settings.editor.selected.configurable" value="android.sdk-updates" />
+-    <property name="settings.editor.splitter.proportion" value="0.2" />
+-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
++    <property name="settings.editor.selected.configurable" value="instant.run" />
++    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../core/kernels/conv_ops.cc" />
+     <property name="show.do.not.ask.upgrade.gradle.plugin" value="2.3.0" />
+-    <property name="device.picker.selection" value="Nexus_5X_API_23_ARM" />
++    <property name="device.picker.selection" value="HT7AG1A03681" />
+     <property name="android.project.structure.last.selected" value="SDK Location" />
+     <property name="android.project.structure.proportion" value="0.15" />
+-    <property name="android.profiler.active" value="true" />
++    <property name="com.intellij.ide.scratch.LRUPopupBuilder$2/Languages" value="Properties" />
+   </component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
+@@ -1337,7 +1451,7 @@
+       <option name="ACTIVITY_CLASS" value="" />
+       <method>
+         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515036444707" />
++        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515804069741" />
+       </method>
+     </configuration>
+     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
+@@ -1392,7 +1506,7 @@
+       </Profilers>
+       <method>
+         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515036444707" />
++        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515804069741" />
+       </method>
+     </configuration>
+     <configuration default="true" type="Application" factoryName="Application">
+@@ -1564,7 +1678,7 @@
+       <option name="ACTIVITY_CLASS" value="" />
+       <method>
+         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515036444708" />
++        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515804069741" />
+       </method>
+     </configuration>
+     <list size="1">
+@@ -1612,29 +1726,28 @@
+     </todo-panel>
+   </component>
+   <component name="ToolWindowManager">
+-    <frame x="1985" y="-4" width="1855" height="1084" extended-state="6" />
+-    <editor active="true" />
++    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
+     <layout>
+-      <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
++      <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4774869" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277487" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
++      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277487" sideWeight="0.49806523" order="7" side_tool="false" content_ui="tabs" />
+       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3635321" sideWeight="0.504169" order="7" side_tool="true" content_ui="tabs" />
++      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4408377" sideWeight="0.5063571" order="7" side_tool="true" content_ui="tabs" />
+       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30052355" sideWeight="0.5936982" order="7" side_tool="false" content_ui="tabs" />
+-      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.42303663" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
++      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22513089" sideWeight="0.5936982" order="7" side_tool="false" content_ui="tabs" />
++      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.44712043" sideWeight="0.4936429" order="8" side_tool="false" content_ui="tabs" />
+       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30052355" sideWeight="0.40630183" order="7" side_tool="true" content_ui="tabs" />
+       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.249309" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
++      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.249309" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42258066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
++      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.42198953" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Device File Explorer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
+       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+@@ -1673,409 +1787,468 @@
+     </watches-manager>
+   </component>
+   <component name="editorHistoryManager">
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/HandlerThread.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding>
+-            <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-          </folding>
++        <state relative-caret-position="828">
++          <caret line="60" column="0" lean-forward="false" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/lang/String.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/Looper.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="25020">
+-          <caret line="1390" column="20" lean-forward="false" selection-start-line="1390" selection-start-column="20" selection-end-line="1390" selection-end-column="20" />
++        <state relative-caret-position="2304">
++          <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/Handler.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="3528">
+-          <caret line="234" column="14" lean-forward="false" selection-start-line="234" selection-start-column="14" selection-end-line="234" selection-end-column="14" />
+-          <folding />
++        <state relative-caret-position="12330">
++          <caret line="738" column="0" lean-forward="false" selection-start-line="738" selection-start-column="0" selection-end-line="738" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/nio/FloatBuffer.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2232">
+-          <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
++        <state relative-caret-position="205">
++          <caret line="443" column="0" lean-forward="false" selection-start-line="443" selection-start-column="0" selection-end-line="443" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/util/Log.java">
++    <entry file="file://$PROJECT_DIR$/local.properties">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2052">
+-          <caret line="138" column="0" lean-forward="false" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
++        <state relative-caret-position="0">
++          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraActivity.java">
++    <entry file="file://$PROJECT_DIR$/gradlew.bat">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2250">
+-          <caret line="155" column="41" lean-forward="false" selection-start-line="155" selection-start-column="41" selection-end-line="155" selection-end-column="41" />
++        <state relative-caret-position="0">
++          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraConnectionFragment.java">
++    <entry file="file://$PROJECT_DIR$/gradlew">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="288">
+-          <caret line="73" column="57" lean-forward="false" selection-start-line="73" selection-start-column="57" selection-end-line="73" selection-end-column="57" />
++        <state relative-caret-position="0">
++          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/Logger.java">
++    <entry file="file://$PROJECT_DIR$/download-models.gradle">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="108">
+-          <caret line="22" column="3" lean-forward="false" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="3" />
++        <state relative-caret-position="100">
++          <caret line="13" column="31" lean-forward="false" selection-start-line="13" selection-start-column="31" selection-end-line="13" selection-end-column="31" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/media/ImageReader.java">
++    <entry file="file://$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="3672">
+-          <caret line="239" column="19" lean-forward="false" selection-start-line="239" selection-start-column="19" selection-end-line="239" selection-end-column="19" />
++        <state relative-caret-position="2960">
++          <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/graphics/RectF.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/Logger.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="234">
+-          <caret line="31" column="13" lean-forward="false" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
++        <state relative-caret-position="105">
++          <caret line="169" column="42" lean-forward="true" selection-start-line="169" selection-start-column="42" selection-end-line="169" selection-end-column="42" />
++          <folding>
++            <element signature="imports" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraActivity.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="5292">
+-          <caret line="294" column="26" lean-forward="false" selection-start-line="294" selection-start-column="15" selection-end-line="294" selection-end-column="26" />
+-          <folding>
+-            <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-          </folding>
++        <state relative-caret-position="-60">
++          <caret line="39" column="51" lean-forward="true" selection-start-line="39" selection-start-column="51" selection-end-line="39" selection-end-column="51" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/lang/String.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/Op.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="23940">
+-          <caret line="1390" column="20" lean-forward="false" selection-start-line="1390" selection-start-column="20" selection-end-line="1390" selection-end-column="20" />
++        <state relative-caret-position="440">
++          <caret line="35" column="0" lean-forward="true" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/Operands.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="7794">
+-          <caret line="487" column="16" lean-forward="false" selection-start-line="487" selection-start-column="16" selection-end-line="487" selection-end-column="16" />
+-          <folding />
++        <state relative-caret-position="600">
++          <caret line="43" column="25" lean-forward="true" selection-start-line="43" selection-start-column="25" selection-end-line="43" selection-end-column="25" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/AutoFitTextureView.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2232">
+-          <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
++        <state relative-caret-position="545">
++          <caret line="74" column="0" lean-forward="false" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
++          <folding>
++            <element signature="imports" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/util/Log.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraConnectionFragment.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2052">
+-          <caret line="138" column="0" lean-forward="false" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
++        <state relative-caret-position="545">
++          <caret line="654" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="654" selection-end-column="0" />
++          <folding>
++            <element signature="imports" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraActivity.java">
++    <entry file="file://$PROJECT_DIR$/res/layout/camera_connection_fragment.xml">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2250">
+-          <caret line="155" column="41" lean-forward="false" selection-start-line="155" selection-start-column="41" selection-end-line="155" selection-end-column="41" />
++        <state relative-caret-position="294">
++          <caret line="27" column="43" lean-forward="true" selection-start-line="27" selection-start-column="43" selection-end-line="27" selection-end-column="43" />
++          <folding />
+         </state>
+       </provider>
++      <provider editor-type-id="android-designer2">
++        <state />
++      </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraConnectionFragment.java">
++    <entry file="file://$PROJECT_DIR$/res/values/strings.xml">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="288">
+-          <caret line="73" column="57" lean-forward="false" selection-start-line="73" selection-start-column="57" selection-end-line="73" selection-end-column="57" />
++        <state relative-caret-position="320">
++          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="18" selection-end-column="82" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/Logger.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/OverlayView.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="108">
+-          <caret line="22" column="3" lean-forward="false" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="3" />
++        <state relative-caret-position="265">
++          <caret line="36" column="5" lean-forward="false" selection-start-line="36" selection-start-column="5" selection-end-line="36" selection-end-column="5" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/media/ImageReader.java">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="3672">
+-          <caret line="239" column="19" lean-forward="false" selection-start-line="239" selection-start-column="19" selection-end-line="239" selection-end-column="19" />
++    <entry file="file://$PROJECT_DIR$/res/layout/activity_camera.xml">
++      <provider editor-type-id="text-editor">
++        <state relative-caret-position="440">
++          <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+         </state>
+       </provider>
++      <provider selected="true" editor-type-id="android-designer2">
++        <state />
++      </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/graphics/RectF.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/BorderedText.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="234">
+-          <caret line="31" column="13" lean-forward="false" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
++        <state relative-caret-position="60">
++          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
++          <folding>
++            <element signature="imports" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/build.gradle">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ResultsView.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="846">
+-          <caret line="47" column="32" lean-forward="false" selection-start-line="47" selection-start-column="32" selection-end-line="47" selection-end-column="32" />
++        <state relative-caret-position="0">
++          <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/ImageUtils.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="4014">
+-          <caret line="249" column="27" lean-forward="false" selection-start-line="249" selection-start-column="27" selection-end-line="249" selection-end-column="27" />
++        <state relative-caret-position="1025">
++          <caret line="299" column="0" lean-forward="false" selection-start-line="299" selection-start-column="0" selection-end-line="299" selection-end-column="0" />
+           <folding>
+-            <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
++            <element signature="imports" expanded="false" />
+           </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Output.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2592">
+-          <caret line="178" column="37" lean-forward="false" selection-start-line="178" selection-start-column="37" selection-end-line="178" selection-end-column="37" />
+-          <folding />
++        <state relative-caret-position="80">
++          <caret line="20" column="53" lean-forward="false" selection-start-line="20" selection-start-column="53" selection-end-line="20" selection-end-column="53" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operand.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="720">
+-          <caret line="62" column="89" lean-forward="false" selection-start-line="62" selection-start-column="89" selection-end-line="62" selection-end-column="89" />
++        <state relative-caret-position="334">
++          <caret line="36" column="17" lean-forward="false" selection-start-line="36" selection-start-column="17" selection-end-line="36" selection-end-column="17" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/examples/LabelImage.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Shape.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="324">
+-          <caret line="18" column="27" lean-forward="false" selection-start-line="18" selection-start-column="27" selection-end-line="18" selection-end-column="27" />
++        <state relative-caret-position="140">
++          <caret line="20" column="19" lean-forward="false" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/AutoFitTextureView.java">
++    <entry file="file://$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="109">
+-          <caret line="54" column="25" lean-forward="false" selection-start-line="54" selection-start-column="25" selection-end-line="54" selection-end-column="25" />
++        <state relative-caret-position="100">
++          <caret line="5" column="77" lean-forward="false" selection-start-line="5" selection-start-column="77" selection-end-line="5" selection-end-column="77" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/graphics/RectF.java">
++    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.properties">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="234">
+-          <caret line="31" column="13" lean-forward="false" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
++        <state relative-caret-position="40">
++          <caret line="2" column="22" lean-forward="true" selection-start-line="2" selection-start-column="22" selection-end-line="2" selection-end-column="22" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/media/ImageReader.java">
++    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="3672">
+-          <caret line="239" column="19" lean-forward="false" selection-start-line="239" selection-start-column="19" selection-end-line="239" selection-end-column="19" />
++        <state relative-caret-position="20">
++          <caret line="8" column="47" lean-forward="false" selection-start-line="8" selection-start-column="47" selection-end-line="8" selection-end-column="47" />
++          <folding />
+         </state>
+       </provider>
++      <provider editor-type-id="android-manifest">
++        <state />
++      </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/Logger.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/util/List.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="108">
+-          <caret line="22" column="3" lean-forward="false" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="3" />
++        <state relative-caret-position="165">
++          <caret line="65" column="21" lean-forward="false" selection-start-line="65" selection-start-column="21" selection-end-line="65" selection-end-column="21" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/util/Log.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/util/ArrayList.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2052">
+-          <caret line="138" column="0" lean-forward="false" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
++        <state relative-caret-position="174">
++          <caret line="113" column="29" lean-forward="false" selection-start-line="113" selection-start-column="29" selection-end-line="113" selection-end-column="29" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/lang/String.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/SavedModelBundle.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="18">
+-          <caret line="1390" column="20" lean-forward="false" selection-start-line="1390" selection-start-column="20" selection-end-line="1390" selection-end-column="20" />
++        <state relative-caret-position="335">
++          <caret line="100" column="3" lean-forward="false" selection-start-line="100" selection-start-column="3" selection-end-line="100" selection-end-column="3" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraConnectionFragment.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/NameScope.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="288">
+-          <caret line="73" column="57" lean-forward="false" selection-start-line="73" selection-start-column="57" selection-end-line="73" selection-end-column="57" />
++        <state relative-caret-position="-120">
++          <caret line="66" column="27" lean-forward="false" selection-start-line="66" selection-start-column="27" selection-end-line="66" selection-end-column="27" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraActivity.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/NativeLibrary.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2070">
+-          <caret line="145" column="114" lean-forward="false" selection-start-line="145" selection-start-column="114" selection-end-line="145" selection-end-column="114" />
++        <state relative-caret-position="-340">
++          <caret line="47" column="29" lean-forward="true" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/HandlerThread.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Tensor.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="828">
+-          <caret line="60" column="0" lean-forward="false" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
++        <state relative-caret-position="526">
++          <caret line="65" column="71" lean-forward="false" selection-start-line="65" selection-start-column="71" selection-end-line="65" selection-end-column="71" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/Looper.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/PrimitiveOp.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2304">
+-          <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
++        <state relative-caret-position="940">
++          <caret line="60" column="5" lean-forward="true" selection-start-line="60" selection-start-column="5" selection-end-line="60" selection-end-column="5" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/Handler.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/Scope.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="12330">
+-          <caret line="738" column="0" lean-forward="false" selection-start-line="738" selection-start-column="0" selection-end-line="738" selection-end-column="0" />
++        <state relative-caret-position="160">
++          <caret line="75" column="19" lean-forward="false" selection-start-line="75" selection-start-column="19" selection-end-line="75" selection-end-column="19" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/DataType.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="-1239">
+-          <caret line="110" column="18" lean-forward="false" selection-start-line="110" selection-start-column="18" selection-end-line="110" selection-end-column="18" />
++        <state relative-caret-position="-223">
++          <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Output.java">
++    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/RunStats.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="324">
+-          <caret line="31" column="9" lean-forward="false" selection-start-line="31" selection-start-column="9" selection-end-line="31" selection-end-column="9" />
++        <state relative-caret-position="526">
++          <caret line="65" column="29" lean-forward="false" selection-start-line="65" selection-start-column="29" selection-end-line="65" selection-end-column="29" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/nio/FloatBuffer.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/OperationBuilder.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="205">
+-          <caret line="443" column="0" lean-forward="false" selection-start-line="443" selection-start-column="0" selection-end-line="443" selection-end-column="0" />
++        <state relative-caret-position="480">
++          <caret line="37" column="37" lean-forward="false" selection-start-line="37" selection-start-column="37" selection-end-line="37" selection-end-column="37" />
++          <folding>
++            <element signature="e#0#9607#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/local.properties">
++    <entry file="file://$PROJECT_DIR$/../../core/kernels/conv_ops.cc">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
++        <state relative-caret-position="100">
++          <caret line="80" column="17" lean-forward="true" selection-start-line="80" selection-start-column="17" selection-end-line="80" selection-end-column="17" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/gradlew.bat">
++    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
++        <state relative-caret-position="2740">
++          <caret line="171" column="46" lean-forward="false" selection-start-line="171" selection-start-column="46" selection-end-line="171" selection-end-column="46" />
++          <folding>
++            <element signature="e#0#18667#0" expanded="false" />
++            <element signature="e#6586#6587#0" expanded="false" />
++            <element signature="e#6604#6605#0" expanded="false" />
++            <element signature="e#7009#7010#0" expanded="false" />
++            <element signature="e#7070#7071#0" expanded="false" />
++            <element signature="e#12334#12335#0" expanded="false" />
++            <element signature="e#12384#12385#0" expanded="false" />
++            <element signature="e#12706#12707#0" expanded="false" />
++            <element signature="e#12754#12755#0" expanded="false" />
++            <element signature="e#13079#13080#0" expanded="false" />
++            <element signature="e#13130#13131#0" expanded="false" />
++            <element signature="e#13453#13454#0" expanded="false" />
++            <element signature="e#13502#13503#0" expanded="false" />
++            <element signature="e#13896#13897#0" expanded="false" />
++            <element signature="e#13940#13941#0" expanded="false" />
++            <element signature="e#14332#14333#0" expanded="false" />
++            <element signature="e#14376#14377#0" expanded="false" />
++            <element signature="e#14771#14772#0" expanded="false" />
++            <element signature="e#14815#14816#0" expanded="false" />
++            <element signature="e#15208#15209#0" expanded="false" />
++            <element signature="e#15252#15253#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/gradlew">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/Classifier.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
++        <state relative-caret-position="180">
++          <caret line="24" column="17" lean-forward="false" selection-start-line="24" selection-start-column="17" selection-end-line="24" selection-end-column="17" />
++          <folding>
++            <element signature="e#0#2738#0" expanded="false" />
++            <element signature="imports" expanded="false" />
++            <element signature="e#1819#1820#0" expanded="false" />
++            <element signature="e#1842#1843#0" expanded="false" />
++            <element signature="e#1874#1875#0" expanded="false" />
++            <element signature="e#1900#1901#0" expanded="false" />
++            <element signature="e#1936#1937#0" expanded="false" />
++            <element signature="e#1967#1968#0" expanded="false" />
++            <element signature="e#2001#2002#0" expanded="false" />
++            <element signature="e#2041#2042#0" expanded="false" />
++            <element signature="e#2088#2089#0" expanded="false" />
++            <element signature="e#2126#2127#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/download-models.gradle">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="100">
+-          <caret line="13" column="31" lean-forward="false" selection-start-line="13" selection-start-column="31" selection-end-line="13" selection-end-column="31" />
+-          <folding />
++        <state relative-caret-position="160">
++          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
++          <folding>
++            <element signature="e#0#1533#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
+-      <provider editor-type-id="android-manifest">
+-        <state />
+-      </provider>
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="100">
+-          <caret line="8" column="47" lean-forward="false" selection-start-line="8" selection-start-column="47" selection-end-line="8" selection-end-column="47" />
+-          <folding />
++        <state relative-caret-position="1120">
++          <caret line="69" column="5" lean-forward="false" selection-start-line="69" selection-start-column="5" selection-end-line="69" selection-end-column="5" />
++          <folding>
++            <element signature="e#0#7244#0" expanded="false" />
++            <element signature="e#4484#4485#0" expanded="false" />
++            <element signature="e#4522#4523#0" expanded="false" />
++            <element signature="e#4561#4562#0" expanded="false" />
++            <element signature="e#4621#4622#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Tensor.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="860">
+-          <caret line="65" column="71" lean-forward="false" selection-start-line="65" selection-start-column="71" selection-end-line="65" selection-end-column="71" />
+-          <folding />
++        <state relative-caret-position="1840">
++          <caret line="105" column="4" lean-forward="false" selection-start-line="105" selection-start-column="4" selection-end-line="105" selection-end-column="4" />
++          <folding>
++            <element signature="e#0#6989#0" expanded="false" />
++            <element signature="e#6568#6569#0" expanded="false" />
++            <element signature="e#6600#6601#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="4520">
+-          <caret line="248" column="43" lean-forward="false" selection-start-line="248" selection-start-column="43" selection-end-line="248" selection-end-column="43" />
++        <state relative-caret-position="680">
++          <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+           <folding>
+-            <element signature="e#8942#8943#0" expanded="true" />
+-            <element signature="e#8987#8988#0" expanded="true" />
+-            <element signature="e#11229#11237#0" expanded="true" />
+-            <element signature="e#13020#13028#0" expanded="true" />
+-            <element signature="e#13090#13098#0" expanded="true" />
+-            <element signature="e#13155#13163#0" expanded="true" />
+-            <element signature="e#13223#13234#0" expanded="true" />
++            <element signature="e#0#18114#0" expanded="false" />
++            <element signature="e#6795#6796#0" expanded="false" />
++            <element signature="e#6845#6846#0" expanded="false" />
++            <element signature="e#9647#9648#0" expanded="false" />
++            <element signature="e#9692#9693#0" expanded="false" />
+           </folding>
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/build.gradle">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="1280">
+-          <caret line="64" column="1" lean-forward="false" selection-start-line="64" selection-start-column="1" selection-end-line="64" selection-end-column="1" />
++        <state relative-caret-position="-2240">
++          <caret line="42" column="3" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="3" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/lang/System.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2960">
+-          <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
++        <state relative-caret-position="247">
++          <caret line="655" column="0" lean-forward="false" selection-start-line="655" selection-start-column="0" selection-end-line="655" selection-end-column="0" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
++    <entry file="file://$PROJECT_DIR$/gradle.properties">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="280">
+-          <caret line="64" column="42" lean-forward="false" selection-start-line="64" selection-start-column="42" selection-end-line="64" selection-end-column="42" />
++        <state relative-caret-position="40">
++          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="165">
+-          <caret line="169" column="14" lean-forward="false" selection-start-line="169" selection-start-column="14" selection-end-line="169" selection-end-column="14" />
+-          <folding />
++        <state relative-caret-position="-1528">
++          <caret line="60" column="76" lean-forward="false" selection-start-line="60" selection-start-column="76" selection-end-line="60" selection-end-column="76" />
++          <folding>
++            <element signature="e#5616#5789#0" expanded="true" />
++            <element signature="e#5788#5789#0" expanded="true" />
++            <element signature="e#7289#7901#0" expanded="true" />
++            <element signature="e#7900#7901#0" expanded="true" />
++            <element signature="e#8637#8645#0" expanded="true" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="1400">
+-          <caret line="413" column="3" lean-forward="false" selection-start-line="413" selection-start-column="3" selection-end-line="413" selection-end-column="3" />
++        <state relative-caret-position="180">
++          <caret line="244" column="0" lean-forward="false" selection-start-line="244" selection-start-column="0" selection-end-line="244" selection-end-column="0" />
+           <folding>
++            <element signature="e#0#16448#0" expanded="true" />
+             <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+             <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+             <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
++            <element signature="method#recognizeImage#0;class#TensorFlowImageClassifier#0" expanded="false" />
+           </folding>
+         </state>
+       </provider>

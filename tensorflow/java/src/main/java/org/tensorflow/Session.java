@@ -15,6 +15,8 @@ limitations under the License.
 
 package org.tensorflow;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,9 +49,14 @@ import java.util.List;
  */
 public final class Session implements AutoCloseable {
 
+
+  String TAG = "Session";
+
   /** Construct a new session with the associated {@link Graph}. */
   public Session(Graph g) {
     this(g, null);
+    Log.d(TAG, "Construct a new session");
+
   }
 
   /**
@@ -80,6 +87,20 @@ public final class Session implements AutoCloseable {
     this.nativeHandle = nativeHandle;
     graphRef = g.ref();
   }
+
+
+  // Add a function to measure time
+  long lastTime=0;
+  public void reportTime(String str){
+    long time = System.currentTimeMillis();
+    long elapsed = time-lastTime;
+    int Pid = android.os.Process.myPid();
+    int Tid = android.os.Process.myTid();
+    // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
+    Log.d(TAG,"Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
+    lastTime=System.currentTimeMillis();
+  }
+
 
   /**
    * Release resources associated with the Session.
@@ -195,10 +216,12 @@ public final class Session implements AutoCloseable {
      * Make {@link #run()} execute {@code operation}, but not return any evaluated {@link Tensor}s.
      */
     public Runner addTarget(String operation) {
+      reportTime("Start Runner addTarget");
       Operation op = operationByName(operation);
       if (op != null) {
         targets.add(op);
       }
+      reportTime("Add targets end");
       return this;
     }
 
@@ -225,6 +248,7 @@ public final class Session implements AutoCloseable {
      * time.
      */
     public Runner setOptions(byte[] options) {
+      Log.d(TAG, "Start setOptions");
       this.runOptions = options;
       return this;
     }
@@ -258,6 +282,8 @@ public final class Session implements AutoCloseable {
     }
 
     private Run runHelper(boolean wantMetadata) {
+      //Log.d(TAG, "runHelper");
+      reportTime("runHelper starts");
       long[] inputTensorHandles = new long[inputTensors.size()];
       long[] inputOpHandles = new long[inputs.size()];
       int[] inputOpIndices = new int[inputs.size()];
@@ -288,9 +314,13 @@ public final class Session implements AutoCloseable {
       for (Operation op : targets) {
         targetOpHandles[idx++] = op.getUnsafeNativeHandle();
       }
+      //Log.d(TAG, "getUnsafeNativeHandle ends");
+      reportTime("getUnsafeNativeHandle ends");
       Reference runRef = new Reference();
       byte[] metadata = null;
       try {
+        //Log.d(TAG, "metadata = Session.run");
+        reportTime("metadata = Session.run starts");
         metadata =
             Session.run(
                 nativeHandle,
@@ -303,6 +333,7 @@ public final class Session implements AutoCloseable {
                 targetOpHandles,
                 wantMetadata,
                 outputTensorHandles);
+        reportTime("metadata = Session.run ends");
       } finally {
         runRef.close();
       }
@@ -321,6 +352,8 @@ public final class Session implements AutoCloseable {
       Run ret = new Run();
       ret.outputs = outputs;
       ret.metadata = metadata;
+      reportTime("runHelper ends");
+
       return ret;
     }
 
@@ -348,7 +381,10 @@ public final class Session implements AutoCloseable {
     }
 
     private Operation operationByName(String opName) {
+      reportTime("Start operationByName");
       Operation op = graph.operation(opName);
+      reportTime("end operationByName");
+
       if (op == null) {
         throw new IllegalArgumentException("No Operation named [" + opName + "] in the Graph");
       }

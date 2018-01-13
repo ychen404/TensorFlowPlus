@@ -15,6 +15,16 @@ limitations under the License.
 
 #include "tensorflow/java/src/main/native/tensorflow_jni.h"
 #include "tensorflow/c/c_api.h"
+#define LOG_TAG "JNI_LOG"
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <android/log.h>
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+
 
 JNIEXPORT jstring JNICALL Java_org_tensorflow_TensorFlow_version(JNIEnv* env,
                                                                  jclass clazz) {
@@ -23,6 +33,8 @@ JNIEXPORT jstring JNICALL Java_org_tensorflow_TensorFlow_version(JNIEnv* env,
 
 JNIEXPORT jbyteArray JNICALL
 Java_org_tensorflow_TensorFlow_registeredOpList(JNIEnv* env, jclass clazz) {
+  LOGD("registeredOpList");
+
   TF_Buffer* buf = TF_GetAllOpList();
   jint length = static_cast<int>(buf->length);
   jbyteArray ret = env->NewByteArray(length);

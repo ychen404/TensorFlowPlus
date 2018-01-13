@@ -1,0 +1,3637 @@
+diff --git tensorflow/c/c_api.cc tensorflow/c/c_api.cc
+index 3e69134..29a054c 100644
+--- tensorflow/c/c_api.cc
++++ tensorflow/c/c_api.cc
+@@ -54,6 +54,11 @@ limitations under the License.
+ #include "tensorflow/core/public/session.h"
+ #include "tensorflow/core/public/version.h"
+ 
++#include <stdio.h>
++#include <stdlib.h>
++#include <android/log.h>
++
++
+ // The implementation below is at the top level instead of the
+ // brain namespace because we are defining 'extern "C"' functions.
+ using tensorflow::error::Code;
+@@ -84,32 +89,49 @@ using tensorflow::TensorId;
+ using tensorflow::TensorShape;
+ using tensorflow::TensorShapeProto;
+ 
++
++#define LOG_TAG "JNI_LOG"
++#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
++#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
++#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
++
++
+ extern "C" {
+ 
+ // --------------------------------------------------------------------------
+-const char* TF_Version() { return TF_VERSION_STRING; }
++const char* TF_Version() { 
++  LOGD("c_api::TF_Version");
++  return TF_VERSION_STRING; }
+ 
+ // --------------------------------------------------------------------------
+ size_t TF_DataTypeSize(TF_DataType dt) {
++    LOGD("c_api::TF_DataTypeSize");
+   return static_cast<size_t>(
+       tensorflow::DataTypeSize(static_cast<DataType>(dt)));
+ }
+ 
+ // --------------------------------------------------------------------------
+ 
+-TF_Status* TF_NewStatus() { return new TF_Status; }
++TF_Status* TF_NewStatus() { 
++LOGD("c_api::TF_NewStatus");
++  return new TF_Status; }
+ 
+-void TF_DeleteStatus(TF_Status* s) { delete s; }
++void TF_DeleteStatus(TF_Status* s) { 
++LOGD("c_api::TF_DeleteStatus");
++  delete s; }
+ 
+ void TF_SetStatus(TF_Status* s, TF_Code code, const char* msg) {
++  LOGD("c_api::TF_SetStatus");
+   s->status = Status(static_cast<Code>(code), tensorflow::StringPiece(msg));
+ }
+ 
+ TF_Code TF_GetCode(const TF_Status* s) {
++  LOGD("c_api::TF_GetCode");
+   return static_cast<TF_Code>(s->status.code());
+ }
+ 
+ const char* TF_Message(const TF_Status* s) {
++  LOGD("c_api::TF_Message");
+   return s->status.error_message().c_str();
+ }
+ 
+@@ -129,18 +151,42 @@ class TF_ManagedBuffer : public TensorBuffer {
+ 
+   void* data() const override { return data_; }
+   size_t size() const override { return len_; }
+-  TensorBuffer* root_buffer() override { return this; }
++  TensorBuffer* root_buffer() override { 
++    LOGD("c_api::root_buffer");
++    return this; }
+   void FillAllocationDescription(AllocationDescription* proto) const override {
++    LOGD("c_api::FillAllocationDescription");
+     tensorflow::int64 rb = size();
++    LOGD("c_api::rb = size()");
+     proto->set_requested_bytes(rb);
++    LOGD("c_api::set_requestd_bytes");
+     proto->set_allocator_name(tensorflow::cpu_allocator()->Name());
++    LOGD("c_api::set_allocator_name");
+   }
+ 
+   // Prevents input forwarding from mutating this buffer.
+-  bool OwnsMemory() const override { return false; }
++  bool OwnsMemory() const override { 
++    LOGD("c_api::OwnsMemory"); 
++    return false; }
+ };
+ 
++
++  double elapse;
++  struct timespec currentTime, lastTime;
++
++  void reportTime(const char* str) {
++    std::stringstream stringstream;
++    clock_gettime(CLOCK_MONOTONIC, &currentTime);
++    elapse = ( currentTime.tv_sec - lastTime.tv_sec) + (double)( currentTime.tv_nsec - lastTime.tv_nsec)/1E9;
++    LOGI("%s, time elapse:\t%f", str, elapse);
++    //stringstream << " Time is " << elapse << " sec";
++    //android_log_print(stringstream.str().c_str());
++    lastTime = currentTime;
++  }
++
++
+ void* allocate_tensor(const char* operation, size_t len) {
++  LOGD("c_api::allocate_tensor");
+   void* data =
+       tensorflow::cpu_allocator()->AllocateRaw(EIGEN_MAX_ALIGN_BYTES, len);
+   if (tensorflow::LogMemory::IsEnabled()) {
+@@ -152,6 +198,7 @@ void* allocate_tensor(const char* operation, size_t len) {
+ }
+ 
+ void deallocate_buffer(void* data, size_t len, void* arg) {
++  LOGD("c_api::deallocate_buffer");
+   if (tensorflow::LogMemory::IsEnabled()) {
+     tensorflow::LogMemory::RecordRawDeallocation(
+         "TensorFlow C Api",
+@@ -163,6 +210,7 @@ void deallocate_buffer(void* data, size_t len, void* arg) {
+ 
+ Status MessageToBuffer(const tensorflow::protobuf::Message& in,
+                        TF_Buffer* out) {
++  LOGD("c_api::MessageToBuffer");
+   if (out->data != nullptr) {
+     return InvalidArgument("Passing non-empty TF_Buffer is invalid.");
+   }
+@@ -181,6 +229,7 @@ Status MessageToBuffer(const tensorflow::protobuf::Message& in,
+ 
+ TF_Tensor* TF_AllocateTensor(TF_DataType dtype, const int64_t* dims,
+                              int num_dims, size_t len) {
++  LOGD("c_api::allocate_tensor");
+   void* data = allocate_tensor("TF_AllocateTensor", len);
+   return TF_NewTensor(dtype, dims, num_dims, data, len, deallocate_buffer,
+                       nullptr);
+@@ -190,6 +239,7 @@ TF_Tensor* TF_NewTensor(TF_DataType dtype, const int64_t* dims, int num_dims,
+                         void* data, size_t len,
+                         void (*deallocator)(void* data, size_t len, void* arg),
+                         void* deallocator_arg) {
++  LOGD("c_api::TF_NewTensor");
+   std::vector<tensorflow::int64> dimvec(num_dims);
+   for (int i = 0; i < num_dims; ++i) {
+     dimvec[i] = static_cast<tensorflow::int64>(dims[i]);
+@@ -215,6 +265,7 @@ TF_Tensor* TF_NewTensor(TF_DataType dtype, const int64_t* dims, int num_dims,
+ }
+ 
+ TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor) {
++  LOGD("c_api::TF_TensorMaybeMove");
+   // It is safe to move the Tensor if and only if we own the unique reference to
+   // it. In that case, we might as well not delete and reallocate, but a future
+   // implementation might need to do so.
+@@ -227,21 +278,32 @@ TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor) {
+ }
+ 
+ void TF_DeleteTensor(TF_Tensor* t) {
++  LOGD("c_api::TF_DeleteTensor");
+   t->buffer->Unref();
+   delete t;
+ }
+ 
+-TF_DataType TF_TensorType(const TF_Tensor* t) { return t->dtype; }
+-int TF_NumDims(const TF_Tensor* t) { return t->shape.dims(); }
++TF_DataType TF_TensorType(const TF_Tensor* t) { 
++  LOGD("c_api::TF_TensorType");
++  return t->dtype; }
++int TF_NumDims(const TF_Tensor* t) { 
++  LOGD("c_api::TF_NumDims");
++  return t->shape.dims(); }
+ int64_t TF_Dim(const TF_Tensor* t, int dim_index) {
++  LOGD("c_api::TF_Dim");
+   return static_cast<int64_t>(t->shape.dim_size(dim_index));
+ }
+-size_t TF_TensorByteSize(const TF_Tensor* t) { return t->buffer->size(); }
+-void* TF_TensorData(const TF_Tensor* t) { return t->buffer->data(); }
++size_t TF_TensorByteSize(const TF_Tensor* t) { 
++  LOGD("c_api::TensorByteSize");
++  return t->buffer->size(); }
++void* TF_TensorData(const TF_Tensor* t) { 
++  LOGD("c_api::TF_TensorData");
++  return t->buffer->data(); }
+ 
+ // --------------------------------------------------------------------------
+ size_t TF_StringEncode(const char* src, size_t src_len, char* dst,
+                        size_t dst_len, TF_Status* status) {
++  LOGD("c_api::TF_StringEncode");
+   const size_t sz = TF_StringEncodedSize(src_len);
+   if (sz < src_len) {
+     status->status = InvalidArgument("src string is too large to encode");
+@@ -260,6 +322,8 @@ size_t TF_StringEncode(const char* src, size_t src_len, char* dst,
+ 
+ size_t TF_StringDecode(const char* src, size_t src_len, const char** dst,
+                        size_t* dst_len, TF_Status* status) {
++
++  LOGD("c_api::TF_StringDecode");
+   tensorflow::uint64 len64 = 0;
+   const char* p = tensorflow::core::GetVarint64Ptr(src, src + src_len, &len64);
+   if (p == nullptr) {
+@@ -279,27 +343,37 @@ size_t TF_StringDecode(const char* src, size_t src_len, const char** dst,
+ }
+ 
+ size_t TF_StringEncodedSize(size_t len) {
++  LOGD("c_api::TF_StringEncodeSize");
+   return static_cast<size_t>(tensorflow::core::VarintLength(len)) + len;
+ }
+ 
+ // --------------------------------------------------------------------------
+-TF_SessionOptions* TF_NewSessionOptions() { return new TF_SessionOptions; }
+-void TF_DeleteSessionOptions(TF_SessionOptions* opt) { delete opt; }
++TF_SessionOptions* TF_NewSessionOptions() { 
++  LOGD("c_api::TF_NewSessionOptions");
++  return new TF_SessionOptions; }
++void TF_DeleteSessionOptions(TF_SessionOptions* opt) { 
++  LOGD("c_api::TF_DeleteSessionOptions");
++  delete opt; }
+ 
+ void TF_SetTarget(TF_SessionOptions* options, const char* target) {
++  LOGD("c_api::TF_SetTarget");
+   options->options.target = target;
+ }
+ 
+ void TF_SetConfig(TF_SessionOptions* options, const void* proto,
+                   size_t proto_len, TF_Status* status) {
++  LOGD("c_api::TF_SetConfig");
+   if (!options->options.config.ParseFromArray(proto, proto_len)) {
+     status->status = InvalidArgument("Unparseable ConfigProto");
+   }
+ }
+ // --------------------------------------------------------------------------
+-TF_Buffer* TF_NewBuffer() { return new TF_Buffer{nullptr, 0, nullptr}; }
++TF_Buffer* TF_NewBuffer() { 
++  LOGD("c_api::TF_NewBuffer");
++  return new TF_Buffer{nullptr, 0, nullptr}; }
+ 
+ TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len) {
++  LOGD("c_api::TF_NewBufferFromString");
+   void* copy = tensorflow::port::Malloc(proto_len);
+   memcpy(copy, proto, proto_len);
+ 
+@@ -313,6 +387,7 @@ TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len) {
+ }
+ 
+ void TF_DeleteBuffer(TF_Buffer* buffer) {
++  LOGD("c_api::TF_DeleteBuffer");
+   if (buffer->data_deallocator != nullptr) {
+     (*buffer->data_deallocator)(const_cast<void*>(buffer->data),
+                                 buffer->length);
+@@ -320,12 +395,15 @@ void TF_DeleteBuffer(TF_Buffer* buffer) {
+   delete buffer;
+ }
+ 
+-TF_Buffer TF_GetBuffer(TF_Buffer* buffer) { return *buffer; }
++TF_Buffer TF_GetBuffer(TF_Buffer* buffer) { 
++  LOGD("c_api::TF_GetBuffer");
++  return *buffer; }
+ 
+ // --------------------------------------------------------------------------
+ 
+ TF_DeprecatedSession* TF_NewDeprecatedSession(const TF_SessionOptions* opt,
+                                               TF_Status* status) {
++  LOGD("c_api::TF_NewDeprecatedSession");
+   Session* session;
+   status->status = NewSession(opt->options, &session);
+   if (status->status.ok()) {
+@@ -337,10 +415,12 @@ TF_DeprecatedSession* TF_NewDeprecatedSession(const TF_SessionOptions* opt,
+ }
+ 
+ void TF_CloseDeprecatedSession(TF_DeprecatedSession* s, TF_Status* status) {
++  LOGD("c_api::TF_CloseDeprecatedSession");
+   status->status = s->session->Close();
+ }
+ 
+ void TF_DeleteDeprecatedSession(TF_DeprecatedSession* s, TF_Status* status) {
++  LOGD("c_api::TF_DeleteDeprecatedSession");
+   status->status = Status::OK();
+   delete s->session;
+   delete s;
+@@ -348,6 +428,7 @@ void TF_DeleteDeprecatedSession(TF_DeprecatedSession* s, TF_Status* status) {
+ 
+ void TF_ExtendGraph(TF_DeprecatedSession* s, const void* proto,
+                     size_t proto_len, TF_Status* status) {
++  LOGD("c_api::TF_ExtendGraph");
+   GraphDef g;
+   if (!tensorflow::ParseProtoUnlimited(&g, proto, proto_len)) {
+     status->status = InvalidArgument("Invalid GraphDef");
+@@ -357,6 +438,7 @@ void TF_ExtendGraph(TF_DeprecatedSession* s, const void* proto,
+ }
+ 
+ static void DeleteArray(void* data, size_t size, void* arg) {
++  LOGD("c_api::DeleteArray");
+   DCHECK_EQ(data, arg);
+   delete[] reinterpret_cast<char*>(arg);
+ }
+@@ -369,6 +451,7 @@ namespace {
+ // Reset helper for converting character arrays to string vectors.
+ void TF_Reset_Helper(const TF_SessionOptions* opt, const char** containers,
+                      int ncontainers, TF_Status* status) {
++  LOGD("c_api::TF_Reset_Helper");
+   std::vector<tensorflow::string> container_names(ncontainers);
+   for (int i = 0; i < ncontainers; ++i) {
+     container_names[i] = containers[i];
+@@ -384,6 +467,7 @@ extern "C" {
+ 
+ void TF_Reset(const TF_SessionOptions* opt, const char** containers,
+               int ncontainers, TF_Status* status) {
++  LOGD("c_api::TF_Reset");
+   tensorflow::TF_Reset_Helper(opt, containers, ncontainers, status);
+ }
+ 
+@@ -393,6 +477,7 @@ namespace tensorflow {
+ 
+ // Non-static for testing.
+ bool TF_Tensor_DecodeStrings(TF_Tensor* src, Tensor* dst, TF_Status* status) {
++  LOGD("c_api::TF_Tensor_DecodeStrings");
+   const tensorflow::int64 num_elements = src->shape.num_elements();
+   const char* input = reinterpret_cast<const char*>(TF_TensorData(src));
+   const size_t src_size = TF_TensorByteSize(src);
+@@ -429,6 +514,7 @@ bool TF_Tensor_DecodeStrings(TF_Tensor* src, Tensor* dst, TF_Status* status) {
+ 
+ // Non-static for testing.
+ TF_Tensor* TF_Tensor_EncodeStrings(const Tensor& src) {
++  LOGD("c_api::TF_Tensor_EncodeStrings");
+   // Compute bytes needed for encoding.
+   size_t size = 0;
+   const auto& srcarray = src.flat<tensorflow::string>();
+@@ -472,6 +558,8 @@ TF_Tensor* TF_Tensor_EncodeStrings(const Tensor& src) {
+ // Create an empty tensor of type 'dtype'. 'shape' can be arbitrary, but has to
+ // result in a zero-sized tensor.
+ static TF_Tensor* EmptyTensor(TF_DataType dtype, const TensorShape& shape) {
++  LOGD("c_api::EmptyTensor");
++
+   static char empty;
+   tensorflow::int64 nelems = 1;
+   std::vector<tensorflow::int64> dims;
+@@ -495,16 +583,21 @@ Status LoadLibrary(const char* library_filename, void** result,
+ 
+ static void TF_Run_Setup(int noutputs, TF_Tensor** c_outputs,
+                          TF_Status* status) {
++  //LOGD("c_api::TF_Run_Setup");
++  reportTime("c_api::TF_Run_Setup starts");
+   status->status = Status::OK();
+   for (int i = 0; i < noutputs; ++i) {
+     c_outputs[i] = nullptr;
+   }
++  reportTime("c_api::TF_Run_Setup ends");
+ }
+ 
+ static bool TF_Run_Inputs(
+     TF_Tensor* const* c_inputs,
+     std::vector<std::pair<tensorflow::string, Tensor>>* input_pairs,
+     TF_Status* status) {
++  //LOGD("c_api::TF_Run_Inputs");
++  reportTime("TF_Run_Inputs starts");
+   const int ninputs = input_pairs->size();
+   for (int i = 0; i < ninputs; ++i) {
+     TF_Tensor* src = c_inputs[i];
+@@ -518,6 +611,7 @@ static bool TF_Run_Inputs(
+       return false;
+     }
+   }
++  reportTime("TF_Run_Inputs ends");
+   return true;
+ }
+ 
+@@ -531,26 +625,41 @@ static void TF_Run_Helper(
+     // Target nodes
+     const std::vector<tensorflow::string>& target_oper_names,
+     TF_Buffer* run_metadata, TF_Status* status) {
++
++  LOGD("c_api::TF_Run_Helper");
+   const int noutputs = output_tensor_names.size();
+   std::vector<Tensor> outputs(noutputs);
+   Status result;
++  reportTime("c_api::TF_Run_Helper::starts");
+ 
+   if (handle == nullptr) {
++    //LOGD("c_api::handle == nullptr");
++
+     RunOptions run_options_proto;
++    reportTime("c_api::TF_Run_Helper::handle == nullptr");
+     if (run_options != nullptr && !run_options_proto.ParseFromArray(
+                                       run_options->data, run_options->length)) {
++
++      LOGD("c_api::handle != nullptr");
++
+       status->status = InvalidArgument("Unparseable RunOptions proto");
+       return;
+     }
+     if (run_metadata != nullptr && run_metadata->data != nullptr) {
++      LOGD("c_api::run_metadata != nullptr");
++
+       status->status =
+           InvalidArgument("Passing non-empty run_metadata is invalid.");
+       return;
+     }
+ 
+     RunMetadata run_metadata_proto;
++    reportTime("c_api::TF_Run_Helper::instantiate run_metadata_proto");
++
++    //LOGD("c_api::session->Run");
+     result = session->Run(run_options_proto, input_pairs, output_tensor_names,
+                           target_oper_names, &outputs, &run_metadata_proto);
++    reportTime("c_api::TF_Run_Helper::session->Run");
+ 
+     // Serialize back to upstream client, who now owns the new buffer
+     if (run_metadata != nullptr) {
+@@ -564,9 +673,14 @@ static void TF_Run_Helper(
+   if (!result.ok()) {
+     status->status = result;
+     return;
++  
+   }
+ 
++  reportTime("c_api::TF_Run_Helper::serialize back to upstream client");
++
+   // Store results in c_outputs[]
++  //LOGD("c_api::store results in c_ouputs[]");
++
+   for (int i = 0; i < noutputs; ++i) {
+     const Tensor& src = outputs[i];
+     if (!src.IsInitialized() || src.NumElements() == 0) {
+@@ -584,6 +698,8 @@ static void TF_Run_Helper(
+       c_outputs[i] = tensorflow::TF_Tensor_EncodeStrings(src);
+     }
+   }
++  reportTime("c_api::TF_Run_Helper::store results in c_output[]");
++
+ }
+ 
+ extern "C" {
+@@ -596,6 +712,7 @@ void TF_Run(TF_DeprecatedSession* s, const TF_Buffer* run_options,
+             // Target nodes
+             const char** c_target_oper_names, int ntargets,
+             TF_Buffer* run_metadata, TF_Status* status) {
++  LOGD("c_api::TF_Run");
+   TF_Run_Setup(noutputs, c_outputs, status);
+   std::vector<std::pair<tensorflow::string, Tensor>> input_pairs(ninputs);
+   if (!TF_Run_Inputs(c_inputs, &input_pairs, status)) return;
+@@ -627,6 +744,7 @@ void TF_PRunSetup(TF_DeprecatedSession* s,
+   std::vector<tensorflow::string> input_names(ninputs);
+   std::vector<tensorflow::string> output_names(noutputs);
+   std::vector<tensorflow::string> target_oper_names(ntargets);
++  LOGD("c_api::TF_PRunSetup");
+   for (int i = 0; i < ninputs; ++i) {
+     input_names[i] = c_input_names[i];
+   }
+@@ -654,6 +772,7 @@ void TF_PRun(TF_DeprecatedSession* s, const char* handle,
+              // Target nodes
+              const char** c_target_oper_names, int ntargets,
+              TF_Status* status) {
++  LOGD("c_api::TF_PRun");
+   TF_Run_Setup(noutputs, c_outputs, status);
+   std::vector<std::pair<tensorflow::string, Tensor>> input_pairs(ninputs);
+   if (!TF_Run_Inputs(c_inputs, &input_pairs, status)) return;
+@@ -674,6 +793,7 @@ void TF_PRun(TF_DeprecatedSession* s, const char* handle,
+ }
+ 
+ TF_Library* TF_LoadLibrary(const char* library_filename, TF_Status* status) {
++  LOGD("c_api::TF_LoadLibrary");
+   TF_Library* lib_handle = new TF_Library;
+   status->status = tensorflow::LoadLibrary(
+       library_filename, &lib_handle->lib_handle, &lib_handle->op_list.data,
+@@ -685,14 +805,18 @@ TF_Library* TF_LoadLibrary(const char* library_filename, TF_Status* status) {
+   return lib_handle;
+ }
+ 
+-TF_Buffer TF_GetOpList(TF_Library* lib_handle) { return lib_handle->op_list; }
++TF_Buffer TF_GetOpList(TF_Library* lib_handle) { 
++  LOGD("c_api::TF_GetOpList");
++  return lib_handle->op_list; }
+ 
+ void TF_DeleteLibraryHandle(TF_Library* lib_handle) {
++  LOGD("c_api::TF_DeleteLibraryHandle");
+   tensorflow::port::Free(const_cast<void*>(lib_handle->op_list.data));
+   delete lib_handle;
+ }
+ 
+ TF_Buffer* TF_GetAllOpList() {
++  LOGD("c_api::TF_GetAllOpList");
+   std::vector<tensorflow::OpDef> op_defs;
+   tensorflow::OpRegistry::Global()->GetRegisteredOps(&op_defs);
+   tensorflow::OpList op_list;
+@@ -707,7 +831,9 @@ TF_Buffer* TF_GetAllOpList() {
+ // --------------------------------------------------------------------------
+ // ListDevices & SessionListDevices API
+ 
+-void TF_DeleteDeviceList(TF_DeviceList* s) { delete s; }
++void TF_DeleteDeviceList(TF_DeviceList* s) { 
++  LOGD("c_api::TF_DeleteDeviceList");
++  delete s; }
+ 
+ TF_DeviceList* TF_SessionListDevices(TF_Session* session, TF_Status* status) {
+   TF_DeviceList* response = new TF_DeviceList;
+@@ -717,12 +843,15 @@ TF_DeviceList* TF_SessionListDevices(TF_Session* session, TF_Status* status) {
+ 
+ TF_DeviceList* TF_DeprecatedSessionListDevices(TF_DeprecatedSession* session,
+                                                TF_Status* status) {
++
++  LOGD("c_api::TF_DeprecatedSessionListDevices");
+   TF_DeviceList* response = new TF_DeviceList;
+   status->status = session->session->ListDevices(&response->response);
+   return response;
+ }
+ 
+ int TF_DeviceListCount(const TF_DeviceList* list) {
++  LOGD("c_api::TF_DeviceListCount");
+   return list->response.size();
+ }
+ 
+@@ -757,16 +886,38 @@ TF_DEVICELIST_METHOD(int64_t, TF_DeviceListMemoryBytes, memory_limit(), -1);
+ namespace {
+ 
+ TF_Operation* ToOperation(Node* node) {
++  LOGD("c_api::ToOperation");
+   return static_cast<TF_Operation*>(static_cast<void*>(node));
+ }
+ 
++
++
++//double elapse1;
++//struct timespec currentTime1, lastTime1;
++
++  // void reportTime(const char* str) {
++  //   std::stringstream stringstream;
++  //   clock_gettime(CLOCK_MONOTONIC, &currentTime);
++  //   elapse = ( currentTime.tv_sec - lastTime.tv_sec) + (double)( currentTime.tv_nsec - lastTime.tv_nsec)/1E9;
++  //   LOGI("%s, time elapse:\t%f", str, elapse);
++  //   //stringstream << " Time is " << elapse << " sec";
++  //   //android_log_print(stringstream.str().c_str());
++  //   lastTime = currentTime;
++  // }
++//clock_gettime(CLOCK_MONOTONIC, &currentTime1);
++
++//reportTime("c_api::OutputName starts");
+ tensorflow::string OutputName(const TF_Output& output) {
++  //LOGD("c_api::OutputName");
+   return StrCat(output.oper->node.name(), ":", output.index);
+ }
++//clock_gettime(CLOCK_MONOTONIC, &lastTime1);
++//reportTime("c_api::OutputName ends");
+ 
+ const tensorflow::AttrValue* GetAttrValue(TF_Operation* oper,
+                                           const char* attr_name,
+                                           TF_Status* status) {
++  LOGD("c_api::AttrValue");
+   const tensorflow::AttrValue* attr = oper->node.attrs().Find(attr_name);
+   if (attr == nullptr) {
+     status->status =
+@@ -782,6 +933,7 @@ const tensorflow::AttrValue* GetAttrValue(TF_Operation* oper,
+ void TF_GraphSetTensorShape(TF_Graph* graph, TF_Output output,
+                             const int64_t* dims, const int num_dims,
+                             TF_Status* status) {
++  LOGD("c_api::TF_GraphSetTensorShape");
+   Node* node = &output.oper->node;
+ 
+   mutex_lock l(graph->mu);
+@@ -806,6 +958,7 @@ void TF_GraphSetTensorShape(TF_Graph* graph, TF_Output output,
+ 
+ int TF_GraphGetTensorNumDims(TF_Graph* graph, TF_Output output,
+                              TF_Status* status) {
++  LOGD("c_api::TF_GraphGetTensorNumDims");
+   Node* node = &output.oper->node;
+ 
+   mutex_lock l(graph->mu);
+@@ -829,6 +982,7 @@ int TF_GraphGetTensorNumDims(TF_Graph* graph, TF_Output output,
+ 
+ void TF_GraphGetTensorShape(TF_Graph* graph, TF_Output output, int64_t* dims,
+                             int num_dims, TF_Status* status) {
++  LOGD("c_api::TF_GraphGetTensorShape");
+   Node* node = &output.oper->node;
+ 
+   mutex_lock l(graph->mu);
+@@ -877,6 +1031,7 @@ extern "C" {
+ static TF_OperationDescription* TF_NewOperationLocked(TF_Graph* graph,
+                                                       const char* op_type,
+                                                       const char* oper_name)
++    //LOGD("c_api::TF_NewOperationLocked");
+     EXCLUSIVE_LOCKS_REQUIRED(graph->mu) {
+   return new TF_OperationDescription(graph, op_type, oper_name);
+ }
+@@ -888,15 +1043,18 @@ TF_OperationDescription* TF_NewOperation(TF_Graph* graph, const char* op_type,
+ }
+ 
+ void TF_SetDevice(TF_OperationDescription* desc, const char* device) {
++  LOGD("c_api::TF_SetDevice");
+   desc->node_builder.Device(device);
+ }
+ 
+ void TF_AddInput(TF_OperationDescription* desc, TF_Output input) {
++  LOGD("c_api::TF_AddInput");
+   desc->node_builder.Input(&input.oper->node, input.index);
+ }
+ 
+ void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs,
+                      int num_inputs) {
++  LOGD("c_api::TF_AddInputList");
+   std::vector<NodeBuilder::NodeOut> input_list;
+   input_list.reserve(num_inputs);
+   for (int i = 0; i < num_inputs; ++i) {
+@@ -906,16 +1064,19 @@ void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs,
+ }
+ 
+ void TF_AddControlInput(TF_OperationDescription* desc, TF_Operation* input) {
++  LOGD("c_api::TF_AddControlInput");
+   desc->node_builder.ControlInput(&input->node);
+ }
+ 
+ void TF_ColocateWith(TF_OperationDescription* desc, TF_Operation* op) {
++  LOGD("c_api::TF_ColocateWith");
+   desc->colocation_constraints.emplace_back(
+       StrCat(tensorflow::kColocationGroupPrefix, op->node.name()));
+ }
+ 
+ void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name,
+                       const void* value, size_t length) {
++  LOGD("c_api::TF_SetAttrString");
+   tensorflow::StringPiece s(static_cast<const char*>(value), length);
+   desc->node_builder.Attr(attr_name, s);
+ }
+@@ -923,6 +1084,7 @@ void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name,
+ void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,
+                           const void* const* values, const size_t* lengths,
+                           int num_values) {
++  LOGD("c_api::TF_SetAttrStringList");
+   std::vector<tensorflow::StringPiece> v;
+   v.reserve(num_values);
+   for (int i = 0; i < num_values; ++i) {
+@@ -933,6 +1095,7 @@ void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,
+ 
+ void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name,
+                    int64_t value) {
++  LOGD("c_api::TF_SetAttrInt");
+   static_assert(sizeof(int64_t) == sizeof(tensorflow::int64),
+                 "64-bit int types should match in size");
+   desc->node_builder.Attr(attr_name, static_cast<tensorflow::int64>(value));
+@@ -940,6 +1103,7 @@ void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name,
+ 
+ void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name,
+                        const int64_t* values, int num_values) {
++  LOGD("c_api::TF_SetAttrIntList");
+   static_assert(sizeof(int64_t) == sizeof(tensorflow::int64),
+                 "64-bit int types should match in size");
+   desc->node_builder.Attr(
+@@ -950,22 +1114,26 @@ void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name,
+ 
+ void TF_SetAttrFloat(TF_OperationDescription* desc, const char* attr_name,
+                      float value) {
++  LOGD("c_api::TF_SetAttrFloat");
+   desc->node_builder.Attr(attr_name, value);
+ }
+ 
+ void TF_SetAttrFloatList(TF_OperationDescription* desc, const char* attr_name,
+                          const float* values, int num_values) {
++  LOGD("c_api::TF_SetAttrFloatList");
+   desc->node_builder.Attr(attr_name,
+                           ArraySlice<const float>(values, num_values));
+ }
+ 
+ void TF_SetAttrBool(TF_OperationDescription* desc, const char* attr_name,
+                     unsigned char value) {
++  LOGD("c_api::TF_SetAttrBool");
+   desc->node_builder.Attr(attr_name, static_cast<bool>(value));
+ }
+ 
+ void TF_SetAttrBoolList(TF_OperationDescription* desc, const char* attr_name,
+                         const unsigned char* values, int num_values) {
++  LOGD("c_api::TF_SetAttrBoolList");
+   std::unique_ptr<bool[]> b(new bool[num_values]);
+   for (int i = 0; i < num_values; ++i) {
+     b[i] = values[i];
+@@ -976,11 +1144,13 @@ void TF_SetAttrBoolList(TF_OperationDescription* desc, const char* attr_name,
+ 
+ void TF_SetAttrType(TF_OperationDescription* desc, const char* attr_name,
+                     TF_DataType value) {
++  LOGD("c_api::TF_SetAttrType");
+   desc->node_builder.Attr(attr_name, static_cast<DataType>(value));
+ }
+ 
+ void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name,
+                         const TF_DataType* values, int num_values) {
++  LOGD("c_api::TF_SetAttrTypeList");
+   desc->node_builder.Attr(
+       attr_name, ArraySlice<const DataType>(
+                      reinterpret_cast<const DataType*>(values), num_values));
+@@ -988,6 +1158,7 @@ void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name,
+ 
+ void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name,
+                      const int64_t* dims, int num_dims) {
++  LOGD("c_api::TF_SetAttrShape");
+   PartialTensorShape shape;
+   if (num_dims >= 0) {
+     static_assert(sizeof(int64_t) == sizeof(tensorflow::int64),
+@@ -1001,6 +1172,7 @@ void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name,
+ void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name,
+                          const int64_t* const* dims, const int* num_dims,
+                          int num_shapes) {
++  LOGD("c_api::TF_SetAttrShapeList");
+   std::vector<PartialTensorShape> shapes;
+   shapes.reserve(num_shapes);
+   for (int i = 0; i < num_shapes; ++i) {
+@@ -1019,6 +1191,7 @@ void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name,
+ void TF_SetAttrTensorShapeProto(TF_OperationDescription* desc,
+                                 const char* attr_name, const void* proto,
+                                 size_t proto_len, TF_Status* status) {
++  LOGD("c_api::TF_SetAttrTensorShapeProto");
+   // shape.ParseFromArray takes an int as length, this function takes size_t,
+   // make sure there is no information loss.
+   if (proto_len > std::numeric_limits<int>::max()) {
+@@ -1041,6 +1214,7 @@ void TF_SetAttrTensorShapeProtoList(TF_OperationDescription* desc,
+                                     const void* const* protos,
+                                     const size_t* proto_lens, int num_shapes,
+                                     TF_Status* status) {
++  LOGD("c_api::TF_SetAttrTensorShapeProtoList");
+   std::vector<TensorShapeProto> shapes;
+   shapes.resize(num_shapes);
+   for (int i = 0; i < num_shapes; ++i) {
+@@ -1062,6 +1236,8 @@ void TF_SetAttrTensorShapeProtoList(TF_OperationDescription* desc,
+ 
+ void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name,
+                       TF_Tensor* value, TF_Status* status) {
++  LOGD("c_api::TF_SetAttrTensor");
++
+   status->status = Status::OK();
+   Tensor t;
+   bool ok = true;
+@@ -1081,6 +1257,8 @@ void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name,
+ void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name,
+                           TF_Tensor* const* values, int num_values,
+                           TF_Status* status) {
++  LOGD("c_api::TF_SetAttrTensorList");
++
+   status->status = Status::OK();
+   std::vector<Tensor> t;
+   t.reserve(num_values);
+@@ -1104,6 +1282,7 @@ void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name,
+ void TF_SetAttrValueProto(TF_OperationDescription* desc, const char* attr_name,
+                           const void* proto, size_t proto_len,
+                           TF_Status* status) {
++  LOGD("c_api::TF_SetAttrValueProto");
+   tensorflow::AttrValue attr_value;
+   if (attr_value.ParseFromArray(proto, proto_len)) {
+     desc->node_builder.Attr(attr_name, attr_value);
+@@ -1116,6 +1295,7 @@ void TF_SetAttrValueProto(TF_OperationDescription* desc, const char* attr_name,
+ static TF_Operation* TF_FinishOperationLocked(TF_OperationDescription* desc,
+                                               TF_Status* status)
+     EXCLUSIVE_LOCKS_REQUIRED(desc->graph->mu) {
++      LOGD("c_api::TF_FinishOperationLocked");
+   Node* ret = nullptr;
+ 
+   if (desc->graph->name_map.count(desc->node_builder.node_name())) {
+@@ -1148,6 +1328,7 @@ static TF_Operation* TF_FinishOperationLocked(TF_OperationDescription* desc,
+ 
+ TF_Operation* TF_FinishOperation(TF_OperationDescription* desc,
+                                  TF_Status* status) {
++  LOGD("c_api::TF_FinishOperation");
+   mutex_lock l(desc->graph->mu);
+   return TF_FinishOperationLocked(desc, status);
+ }
+@@ -1156,28 +1337,34 @@ TF_Operation* TF_FinishOperation(TF_OperationDescription* desc,
+ // ----------------------------------------------------------
+ 
+ const char* TF_OperationName(TF_Operation* oper) {
++  LOGD("c_api::TF_OperationName");
+   return oper->node.name().c_str();
+ }
+ 
+ const char* TF_OperationOpType(TF_Operation* oper) {
++  LOGD("c_api::OperationOpType");
+   return oper->node.type_string().c_str();
+ }
+ 
+ const char* TF_OperationDevice(TF_Operation* oper) {
++  LOGD("c_api::TF_OperationDevice");
+   return oper->node.requested_device().c_str();
+ }
+ 
+ int TF_OperationNumOutputs(TF_Operation* oper) {
++  LOGD("c_api::TF_OperationNumOutputs");
+   return oper->node.num_outputs();
+ }
+ 
+ TF_DataType TF_OperationOutputType(TF_Output oper_out) {
++  LOGD("c_api::TF_OperationOutputType");
+   return static_cast<TF_DataType>(
+       oper_out.oper->node.output_type(oper_out.index));
+ }
+ 
+ int TF_OperationOutputListLength(TF_Operation* oper, const char* arg_name,
+                                  TF_Status* status) {
++  LOGD("c_api::TF_OperationOutputListLength");
+   NameRangeMap name_ranges;
+   status->status =
+       NameRangesForNode(oper->node, oper->node.op_def(), nullptr, &name_ranges);
+@@ -1191,15 +1378,18 @@ int TF_OperationOutputListLength(TF_Operation* oper, const char* arg_name,
+ }
+ 
+ int TF_OperationNumInputs(TF_Operation* oper) {
++  LOGD("c_api::TF_OperationNumInputs");
+   return oper->node.num_inputs();
+ }
+ 
+ TF_DataType TF_OperationInputType(TF_Input oper_in) {
++  LOGD("c_api::TF_OperationInputType");
+   return static_cast<TF_DataType>(oper_in.oper->node.input_type(oper_in.index));
+ }
+ 
+ int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name,
+                                 TF_Status* status) {
++  LOGD("c_api::TF_OperationInputListLength");
+   NameRangeMap name_ranges;
+   status->status =
+       NameRangesForNode(oper->node, oper->node.op_def(), &name_ranges, nullptr);
+@@ -1213,6 +1403,7 @@ int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name,
+ }
+ 
+ TF_Output TF_OperationInput(TF_Input oper_in) {
++  LOGD("c_api::TF_OperationInput");
+   const tensorflow::Edge* edge;
+   Status s = oper_in.oper->node.input_edge(oper_in.index, &edge);
+   if (!s.ok()) {
+@@ -1223,6 +1414,7 @@ TF_Output TF_OperationInput(TF_Input oper_in) {
+ }
+ 
+ int TF_OperationOutputNumConsumers(TF_Output oper_out) {
++  LOGD("c_api::TF_OperationOutputNumConsumers");
+   int count = 0;
+   for (const auto* edge : oper_out.oper->node.out_edges()) {
+     if (edge->src_output() == oper_out.index) {
+@@ -1234,6 +1426,7 @@ int TF_OperationOutputNumConsumers(TF_Output oper_out) {
+ 
+ int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers,
+                                 int max_consumers) {
++  LOGD("c_api::TF_OperationOutputConsumers");
+   int count = 0;
+   for (const auto* edge : oper_out.oper->node.out_edges()) {
+     if (edge->src_output() == oper_out.index) {
+@@ -1247,12 +1440,16 @@ int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers,
+ }
+ 
+ int TF_OperationNumControlInputs(TF_Operation* oper) {
++  LOGD("c_api::TF_OperationNumControlInputs");
++
+   return oper->node.in_edges().size() - oper->node.num_inputs();
+ }
+ 
+ int TF_OperationGetControlInputs(TF_Operation* oper,
+                                  TF_Operation** control_inputs,
+                                  int max_control_inputs) {
++  LOGD("c_api::TF_OperationGetControlInputs");
++
+   int count = 0;
+   for (const auto* edge : oper->node.in_edges()) {
+     if (edge->IsControlEdge()) {
+@@ -1266,6 +1463,7 @@ int TF_OperationGetControlInputs(TF_Operation* oper,
+ }
+ 
+ int TF_OperationNumControlOutputs(TF_Operation* oper) {
++  LOGD("c_api::TF_OperationNumControlOutputs");
+   int count = 0;
+   for (const auto* edge : oper->node.out_edges()) {
+     if (edge->IsControlEdge()) {
+@@ -1278,6 +1476,8 @@ int TF_OperationNumControlOutputs(TF_Operation* oper) {
+ int TF_OperationGetControlOutputs(TF_Operation* oper,
+                                   TF_Operation** control_outputs,
+                                   int max_control_outputs) {
++  LOGD("c_api::TF_OperationGetControlOutputs");
++
+   int count = 0;
+   for (const auto* edge : oper->node.out_edges()) {
+     if (edge->IsControlEdge()) {
+@@ -1293,6 +1493,8 @@ int TF_OperationGetControlOutputs(TF_Operation* oper,
+ TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper,
+                                             const char* attr_name,
+                                             TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrMetadata");
++
+   TF_AttrMetadata metadata;
+   const auto* attr = GetAttrValue(oper, attr_name, status);
+   if (!status->status.ok()) return metadata;
+@@ -1399,6 +1601,8 @@ TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper,
+ void TF_OperationGetAttrString(TF_Operation* oper, const char* attr_name,
+                                void* value, size_t max_length,
+                                TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrString");
++
+   const auto* attr = GetAttrValue(oper, attr_name, status);
+   if (!status->status.ok()) return;
+   if (attr->value_case() != tensorflow::AttrValue::kS) {
+@@ -1417,6 +1621,8 @@ void TF_OperationGetAttrStringList(TF_Operation* oper, const char* attr_name,
+                                    void** values, size_t* lengths,
+                                    int max_values, void* storage,
+                                    size_t storage_size, TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrStringList");
++
+   const auto* attr = GetAttrValue(oper, attr_name, status);
+   if (!status->status.ok()) return;
+   if (attr->value_case() != tensorflow::AttrValue::kList) {
+@@ -1470,6 +1676,8 @@ DEFINE_GETATTR(TF_OperationGetAttrType, TF_DataType, DataType, type);
+ 
+ void TF_OperationGetAttrShape(TF_Operation* oper, const char* attr_name,
+                               int64_t* value, int num_dims, TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrShape");
++
+   PartialTensorShape shape;
+   status->status =
+       tensorflow::GetNodeAttr(oper->node.attrs(), attr_name, &shape);
+@@ -1484,6 +1692,8 @@ void TF_OperationGetAttrShapeList(TF_Operation* oper, const char* attr_name,
+                                   int64_t** values, int* num_dims,
+                                   int max_values, int64_t* storage,
+                                   int storage_size, TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrShapeList");
++
+   std::vector<PartialTensorShape> shapes;
+   status->status =
+       tensorflow::GetNodeAttr(oper->node.attrs(), attr_name, &shapes);
+@@ -1514,6 +1724,8 @@ void TF_OperationGetAttrShapeList(TF_Operation* oper, const char* attr_name,
+ void TF_OperationGetAttrTensorShapeProto(TF_Operation* oper,
+                                          const char* attr_name,
+                                          TF_Buffer* value, TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrTensorShapeProto");
++
+   const auto* attr = GetAttrValue(oper, attr_name, status);
+   if (!status->status.ok()) return;
+   if (attr->value_case() != tensorflow::AttrValue::kShape) {
+@@ -1528,6 +1740,8 @@ void TF_OperationGetAttrTensorShapeProtoList(TF_Operation* oper,
+                                              const char* attr_name,
+                                              TF_Buffer** values, int max_values,
+                                              TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrTensorShapeProtoList");
++
+   const auto* attr = GetAttrValue(oper, attr_name, status);
+   if (!status->status.ok()) return;
+   if (attr->value_case() != tensorflow::AttrValue::kList) {
+@@ -1551,6 +1765,8 @@ void TF_OperationGetAttrTensorShapeProtoList(TF_Operation* oper,
+ 
+ void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name,
+                                TF_Tensor** value, TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrTensor");
++
+   *value = nullptr;
+   Tensor t;
+   status->status = tensorflow::GetNodeAttr(oper->node.attrs(), attr_name, &t);
+@@ -1563,6 +1779,8 @@ void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name,
+ void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name,
+                                    TF_Tensor** values, int max_values,
+                                    TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrTensorList");
++
+   std::vector<Tensor> ts;
+   status->status = tensorflow::GetNodeAttr(oper->node.attrs(), attr_name, &ts);
+   if (!status->status.ok()) return;
+@@ -1578,6 +1796,8 @@ void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name,
+ void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name,
+                                    TF_Buffer* output_attr_value,
+                                    TF_Status* status) {
++  LOGD("c_api::TF_OperationGetAttrValueProto");
++
+   const auto* attr = GetAttrValue(oper, attr_name, status);
+   if (!status->status.ok()) return;
+   status->status = MessageToBuffer(*attr, output_attr_value);
+@@ -1585,6 +1805,8 @@ void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name,
+ 
+ void TF_OperationToNodeDef(TF_Operation* oper, TF_Buffer* output_node_def,
+                            TF_Status* status) {
++  LOGD("c_api::TF_OperationToNodeDef");
++
+   status->status = MessageToBuffer(oper->node.def(), output_node_def);
+ }
+ 
+@@ -1598,9 +1820,14 @@ TF_Graph::TF_Graph()
+       parent(nullptr),
+       parent_inputs(nullptr) {}
+ 
+-TF_Graph* TF_NewGraph() { return new TF_Graph; }
++TF_Graph* TF_NewGraph() { 
++  LOGD("c_api::TF_NewGraph");
++
++  return new TF_Graph; }
+ 
+ void TF_DeleteGraph(TF_Graph* g) {
++  LOGD("c_api::TF_DeleteGraph");
++
+   g->mu.lock();
+   g->delete_requested = true;
+   const bool del = g->num_sessions == 0;
+@@ -1609,6 +1836,8 @@ void TF_DeleteGraph(TF_Graph* g) {
+ }
+ 
+ TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name) {
++  LOGD("c_api::TF_GraphOperationByName");
++
+   mutex_lock l(graph->mu);
+   auto iter = graph->name_map.find(oper_name);
+   if (iter == graph->name_map.end()) {
+@@ -1619,6 +1848,8 @@ TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name) {
+ }
+ 
+ TF_Operation* TF_GraphNextOperation(TF_Graph* graph, size_t* pos) {
++  LOGD("c_api::TF_GraphNextOperation");
++
+   if (*pos == 0) {
+     // Advance past the first sentinel nodes in every graph (the source & sink).
+     *pos += 2;
+@@ -1643,6 +1874,8 @@ TF_Operation* TF_GraphNextOperation(TF_Graph* graph, size_t* pos) {
+ 
+ void TF_GraphToGraphDef(TF_Graph* graph, TF_Buffer* output_graph_def,
+                         TF_Status* status) {
++  LOGD("c_api::TF_GraphToGraphDef");
++
+   GraphDef def;
+   {
+     mutex_lock l(graph->mu);
+@@ -1652,13 +1885,19 @@ void TF_GraphToGraphDef(TF_Graph* graph, TF_Buffer* output_graph_def,
+ }
+ 
+ TF_ImportGraphDefOptions* TF_NewImportGraphDefOptions() {
++  LOGD("c_api::TF_NewImportGraphDefOptions");
++
+   return new TF_ImportGraphDefOptions;
+ }
+ void TF_DeleteImportGraphDefOptions(TF_ImportGraphDefOptions* opts) {
++  LOGD("c_api::TF_DeleteImportGraphDefOptions");
++
+   delete opts;
+ }
+ void TF_ImportGraphDefOptionsSetPrefix(TF_ImportGraphDefOptions* opts,
+                                        const char* prefix) {
++  LOGD("c_api::TF_ImportGraphDefOptionsSetPrefix");
++
+   opts->opts.prefix = prefix;
+ }
+ 
+@@ -1673,27 +1912,37 @@ TensorId ToTensorId(const TF_Output& output) {
+ void TF_ImportGraphDefOptionsAddInputMapping(TF_ImportGraphDefOptions* opts,
+                                              const char* src_name,
+                                              int src_index, TF_Output dst) {
++  LOGD("c_api::TF_ImportGraphDefOptionsAddInputMapping");
++
+   opts->opts.input_map[TensorId(src_name, src_index)] = ToTensorId(dst);
+ }
+ 
+ void TF_ImportGraphDefOptionsRemapControlDependency(
+     TF_ImportGraphDefOptions* opts, const char* src_name, TF_Operation* dst) {
++  LOGD("c_api::TF_ImportGraphDefOptionsRemapControlDependency");
++
+   opts->opts.input_map[TensorId(src_name, tensorflow::Graph::kControlSlot)] =
+       TensorId(dst->node.name(), tensorflow::Graph::kControlSlot);
+ }
+ 
+ extern void TF_ImportGraphDefOptionsAddControlDependency(
+     TF_ImportGraphDefOptions* opts, TF_Operation* oper) {
++  LOGD("c_api::TF_ImportGraphDefOptionsAddControlDependency");
++
+   opts->opts.control_dependencies.push_back(oper->node.name());
+ }
+ 
+ void TF_ImportGraphDefOptionsAddReturnOutput(TF_ImportGraphDefOptions* opts,
+                                              const char* oper_name, int index) {
++  LOGD("c_api::TF_ImportGraphDefOptionsAddReturnOutput");
++
+   opts->opts.return_tensors.push_back({oper_name, index});
+ }
+ 
+ int TF_ImportGraphDefOptionsNumReturnOutputs(
+     const TF_ImportGraphDefOptions* opts) {
++  LOGD("c_api::TF_ImportGraphDefOptionsNumReturnOutputs");
++
+   return opts->opts.return_tensors.size();
+ }
+ 
+@@ -1702,6 +1951,8 @@ static void GraphImportGraphDefLocked(TF_Graph* graph, const GraphDef& def,
+                                       TF_Output* return_outputs,
+                                       int num_return_outputs, TF_Status* status)
+     EXCLUSIVE_LOCKS_REQUIRED(graph->mu) {
++  LOGD("c_api::GraphImportGraphDefLocked");
++    
+   if (num_return_outputs != opts->opts.return_tensors.size()) {
+     status->status = InvalidArgument("Expected 'num_return_outputs' to be ",
+                                      opts->opts.return_tensors.size(), ", got ",
+@@ -1733,6 +1984,9 @@ void TF_GraphImportGraphDefWithReturnOutputs(
+     TF_Graph* graph, const TF_Buffer* graph_def,
+     const TF_ImportGraphDefOptions* opts, TF_Output* return_outputs,
+     int num_return_outputs, TF_Status* status) {
++
++  LOGD("c_api::TF_GraphImportGraphDefWithReturnOutputs");
++
+   GraphDef def;
+   if (!def.ParseFromArray(graph_def->data, graph_def->length)) {
+     status->status = InvalidArgument("Invalid GraphDef");
+@@ -1746,6 +2000,8 @@ void TF_GraphImportGraphDefWithReturnOutputs(
+ void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def,
+                             const TF_ImportGraphDefOptions* options,
+                             TF_Status* status) {
++  LOGD("c_api::TF_GraphImportGraphDef");
++
+   TF_GraphImportGraphDefWithReturnOutputs(graph, graph_def, options, nullptr, 0,
+                                           status);
+ }
+@@ -1755,6 +2011,8 @@ void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def,
+ namespace {
+ bool CreateInput(const TF_Output& parent_input, TF_Graph* g, const char* name,
+                  TF_Output* input, TF_Status* status) {
++  LOGD("c_api::CreateInput");
++
+   TF_OperationDescription* desc = TF_NewOperation(g, "Placeholder", name);
+   TF_SetAttrType(desc, "dtype", TF_OperationOutputType(parent_input));
+   // TODO(skyewm): set placeholder shape
+@@ -1767,6 +2025,8 @@ bool CreateInput(const TF_Output& parent_input, TF_Graph* g, const char* name,
+ bool CreateEnter(TF_Graph* g, const char* node_name, const char* frame_name,
+                  const TF_Output& input, TF_Output* enter, TF_Status* status)
+     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
++  //LOGD("c_api::CreateEnter");
++
+   TF_OperationDescription* desc = TF_NewOperationLocked(g, "Enter", node_name);
+   TF_AddInput(desc, input);
+   TF_SetAttrString(desc, "frame_name", frame_name, strlen(frame_name));
+@@ -1780,6 +2040,8 @@ bool CreateMerge(TF_Graph* g, const char* name, const TF_Output& input,
+                  const char* backedge_name, int backedge_index,
+                  TF_Output* merge, TF_Status* status)
+     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
++      LOGD("c_api::CreateMerge");
++
+   TF_OperationDescription* desc = TF_NewOperationLocked(g, "Merge", name);
+ 
+   // The merge nodes accept the while loop's back edges as an input. Use the
+@@ -1804,6 +2066,8 @@ bool CreateSwitch(TF_Graph* g, const char* name, const TF_Output& input,
+                   const TF_Output& predicate, TF_Output* switch_true,
+                   TF_Output* switch_false, TF_Status* status)
+     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
++  LOGD("c_api::CreateSwitch");
++
+   TF_OperationDescription* desc = TF_NewOperationLocked(g, "Switch", name);
+   TF_AddInput(desc, input);
+   TF_AddInput(desc, predicate);
+@@ -1817,6 +2081,8 @@ bool CreateSwitch(TF_Graph* g, const char* name, const TF_Output& input,
+ bool CreateNext(TF_Graph* g, const char* name, const TF_Output& input,
+                 TF_Output* next, TF_Status* status)
+     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
++    LOGD("c_api::CreateNext");
++
+   TF_OperationDescription* desc =
+       TF_NewOperationLocked(g, "NextIteration", name);
+   TF_AddInput(desc, input);
+@@ -1829,6 +2095,8 @@ bool CreateNext(TF_Graph* g, const char* name, const TF_Output& input,
+ bool CreateExit(TF_Graph* g, const char* name, const TF_Output& input,
+                 TF_Output* exit, TF_Status* status)
+     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
++      LOGD("c_api::CreateExit");
++
+   TF_OperationDescription* desc = TF_NewOperationLocked(g, "Exit", name);
+   TF_AddInput(desc, input);
+   TF_Operation* oper = TF_FinishOperationLocked(desc, status);
+@@ -1861,6 +2129,8 @@ bool CopyGraph(TF_Graph* src_graph, TF_Graph* dst_graph,
+                const TF_Output* nodes_to_return, int nreturn_nodes,
+                TF_Output* return_nodes, TF_Status* s)
+     EXCLUSIVE_LOCKS_REQUIRED(dst_graph->mu) {
++  LOGD("c_api::CopyGraph");
++
+   GraphDef gdef;
+   src_graph->graph.ToGraphDef(&gdef);
+ 
+@@ -1889,6 +2159,8 @@ bool CopyGraph(TF_Graph* src_graph, TF_Graph* dst_graph,
+ }
+ 
+ bool ValidateConstWhileParams(const TF_WhileParams& params, TF_Status* s) {
++  LOGD("c_api::ValidateConstWhileParams");
++
+   if (params.cond_graph == nullptr || params.body_graph == nullptr ||
+       params.cond_graph->parent == nullptr ||
+       params.cond_graph->parent != params.body_graph->parent ||
+@@ -1903,6 +2175,8 @@ bool ValidateConstWhileParams(const TF_WhileParams& params, TF_Status* s) {
+ }
+ 
+ bool ValidateInputWhileParams(const TF_WhileParams& params, TF_Status* s) {
++  LOGD("c_api::ValidateInputWhileParams");
++
+   if (params.cond_output.oper == nullptr) {
+     s->status = InvalidArgument("TF_WhileParams `cond_output` field isn't set");
+     return false;
+@@ -1922,6 +2196,8 @@ bool ValidateInputWhileParams(const TF_WhileParams& params, TF_Status* s) {
+ }
+ 
+ void FreeWhileResources(const TF_WhileParams* params) {
++  LOGD("c_api::FreeWhileResources");
++
+   TF_DeleteGraph(params->cond_graph);
+   TF_DeleteGraph(params->body_graph);
+   delete[] params->cond_inputs;
+@@ -1930,6 +2206,8 @@ void FreeWhileResources(const TF_WhileParams* params) {
+ }
+ 
+ TF_WhileParams EmptyWhileParams() {
++  LOGD("c_api::EmptyWhileParams");
++
+   return {0,       nullptr, nullptr, {nullptr, 0},
+           nullptr, nullptr, nullptr, nullptr};
+ }
+@@ -1938,6 +2216,8 @@ TF_WhileParams EmptyWhileParams() {
+ 
+ TF_WhileParams TF_NewWhile(TF_Graph* g, TF_Output* inputs, int ninputs,
+                            TF_Status* status) {
++  LOGD("c_api::TF_NewWhile");
++
+   if (ninputs == 0) {
+     status->status =
+         InvalidArgument("TF_NewWhile() must be passed at least one input");
+@@ -1985,6 +2265,8 @@ namespace {
+ // TODO(skyewm): make nodes in while loop unfetchable like in Python version
+ void TF_FinishWhileHelper(const TF_WhileParams* params, TF_Status* status,
+                           TF_Output* outputs) {
++  LOGD("c_api::TF_FinishWhileHelper");
++
+   if (!ValidateInputWhileParams(*params, status)) return;
+ 
+   TF_Graph* parent = params->cond_graph->parent;
+@@ -2065,19 +2347,27 @@ void TF_FinishWhileHelper(const TF_WhileParams* params, TF_Status* status,
+ 
+ void TF_FinishWhile(const TF_WhileParams* params, TF_Status* status,
+                     TF_Output* outputs) {
++  LOGD("c_api::TF_FinishWhile");
++
+   // If it appears the caller created or modified `params`, don't free resources
+   if (!ValidateConstWhileParams(*params, status)) return;
+   TF_FinishWhileHelper(params, status, outputs);
+   FreeWhileResources(params);
+ }
+ 
+-void TF_AbortWhile(const TF_WhileParams* params) { FreeWhileResources(params); }
++void TF_AbortWhile(const TF_WhileParams* params) {
++
++   LOGD("c_api::TF_AbortWhile");
++
++ FreeWhileResources(params); }
+ 
+ #ifndef __ANDROID__
+ namespace {
+ 
+ void OutputsFromTFOutputs(TF_Output* tf_outputs, int n, TF_Status* status,
+                           std::vector<tensorflow::Output>* outputs) {
++  LOGD("c_api::OutputsFromTFOutputs");
++
+   outputs->resize(n);
+   for (int i = 0; i < n; i++) {
+     const TF_Output& tf_output = tf_outputs[i];
+@@ -2087,6 +2377,8 @@ void OutputsFromTFOutputs(TF_Output* tf_outputs, int n, TF_Status* status,
+ 
+ void TFOutputsFromOutputs(const std::vector<tensorflow::Output>& outputs,
+                           TF_Output* tf_outputs) {
++  LOGD("c_api::TFOutputsFromOutputs");
++
+   for (int i = 0; i < outputs.size(); i++) {
+     tf_outputs[i].oper = ToOperation(outputs[i].node());
+     tf_outputs[i].index = outputs[i].index();
+@@ -2098,6 +2390,8 @@ void TFOutputsFromOutputs(const std::vector<tensorflow::Output>& outputs,
+ 
+ void TF_AddGradients(TF_Graph* g, TF_Output* y, int ny, TF_Output* x, int nx,
+                      TF_Output* dx, TF_Status* status, TF_Output* dy) {
++  LOGD("c_api::TF_AddGradients");
++
+ #ifdef __ANDROID__
+   status->status = tensorflow::errors::Unimplemented(
+       "Adding gradients is not supported in Android. File a bug at "
+@@ -2147,6 +2441,8 @@ void TF_AddGradients(TF_Graph* g, TF_Output* y, int ny, TF_Output* x, int nx,
+ 
+ TF_Session* TF_NewSession(TF_Graph* graph, const TF_SessionOptions* opt,
+                           TF_Status* status) {
++  LOGD("c_api::TF_NewSession");
++
+   Session* session;
+   status->status = NewSession(opt->options, &session);
+   if (status->status.ok()) {
+@@ -2165,6 +2461,8 @@ TF_Session* TF_LoadSessionFromSavedModel(
+     const TF_SessionOptions* session_options, const TF_Buffer* run_options,
+     const char* export_dir, const char* const* tags, int tags_len,
+     TF_Graph* graph, TF_Buffer* meta_graph_def, TF_Status* status) {
++  LOGD("c_api::TF_LoadSessionFromSavedModel");
++
+ // TODO(ashankar): Remove the __ANDROID__ guard. This will require ensuring that
+ // the tensorflow/cc/saved_model:loader build target is Android friendly.
+ #ifdef __ANDROID__
+@@ -2225,10 +2523,14 @@ TF_Session* TF_LoadSessionFromSavedModel(
+ }
+ 
+ void TF_CloseSession(TF_Session* s, TF_Status* status) {
++  LOGD("c_api::TF_CloseSession");
++
+   status->status = s->session->Close();
+ }
+ 
+ void TF_DeleteSession(TF_Session* s, TF_Status* status) {
++  LOGD("c_api::TF_DeleteSession");
++
+   status->status = Status::OK();
+   TF_Graph* const graph = s->graph;
+   if (graph != nullptr) {
+@@ -2245,7 +2547,11 @@ void TF_DeleteSession(TF_Session* s, TF_Status* status) {
+ // TODO(josh11b,mrry): Change Session to be able to use a Graph*
+ // directly, instead of requiring us to serialize to a GraphDef and
+ // call Session::Extend().
++
++
+ static bool ExtendSessionGraphHelper(TF_Session* session, TF_Status* status) {
++  //LOGD("c_api::ExtendSessionGraphHelper");
++  reportTime("c_api::ExtendSessionGraphHelper starts");
+   if (session->graph != nullptr) {
+     mutex_lock session_lock(session->mu);
+     session->graph->mu.lock();
+@@ -2278,6 +2584,8 @@ static bool ExtendSessionGraphHelper(TF_Session* session, TF_Status* status) {
+       session->graph->mu.unlock();
+     }
+   }
++  reportTime("c_api::ExtendSessionGraphHelper ends");
++
+   return true;
+ }
+ 
+@@ -2290,6 +2598,8 @@ void TF_SessionRun(TF_Session* session, const TF_Buffer* run_options,
+   // TODO(josh11b,mrry): Change Session to be able to use a Graph*
+   // directly, instead of requiring us to serialize to a GraphDef and
+   // call Session::Extend().
++  //LOGD("c_api::TF_SessionRun");
++  reportTime("c_api::TF_SessionRun starts");
+   if (!ExtendSessionGraphHelper(session, status)) {
+     return;
+   }
+@@ -2315,40 +2625,57 @@ void TF_SessionRun(TF_Session* session, const TF_Buffer* run_options,
+     target_names[i] = target_opers[i]->node.name();
+   }
+ 
++  reportTime("c_api::TF_Run_Helper starts");
++
+   // Actually run.
+   TF_Run_Helper(session->session, nullptr, run_options, input_pairs,
+                 output_names, output_values, target_names, run_metadata,
+                 status);
++  reportTime("c_api::TF_Run_Helper ends");
++
+ }
+ 
+ void TF_SessionPRunSetup(TF_Session* session, const TF_Output* inputs,
+                          int ninputs, const TF_Output* outputs, int noutputs,
+                          const TF_Operation* const* target_opers, int ntargets,
+                          const char** handle, TF_Status* status) {
++ 
++  LOGD("c_api::TF_SessionRunSetup");
++
+   *handle = nullptr;
+ 
+   if (!ExtendSessionGraphHelper(session, status)) {
+     return;
+   }
+ 
++  LOGD("c_api::input_names");
++
+   std::vector<tensorflow::string> input_names(ninputs);
+   for (int i = 0; i < ninputs; ++i) {
+     input_names[i] = OutputName(inputs[i]);
+   }
+ 
++  LOGD("c_api::output_names");
++
+   std::vector<tensorflow::string> output_names(noutputs);
+   for (int i = 0; i < noutputs; ++i) {
+     output_names[i] = OutputName(outputs[i]);
+   }
+ 
++  LOGD("c_api::target_names");
++
+   std::vector<tensorflow::string> target_names(ntargets);
+   for (int i = 0; i < ntargets; ++i) {
+     target_names[i] = target_opers[i]->node.name();
+   }
+ 
++  
+   tensorflow::string new_handle;
++  LOGD("c_api::PRunSetup");
+   status->status = session->session->PRunSetup(input_names, output_names,
+                                                target_names, &new_handle);
++  LOGD("c_api::status.ok()");
++
+   if (status->status.ok()) {
+     char* buf = new char[new_handle.size() + 1];
+     memcpy(buf, new_handle.c_str(), new_handle.size() + 1);
+@@ -2357,6 +2684,8 @@ void TF_SessionPRunSetup(TF_Session* session, const TF_Output* inputs,
+ }
+ 
+ void TF_DeletePRunHandle(const char* handle) {
++  LOGD("c_api::TF_DeletePRunHandle");
++
+   delete[] handle;
+   // TODO(suharshs): Free up any resources held by the partial run state.
+ }
+@@ -2370,6 +2699,9 @@ void TF_SessionPRun(TF_Session* session, const char* handle,
+   // TODO(josh11b,mrry): Change Session to be able to use a Graph*
+   // directly, instead of requiring us to serialize to a GraphDef and
+   // call Session::Extend().
++
++  LOGD("c_api::TF_SessionPRun");
++
+   if (!ExtendSessionGraphHelper(session, status)) {
+     return;
+   }
+diff --git tensorflow/contrib/android/java/org/tensorflow/contrib/android/RunStats.java tensorflow/contrib/android/java/org/tensorflow/contrib/android/RunStats.java
+index 39996f6..efa9de7 100644
+--- tensorflow/contrib/android/java/org/tensorflow/contrib/android/RunStats.java
++++ tensorflow/contrib/android/java/org/tensorflow/contrib/android/RunStats.java
+@@ -15,18 +15,26 @@ limitations under the License.
+ 
+ package org.tensorflow.contrib.android;
+ 
++import android.nfc.Tag;
++import android.util.Log;
++
+ /** Accumulate and analyze stats from metadata obtained from Session.Runner.run. */
+ public class RunStats implements AutoCloseable {
+ 
++  String TAG = "RunStats";
++
+   /**
+    * Options to be provided to a {@link org.tensorflow.Session.Runner} to enable stats accumulation.
+    */
+   public static byte[] runOptions() {
++    Log.d("RunStats", "runOptions");
+     return fullTraceRunOptions;
+   }
+ 
+   public RunStats() {
++    Log.d(TAG, "RunStats method");
+     nativeHandle = allocate();
++
+   }
+ 
+   @Override
+@@ -39,11 +47,13 @@ public class RunStats implements AutoCloseable {
+ 
+   /** Accumulate stats obtained when executing a graph. */
+   public synchronized void add(byte[] runMetadata) {
++    Log.d(TAG, "add");
+     add(nativeHandle, runMetadata);
+   }
+ 
+   /** Summary of the accumulated runtime stats. */
+   public synchronized String summary() {
++    Log.d(TAG, "summary");
+     return summary(nativeHandle);
+   }
+ 
+diff --git tensorflow/contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java tensorflow/contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java
+index dff094f..72ffd0a 100644
+--- tensorflow/contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java
++++ tensorflow/contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java
+@@ -72,10 +72,12 @@ public class TensorFlowInferenceInterface {
+       }
+     }
+ 
++    Log.d(TAG, "Setting up some context start");
+     this.modelName = model;
+     this.g = new Graph();
+     this.sess = new Session(g);
+     this.runner = sess.runner();
++    Log.d(TAG, "Setting up some context ends");
+ 
+     final boolean hasAssetPrefix = model.startsWith(ASSET_FILE_PREFIX);
+     InputStream is = null;
+diff --git tensorflow/core/kernels/conv_ops.cc tensorflow/core/kernels/conv_ops.cc
+index b10369b..990da71 100644
+--- tensorflow/core/kernels/conv_ops.cc
++++ tensorflow/core/kernels/conv_ops.cc
+@@ -52,6 +52,19 @@ limitations under the License.
+ #include "tensorflow/contrib/android_renderscript_ops/utils/android_utils.h"
+ // renderscript support
+ 
++
++// Android log
++#include <stdio.h>
++#include <stdlib.h>
++#include <android/log.h>
++
++//#define LOG_TAG "JNI_LOG"
++#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
++#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
++#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
++
++// Android log
++
+ #if GOOGLE_CUDA
+ #include "tensorflow/core/kernels/conv_ops_gpu.h"
+ #include "tensorflow/core/platform/stream_executor.h"
+@@ -69,8 +82,12 @@ struct LaunchGeneric {
+                      const Tensor& filter, int row_stride, int col_stride,
+                      const Eigen::PaddingType& padding, Tensor* output,
+                      TensorFormat data_format) {
++    //LOGD("conv_ops::LaunchGeneric");
++    androidrs::conv::reportTime("conv_ops::LaunchGeneric:starts");
+     CHECK(data_format == FORMAT_NHWC) << "Generic conv implementation only "
+                                          "supports NHWC tensor format for now.";
++    androidrs::conv::reportTime("conv_ops::LaunchGeneric:CHECK format");
++
+     if (filter.dim_size(0) == 1 && filter.dim_size(1) == 1 && row_stride == 1 &&
+         col_stride == 1) {
+       // For 1x1 kernel, the 2D convolution is reduced to matrix
+@@ -83,15 +100,19 @@ struct LaunchGeneric {
+       for (int i = 0; i < 3; ++i) {
+         conv_width *= output->dim_size(i);
+       }
++      androidrs::conv::reportTime("conv_ops::LaunchGeneric:output->dim_size");
+ 
+       Eigen::array<Eigen::IndexPair<Eigen::DenseIndex>, 1> dim_pair;
++      androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 Eigen::array");
+       dim_pair[0] = Eigen::IndexPair<Eigen::DenseIndex>(1, 0);
++      androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 IndexPair");
+       functor::MatMulConvFunctor<Device, T>()(
+           ctx->eigen_device<Device>(),
+           output->shaped<T, 2>({conv_width, filter.dim_size(3)}),
+           input.shaped<T, 2>({conv_width, filter.dim_size(2)}),
+           filter.shaped<T, 2>({filter.dim_size(2), filter.dim_size(3)}),
+           dim_pair);
++      androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 MatMulConvFunctor");
+     } else if (filter.dim_size(0) == input.dim_size(1) &&
+                filter.dim_size(1) == input.dim_size(2) &&
+                padding == Eigen::PADDING_VALID) {
+@@ -101,18 +122,22 @@ struct LaunchGeneric {
+           filter.dim_size(0) * filter.dim_size(1) * filter.dim_size(2);
+ 
+       Eigen::array<Eigen::IndexPair<Eigen::DenseIndex>, 1> dim_pair;
++      androidrs::conv::reportTime("conv_ops::LaunchGeneric: same width Eigen::array");
+       dim_pair[0] = Eigen::IndexPair<Eigen::DenseIndex>(1, 0);
+       functor::MatMulConvFunctor<Device, T>()(
+           ctx->eigen_device<Device>(),
+           output->shaped<T, 2>({input.dim_size(0), filter.dim_size(3)}),
+           input.shaped<T, 2>({input.dim_size(0), k}),
+           filter.shaped<T, 2>({k, filter.dim_size(3)}), dim_pair);
++      androidrs::conv::reportTime("conv_ops::LaunchGeneric: same width MatMulConvFunctor");
+     } else {
+       functor::SpatialConvolution<Device, T>()(
+           ctx->eigen_device<Device>(), output->tensor<T, 4>(),
+           input.tensor<T, 4>(), filter.tensor<T, 4>(), row_stride, col_stride,
+           padding);
++      androidrs::conv::reportTime("conv_ops::LaunchGeneric:SpatialConvolution");
+     }
++  //reportTime("conv_ops::LaunchGeneric:ends");
+   }
+ };
+ }  // namespace
+@@ -124,15 +149,20 @@ class LaunchConv2DOp<CPUDevice, T> {
+               const Tensor& input, const Tensor& filter, int row_stride,
+               int col_stride, const Eigen::PaddingType& padding, Tensor* output,
+               TensorFormat data_format) {
++    androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:launch starts");
++
+     if (data_format != FORMAT_NHWC) {
+       ctx->SetStatus(
+           errors::Unimplemented("Generic conv implementation only supports "
+                                 "NHWC tensor format for now."));
+       return;
+     }
++    androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:data_format");
++
+     LaunchGeneric<CPUDevice, T>::launch(ctx, input, filter, row_stride,
+                                         col_stride, padding, output,
+                                         data_format);
++    androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:launch");
+   }
+ };
+ 
+@@ -145,6 +175,8 @@ class LaunchDeepConvOp {
+                   int filter_cols, int pad_rows, int pad_cols, int out_rows,
+                   int out_cols, int out_depth, int stride_rows, int stride_cols,
+                   Tensor* output, TensorFormat data_format) {
++    LOGD("conv_ops::LaunchDeepConvOp:Run");
++
+     return false;
+   }
+ };
+@@ -164,6 +196,7 @@ class LaunchDeepConvOp<CPUDevice, float> {
+                           in_depth, out_depth, out_rows, out_cols)) {
+       return false;
+     }
++    LOGD("conv_ops::LaunchDeepConvOp<CPU>:Run");
+ 
+     Conv2DArgs args;
+     args.batch = batch;
+@@ -198,6 +231,8 @@ class LaunchXsmmConvOp {
+                   int filter_cols, int pad_rows, int pad_cols, int out_rows,
+                   int out_cols, int out_depth, int stride_rows, int stride_cols,
+                   Tensor* output, TensorFormat data_format) {
++    LOGD("conv_ops::LaunchXsmmConvOp:Run");
++
+     return false;
+   }
+ };
+@@ -211,6 +246,8 @@ class LaunchXsmmConvOp<CPUDevice, float> {
+                   int filter_cols, int pad_rows, int pad_cols, int out_rows,
+                   int out_cols, int out_depth, int stride_rows, int stride_cols,
+                   Tensor* output, TensorFormat data_format) {
++    LOGD("conv_ops::LaunchXsmmConvOp:<CPU>Run");
++
+     auto num_threads =
+         ctx->device()->tensorflow_cpu_worker_threads()->num_threads;
+     // See libxsmm_dnn.h for this struct definition.
+@@ -261,6 +298,8 @@ template <typename Device, typename T>
+ class Conv2DOp : public BinaryOp<T> {
+  public:
+   explicit Conv2DOp(OpKernelConstruction* context) : BinaryOp<T>(context) {
++    //LOGD("conv_ops::Conv2Dop");
++    reportTime("conv_ops::Conv2Dop starts");
+     OP_REQUIRES_OK(context, context->GetAttr("strides", &strides_));
+     string data_format;
+     OP_REQUIRES_OK(context, context->GetAttr("data_format", &data_format));
+@@ -279,9 +318,31 @@ class Conv2DOp : public BinaryOp<T> {
+         errors::InvalidArgument("Current implementation does not yet support "
+                                 "strides in the batch and depth dimensions."));
+     OP_REQUIRES_OK(context, context->GetAttr("padding", &padding_));
++    reportTime("conv_ops::Conv2Dop ends");
+   }
+ 
++
++  double elapse;
++  struct timespec currentTime, lastTime;
++
++  void reportTime(const char* str) {
++    std::stringstream stringstream;
++    clock_gettime(CLOCK_MONOTONIC, &currentTime);
++    elapse = ( currentTime.tv_sec - lastTime.tv_sec) + (double)( currentTime.tv_nsec - lastTime.tv_nsec)/1E9;
++    LOGI("%s, time elapse:\t%f", str, elapse);
++    //stringstream << " Time is " << elapse << " sec";
++    //android_log_print(stringstream.str().c_str());
++    lastTime = currentTime;
++  }
++
++
++
++
++
++
+   void Compute(OpKernelContext* context) override {
++    //LOGD("conv_ops::Conv2Dop:Compute");
++    reportTime("conv_ops::Conv2Dop:Compute starts");
+     // Input tensor is of the following dimensions:
+     // [ batch, in_rows, in_cols, in_depth ]
+ 
+@@ -298,6 +359,8 @@ class Conv2DOp : public BinaryOp<T> {
+     OP_REQUIRES(context, filter.dims() == 4,
+                 errors::InvalidArgument("filter must be 4-dimensional: ",
+                                         filter.shape().DebugString()));
++    reportTime("conv_ops::Conv2Dop:Compute::OP_REQUIRES");
++
+ 
+     for (int i = 0; i < 3; i++) {
+       OP_REQUIRES(
+@@ -305,6 +368,7 @@ class Conv2DOp : public BinaryOp<T> {
+           FastBoundsCheck(filter.dim_size(i), std::numeric_limits<int>::max()),
+           errors::InvalidArgument("filter too large"));
+     }
++    reportTime("conv_ops::Conv2Dop:Compute::FastBoundsCheck");
+ 
+     // The last dimension for input is in_depth. It must be the same as the
+     // filter's in_depth.
+@@ -313,6 +377,7 @@ class Conv2DOp : public BinaryOp<T> {
+                 errors::InvalidArgument(
+                     "input and filter must have the same depth: ", in_depth,
+                     " vs ", filter.dim_size(2)));
++    reportTime("conv_ops::Conv2Dop:Compute::filter depth");
+ 
+     // The last dimension for filter is out_depth.
+     const int out_depth = static_cast<int>(filter.dim_size(3));
+@@ -324,6 +389,7 @@ class Conv2DOp : public BinaryOp<T> {
+         context,
+         FastBoundsCheck(input_rows_raw, std::numeric_limits<int>::max()),
+         errors::InvalidArgument("Input rows too large"));
++    reportTime("conv_ops::Conv2Dop:Compute::FastBoundsCheck numeric_limits");
+     const int input_rows = static_cast<int>(input_rows_raw);
+     const int filter_rows = static_cast<int>(filter.dim_size(0));
+ 
+@@ -358,11 +424,13 @@ class Conv2DOp : public BinaryOp<T> {
+                                          padding_, &out_cols, &pad_cols));
+     TensorShape out_shape =
+         ShapeFromFormat(data_format_, batch, out_rows, out_cols, out_depth);
++    reportTime("conv_ops::Conv2Dop:Compute::out_shape");
+ 
+     // Output tensor is of the following dimensions:
+     // [ in_batch, out_rows, out_cols, out_depth ]
+     Tensor* output = nullptr;
+     OP_REQUIRES_OK(context, context->allocate_output(0, out_shape, &output));
++    reportTime("conv_ops::Conv2Dop:Compute::OP_REQUIRES_OK");
+ 
+     VLOG(2) << "Conv2D: in_depth = " << in_depth
+             << ", input_cols = " << input_cols
+@@ -383,6 +451,8 @@ class Conv2DOp : public BinaryOp<T> {
+             context, input, filter, batch, input_rows, input_cols, in_depth,
+             filter_rows, filter_cols, pad_rows, pad_cols, out_rows, out_cols,
+             out_depth, stride_rows, stride_cols, output, data_format_)) {
++      LOGD("conv_ops::ifdef LaunchXsmmConvOp::Run");
++
+       return;
+     }
+ 
+@@ -392,37 +462,48 @@ class Conv2DOp : public BinaryOp<T> {
+             context, input, filter, batch, input_rows, input_cols, in_depth,
+             filter_rows, filter_cols, pad_rows, pad_cols, out_rows, out_cols,
+             out_depth, stride_rows, stride_cols, output, data_format_)) {
++      LOGD("conv_ops::ifdef LaunchDeepConvOp::Run");
++
+       return;
+     }
+ 
+     //////////////////////// renderscript support
+     std::stringstream ss;
+-    double start, finish;
+-    start = (double)(clock()/(double)CLOCKS_PER_SEC);
+-    /*androidrs::conv::rsConvInfo convInfo(in_depth, input_rows, input_cols, filter_rows, filter_cols,
++   // double start, finish;
++   // start = (double)(clock()/(double)CLOCKS_PER_SEC);
++    reportTime("conv_ops::start of rsConv");
++
++    androidrs::conv::rsConvInfo convInfo(in_depth, input_rows, input_cols, filter_rows, filter_cols,
+                                          stride_rows, stride_cols, pad_rows, pad_cols,
+-                                         out_depth, out_rows, out_cols, batch, sizeof(T));*/
++                                         out_depth, out_rows, out_cols, batch, sizeof(T));
+     /*androidrs::conv::rsConv_intrinsic<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
+                                       static_cast<void*>(const_cast<char*>(input.tensor_data().data())),
+                                       static_cast<void*>(const_cast<char*>(output->tensor_data().data())),
+                                       convInfo);*/
+     
+-   /* androidrs::conv::rsConv_script<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
++    androidrs::conv::rsConv_script<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
+                                       static_cast<void*>(const_cast<char*>(input.tensor_data().data())),
+                                       static_cast<void*>(const_cast<char*>(output->tensor_data().data())),
+-                                      convInfo);*/
+-   // finish = (double)(clock()/(double)CLOCKS_PER_SEC);
+-   // ss << "Conv consume time: " << (finish - start) << " sec";
+-   // android_log_print(ss.str().c_str());
+-   // return;
++                                      convInfo);
++    struct timeval tp;
++    std::stringstream stringstream;
++    gettimeofday(&tp, NULL);
++    long long int ms = tp.tv_sec * 1000 + tp.tv_usec /1000;
++    reportTime("conv_ops::end of rsConv");
++    ss << "conv_ops::current time: " << ms << " milliseconds";
++    android_log_print(ss.str().c_str()); 
++    return;
+     //////////////////////// renderscript support
++    reportTime("conv_ops::Conv2Dop:Compute before launch");
++    reportTime("conv_ops::Start of launch");
+ 
+     launcher_.launch(context, use_cudnn_, cudnn_use_autotune_, input, filter,
+                      stride_rows, stride_cols,
+                      BrainPadding2EigenPadding(padding_), output, data_format_);
+-    finish = (double)(clock()/(double)CLOCKS_PER_SEC);
+-    ss << "Normal conv consume time: " << (finish - start) << " sec";
+-    android_log_print(ss.str().c_str());
++   // finish = (double)(clock()/(double)CLOCKS_PER_SEC);
++   // ss << "Normal conv consume time: " << (finish - start) << " sec";
++   // android_log_print(ss.str().c_str());
++    reportTime("conv_ops::End of launch");
+   }
+ 
+  private:
+@@ -432,8 +513,11 @@ class Conv2DOp : public BinaryOp<T> {
+   TensorFormat data_format_;
+   LaunchConv2DOp<Device, T> launcher_;
+   bool cudnn_use_autotune_;
+-
++  
++  
+   TF_DISALLOW_COPY_AND_ASSIGN(Conv2DOp);
++  
++
+ };
+ 
+ #define REGISTER_CPU(T)                                         \
+@@ -448,6 +532,8 @@ TF_CALL_half(REGISTER_CPU);
+ TF_CALL_float(REGISTER_CPU);
+ #endif  // USE_GEMM_FOR_CONV
+ 
++//reportTime("conv_ops::ToBeUsedInsideDepthwise_conv_op.cc");
++
+ // To be used inside depthwise_conv_op.cc.
+ template class LaunchConv2DOp<CPUDevice, float>;
+ 
+@@ -469,14 +555,19 @@ int64 GetCudnnWorkspaceLimit(const string& envvar_in_mb,
+   return default_value_in_bytes;
+ }
+ 
++reportTime("conv_ops::GetCudnnWorkspaceLimit");
++
+ // A dummy type to group forward convolution autotune results together.
+ struct ConvAutoTuneGroup {
+   static string name() { return "Conv"; }
+ };
++reportTime("conv_ops::ConvAutoTuneGroup");
++
+ typedef AutoTuneSingleton<ConvAutoTuneGroup, ConvParameters,
+                           perftools::gputools::dnn::AlgorithmConfig>
+     AutoTuneConv;
+ 
++
+ template <typename T>
+ void LaunchConv2DOp<GPUDevice, T>::launch(
+     OpKernelContext* ctx, bool use_cudnn, bool cudnn_use_autotune,
+@@ -489,7 +580,7 @@ void LaunchConv2DOp<GPUDevice, T>::launch(
+   using perftools::gputools::dnn::kDefaultAlgorithm;
+   auto* stream = ctx->op_device_context()->stream();
+   OP_REQUIRES(ctx, stream, errors::Internal("No GPU stream available."));
+-
++  
+   if (!use_cudnn) {
+     ctx->SetStatus(
+         errors::Unimplemented("Conv2D for GPU is not currently supported "
+@@ -769,8 +860,10 @@ void LaunchConv2DOp<GPUDevice, T>::launch(
+   } else {
+     *output = transformed_output;
+   }
++
+ }
+ 
++reportTime("conv_ops::GPULaunchConv2DOp");
+ // Forward declarations of the functor specializations for GPU.
+ namespace functor {
+ #define DECLARE_GPU_SPEC(T)                                                  \
+@@ -805,7 +898,7 @@ DECLARE_GPU_SPEC(float);
+ DECLARE_GPU_SPEC(Eigen::half);
+ #undef DECLARE_GPU_SPEC
+ }  // namespace functor
+-
++reportTime("conv_ops::functor");
+ // Registration of the GPU implementations.
+ REGISTER_KERNEL_BUILDER(
+     Name("Conv2D").Device(DEVICE_GPU).TypeConstraint<Eigen::half>("T"),
+@@ -816,6 +909,7 @@ REGISTER_KERNEL_BUILDER(
+ 
+ // To be used inside depthwise_conv_op.cc.
+ template class LaunchConv2DOp<GPUDevice, float>;
++reportTime("conv_ops::registration of the GPU implementations");
+ 
+ #endif  // GOOGLE_CUDA
+ 
+diff --git tensorflow/examples/android/.idea/workspace.xml tensorflow/examples/android/.idea/workspace.xml
+index 31e1b15..5bcd956 100644
+--- tensorflow/examples/android/.idea/workspace.xml
++++ tensorflow/examples/android/.idea/workspace.xml
+@@ -10,14 +10,37 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="6238b043-f18f-4fa5-b767-aef480faa091" name="Default" comment="">
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../contrib/BUILD" afterPath="$PROJECT_DIR$/../../contrib/BUILD" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_1024.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_128.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_2048.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_256.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_4096.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_512.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_64.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_1024.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_128.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_2048.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_256.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_4096.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_512.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/graph_conv_4_bat_64_w_64.pb" afterPath="" />
++      <change type="DELETED" beforePath="$PROJECT_DIR$/assets/ssd_mobilenet_v1_android_export.pb" afterPath="" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../c/c_api.cc" afterPath="$PROJECT_DIR$/../../c/c_api.cc" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/RunStats.java" afterPath="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/RunStats.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java" afterPath="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../core/kernels/conv_ops.cc" afterPath="$PROJECT_DIR$/../../core/kernels/conv_ops.cc" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android.iml" afterPath="$PROJECT_DIR$/android.iml" />
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_64.pb" afterPath="$PROJECT_DIR$/assets/graph_conv_1_bat_64_w_64.pb" />
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" afterPath="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java" afterPath="$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/NativeLibrary.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/NativeLibrary.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java" afterPath="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/native/graph_jni.cc" afterPath="$PROJECT_DIR$/../../java/src/main/native/graph_jni.cc" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/native/session_jni.cc" afterPath="$PROJECT_DIR$/../../java/src/main/native/session_jni.cc" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../java/src/main/native/tensorflow_jni.cc" afterPath="$PROJECT_DIR$/../../java/src/main/native/tensorflow_jni.cc" />
+     </list>
+     <ignored path="android.iws" />
+     <ignored path=".idea/workspace.xml" />
+@@ -52,14 +75,14 @@
+       <file leaf-file-name="TensorFlowImageClassifier.java" pinned="false" current-in-tab="true">
+         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="1400">
+-              <caret line="413" column="3" lean-forward="false" selection-start-line="413" selection-start-column="3" selection-end-line="413" selection-end-column="3" />
++            <state relative-caret-position="180">
++              <caret line="244" column="0" lean-forward="false" selection-start-line="244" selection-start-column="0" selection-end-line="244" selection-end-column="0" />
+               <folding>
++                <element signature="e#0#16448#0" expanded="true" />
+                 <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-                <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+                 <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+                 <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-                <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
++                <element signature="method#recognizeImage#0;class#TensorFlowImageClassifier#0" expanded="false" />
+               </folding>
+             </state>
+           </provider>
+@@ -68,43 +91,154 @@
+       <file leaf-file-name="ClassifierActivity.java" pinned="false" current-in-tab="false">
+         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="280">
+-              <caret line="64" column="42" lean-forward="false" selection-start-line="64" selection-start-column="42" selection-end-line="64" selection-end-column="42" />
+-              <folding />
++            <state relative-caret-position="-1528">
++              <caret line="60" column="76" lean-forward="false" selection-start-line="60" selection-start-column="76" selection-end-line="60" selection-end-column="76" />
++              <folding>
++                <element signature="e#5616#5789#0" expanded="true" />
++                <element signature="e#5788#5789#0" expanded="true" />
++                <element signature="e#7289#7901#0" expanded="true" />
++                <element signature="e#7900#7901#0" expanded="true" />
++                <element signature="e#8637#8645#0" expanded="true" />
++              </folding>
+             </state>
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="rsConv.h" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h">
++      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/build.gradle">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="2960">
+-              <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
++            <state relative-caret-position="-2240">
++              <caret line="42" column="3" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="3" />
+               <folding />
+             </state>
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="TensorFlowInferenceInterface.java" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++      <file leaf-file-name="Classifier.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/Classifier.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="165">
+-              <caret line="169" column="14" lean-forward="false" selection-start-line="169" selection-start-column="14" selection-end-line="169" selection-end-column="14" />
++            <state relative-caret-position="180">
++              <caret line="24" column="17" lean-forward="false" selection-start-line="24" selection-start-column="17" selection-end-line="24" selection-end-column="17" />
++              <folding>
++                <element signature="e#0#2738#0" expanded="false" />
++                <element signature="imports" expanded="false" />
++                <element signature="e#1819#1820#0" expanded="false" />
++                <element signature="e#1842#1843#0" expanded="false" />
++                <element signature="e#1874#1875#0" expanded="false" />
++                <element signature="e#1900#1901#0" expanded="false" />
++                <element signature="e#1936#1937#0" expanded="false" />
++                <element signature="e#1967#1968#0" expanded="false" />
++                <element signature="e#2001#2002#0" expanded="false" />
++                <element signature="e#2041#2042#0" expanded="false" />
++                <element signature="e#2088#2089#0" expanded="false" />
++                <element signature="e#2126#2127#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="TensorFlow.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="160">
++              <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
++              <folding>
++                <element signature="e#0#1533#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="Session.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="680">
++              <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
++              <folding>
++                <element signature="e#0#18114#0" expanded="false" />
++                <element signature="e#6795#6796#0" expanded="false" />
++                <element signature="e#6845#6846#0" expanded="false" />
++                <element signature="e#9647#9648#0" expanded="false" />
++                <element signature="e#9692#9693#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="gradle.properties" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/gradle.properties">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="40">
++              <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+               <folding />
+             </state>
+           </provider>
+         </entry>
+       </file>
++      <file leaf-file-name="Graph.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="1840">
++              <caret line="105" column="4" lean-forward="false" selection-start-line="105" selection-start-column="4" selection-end-line="105" selection-end-column="4" />
++              <folding>
++                <element signature="e#0#6989#0" expanded="false" />
++                <element signature="e#6568#6569#0" expanded="false" />
++                <element signature="e#6600#6601#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
++      <file leaf-file-name="Operation.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="1120">
++              <caret line="69" column="5" lean-forward="false" selection-start-line="69" selection-start-column="5" selection-end-line="69" selection-end-column="5" />
++              <folding>
++                <element signature="e#0#7244#0" expanded="false" />
++                <element signature="e#4484#4485#0" expanded="false" />
++                <element signature="e#4522#4523#0" expanded="false" />
++                <element signature="e#4561#4562#0" expanded="false" />
++                <element signature="e#4621#4622#0" expanded="false" />
++              </folding>
++            </state>
++          </provider>
++        </entry>
++      </file>
+     </leaf>
+   </component>
+   <component name="FindInProjectRecents">
+     <findStrings>
+-      <find>batch</find>
+-      <find>bat</find>
+-      <find>adreno</find>
+-      <find>androidrs::mRS</find>
+-      <find>rsConv_script</find>
+-      <find>runTarget</find>
++      <find>renderDebug</find>
++      <find>TensorFlow native methods not found, attempting to load via tensorflow_inference</find>
++      <find>FileInputStream</find>
++      <find>sess.runner</find>
++      <find>native</find>
++      <find>i</find>
++      <find>int</find>
++      <find>inter</find>
++      <find>interfac</find>
++      <find>interface</find>
++      <find>model</find>
++      <find>modelFilename</find>
++      <find>start operation</find>
++      <find>Graph</find>
++      <find>synchronized nativeHandleLock</find>
++      <find>importGraphDef_String</find>
++      <find>Start</find>
++      <find>operationB</find>
++      <find>Start Runner</find>
++      <find>add tar</find>
++      <find>end operation</find>
++      <find>reportTime</find>
++      <find>Start operationByName</find>
++      <find>runHelper</find>
++      <find>getUnsafeNativeHandle ends</find>
++      <find>TF_SessionRun ends</find>
++      <find>conv_ops::Conv2Dop:Compute starts</find>
++      <find>def</find>
++      <find>current</find>
++      <find>train</find>
+     </findStrings>
+     <replaceStrings>
+       <replace>androidrs::conv::mRS</replace>
+@@ -1092,17 +1226,26 @@
+   <component name="IdeDocumentHistory">
+     <option name="CHANGED_PATHS">
+       <list>
+-        <option value="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java" />
+         <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/examples/LabelImage.java" />
+         <option value="$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h" />
+         <option value="$PROJECT_DIR$/build.gradle" />
+-        <option value="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/NativeLibrary.java" />
++        <option value="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/RunStats.java" />
++        <option value="$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java" />
++        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.properties" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java" />
++        <option value="$PROJECT_DIR$/../../core/kernels/conv_ops.cc" />
++        <option value="$PROJECT_DIR$/gradle.properties" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java" />
++        <option value="$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java" />
+         <option value="$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java" />
++        <option value="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" />
+       </list>
+     </option>
+   </component>
+   <component name="ProjectFrameBounds">
+-    <option name="x" value="1985" />
++    <option name="x" value="65" />
+     <option name="y" value="-4" />
+     <option name="width" value="1855" />
+     <option name="height" value="1084" />
+@@ -1199,48 +1342,19 @@
+               <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidModuleNode" />
+             </PATH_ELEMENT>
+           </PATH>
+-          <PATH>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="android" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="android" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidModuleNode" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="assets" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidSourceTypeNode" />
+-            </PATH_ELEMENT>
+-          </PATH>
+-          <PATH>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="android" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="android" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidModuleNode" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="java" />
+-              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.android.AndroidSourceTypeNode" />
+-            </PATH_ELEMENT>
+-          </PATH>
+         </subPane>
+       </pane>
+     </panes>
+   </component>
+   <component name="PropertiesComponent">
+     <property name="android.sdk.path" value="$USER_HOME$/Android/Sdk" />
+-    <property name="settings.editor.selected.configurable" value="android.sdk-updates" />
+-    <property name="settings.editor.splitter.proportion" value="0.2" />
+-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
++    <property name="settings.editor.selected.configurable" value="instant.run" />
++    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../core/kernels/conv_ops.cc" />
+     <property name="show.do.not.ask.upgrade.gradle.plugin" value="2.3.0" />
+-    <property name="device.picker.selection" value="Nexus_5X_API_23_ARM" />
++    <property name="device.picker.selection" value="HT7AG1A03681" />
+     <property name="android.project.structure.last.selected" value="SDK Location" />
+     <property name="android.project.structure.proportion" value="0.15" />
+-    <property name="android.profiler.active" value="true" />
++    <property name="com.intellij.ide.scratch.LRUPopupBuilder$2/Languages" value="Properties" />
+   </component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
+@@ -1337,7 +1451,7 @@
+       <option name="ACTIVITY_CLASS" value="" />
+       <method>
+         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515036444707" />
++        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515804069741" />
+       </method>
+     </configuration>
+     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
+@@ -1392,7 +1506,7 @@
+       </Profilers>
+       <method>
+         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515036444707" />
++        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515804069741" />
+       </method>
+     </configuration>
+     <configuration default="true" type="Application" factoryName="Application">
+@@ -1531,7 +1645,7 @@
+       <Auto>
+         <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+         <option name="SHOW_STATIC_VARS" value="true" />
+-        <option name="WORKING_DIR" value="" />
++        <option name="WORKING_DIR" value="$PROJECT_DIR$/libs/armeabi-v7a" />
+         <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+         <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+       </Auto>
+@@ -1564,7 +1678,7 @@
+       <option name="ACTIVITY_CLASS" value="" />
+       <method>
+         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515036444708" />
++        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1515804069741" />
+       </method>
+     </configuration>
+     <list size="1">
+@@ -1612,29 +1726,28 @@
+     </todo-panel>
+   </component>
+   <component name="ToolWindowManager">
+-    <frame x="1985" y="-4" width="1855" height="1084" extended-state="6" />
+-    <editor active="true" />
++    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
+     <layout>
+-      <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
++      <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4774869" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277487" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
++      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277487" sideWeight="0.49806523" order="7" side_tool="false" content_ui="tabs" />
+       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3635321" sideWeight="0.504169" order="7" side_tool="true" content_ui="tabs" />
++      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4408377" sideWeight="0.5063571" order="7" side_tool="true" content_ui="tabs" />
+       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30052355" sideWeight="0.5936982" order="7" side_tool="false" content_ui="tabs" />
+-      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.42303663" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
++      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22513089" sideWeight="0.5936982" order="7" side_tool="false" content_ui="tabs" />
++      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.44712043" sideWeight="0.4936429" order="8" side_tool="false" content_ui="tabs" />
+       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30052355" sideWeight="0.40630183" order="7" side_tool="true" content_ui="tabs" />
+       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.249309" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
++      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.249309" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42258066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
++      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.42198953" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Device File Explorer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
+       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+@@ -1646,6 +1759,7 @@
+       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
++      <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32946378" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+     </layout>
+   </component>
+@@ -1662,7 +1776,7 @@
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+-      <option name="time" value="27" />
++      <option name="time" value="32" />
+     </breakpoint-manager>
+     <watches-manager>
+       <configuration name="android">
+@@ -1672,409 +1786,468 @@
+     </watches-manager>
+   </component>
+   <component name="editorHistoryManager">
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/HandlerThread.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding>
+-            <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-          </folding>
++        <state relative-caret-position="828">
++          <caret line="60" column="0" lean-forward="false" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/lang/String.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/Looper.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="25020">
+-          <caret line="1390" column="20" lean-forward="false" selection-start-line="1390" selection-start-column="20" selection-end-line="1390" selection-end-column="20" />
++        <state relative-caret-position="2304">
++          <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/Handler.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="3528">
+-          <caret line="234" column="14" lean-forward="false" selection-start-line="234" selection-start-column="14" selection-end-line="234" selection-end-column="14" />
+-          <folding />
++        <state relative-caret-position="12330">
++          <caret line="738" column="0" lean-forward="false" selection-start-line="738" selection-start-column="0" selection-end-line="738" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/nio/FloatBuffer.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2232">
+-          <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
++        <state relative-caret-position="205">
++          <caret line="443" column="0" lean-forward="false" selection-start-line="443" selection-start-column="0" selection-end-line="443" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/util/Log.java">
++    <entry file="file://$PROJECT_DIR$/local.properties">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2052">
+-          <caret line="138" column="0" lean-forward="false" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
++        <state relative-caret-position="0">
++          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraActivity.java">
++    <entry file="file://$PROJECT_DIR$/gradlew.bat">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2250">
+-          <caret line="155" column="41" lean-forward="false" selection-start-line="155" selection-start-column="41" selection-end-line="155" selection-end-column="41" />
++        <state relative-caret-position="0">
++          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraConnectionFragment.java">
++    <entry file="file://$PROJECT_DIR$/gradlew">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="288">
+-          <caret line="73" column="57" lean-forward="false" selection-start-line="73" selection-start-column="57" selection-end-line="73" selection-end-column="57" />
++        <state relative-caret-position="0">
++          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/Logger.java">
++    <entry file="file://$PROJECT_DIR$/download-models.gradle">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="108">
+-          <caret line="22" column="3" lean-forward="false" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="3" />
++        <state relative-caret-position="100">
++          <caret line="13" column="31" lean-forward="false" selection-start-line="13" selection-start-column="31" selection-end-line="13" selection-end-column="31" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/media/ImageReader.java">
++    <entry file="file://$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="3672">
+-          <caret line="239" column="19" lean-forward="false" selection-start-line="239" selection-start-column="19" selection-end-line="239" selection-end-column="19" />
++        <state relative-caret-position="2960">
++          <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/graphics/RectF.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/Logger.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="234">
+-          <caret line="31" column="13" lean-forward="false" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
++        <state relative-caret-position="105">
++          <caret line="169" column="42" lean-forward="true" selection-start-line="169" selection-start-column="42" selection-end-line="169" selection-end-column="42" />
++          <folding>
++            <element signature="imports" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraActivity.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="5292">
+-          <caret line="294" column="26" lean-forward="false" selection-start-line="294" selection-start-column="15" selection-end-line="294" selection-end-column="26" />
+-          <folding>
+-            <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-          </folding>
++        <state relative-caret-position="-60">
++          <caret line="39" column="51" lean-forward="true" selection-start-line="39" selection-start-column="51" selection-end-line="39" selection-end-column="51" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/lang/String.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/Op.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="23940">
+-          <caret line="1390" column="20" lean-forward="false" selection-start-line="1390" selection-start-column="20" selection-end-line="1390" selection-end-column="20" />
++        <state relative-caret-position="440">
++          <caret line="35" column="0" lean-forward="true" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/Operands.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="7794">
+-          <caret line="487" column="16" lean-forward="false" selection-start-line="487" selection-start-column="16" selection-end-line="487" selection-end-column="16" />
+-          <folding />
++        <state relative-caret-position="600">
++          <caret line="43" column="25" lean-forward="true" selection-start-line="43" selection-start-column="25" selection-end-line="43" selection-end-column="25" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/AutoFitTextureView.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2232">
+-          <caret line="126" column="0" lean-forward="false" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
++        <state relative-caret-position="545">
++          <caret line="74" column="0" lean-forward="false" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
++          <folding>
++            <element signature="imports" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/util/Log.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraConnectionFragment.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2052">
+-          <caret line="138" column="0" lean-forward="false" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
++        <state relative-caret-position="545">
++          <caret line="654" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="654" selection-end-column="0" />
++          <folding>
++            <element signature="imports" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraActivity.java">
++    <entry file="file://$PROJECT_DIR$/res/layout/camera_connection_fragment.xml">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2250">
+-          <caret line="155" column="41" lean-forward="false" selection-start-line="155" selection-start-column="41" selection-end-line="155" selection-end-column="41" />
++        <state relative-caret-position="294">
++          <caret line="27" column="43" lean-forward="true" selection-start-line="27" selection-start-column="43" selection-end-line="27" selection-end-column="43" />
++          <folding />
+         </state>
+       </provider>
++      <provider editor-type-id="android-designer2">
++        <state />
++      </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraConnectionFragment.java">
++    <entry file="file://$PROJECT_DIR$/res/values/strings.xml">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="288">
+-          <caret line="73" column="57" lean-forward="false" selection-start-line="73" selection-start-column="57" selection-end-line="73" selection-end-column="57" />
++        <state relative-caret-position="320">
++          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="18" selection-end-column="82" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/Logger.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/OverlayView.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="108">
+-          <caret line="22" column="3" lean-forward="false" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="3" />
++        <state relative-caret-position="265">
++          <caret line="36" column="5" lean-forward="false" selection-start-line="36" selection-start-column="5" selection-end-line="36" selection-end-column="5" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/media/ImageReader.java">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="3672">
+-          <caret line="239" column="19" lean-forward="false" selection-start-line="239" selection-start-column="19" selection-end-line="239" selection-end-column="19" />
++    <entry file="file://$PROJECT_DIR$/res/layout/activity_camera.xml">
++      <provider editor-type-id="text-editor">
++        <state relative-caret-position="440">
++          <caret line="22" column="0" lean-forward="false" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+         </state>
+       </provider>
++      <provider selected="true" editor-type-id="android-designer2">
++        <state />
++      </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/graphics/RectF.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/BorderedText.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="234">
+-          <caret line="31" column="13" lean-forward="false" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
++        <state relative-caret-position="60">
++          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
++          <folding>
++            <element signature="imports" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/build.gradle">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ResultsView.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="846">
+-          <caret line="47" column="32" lean-forward="false" selection-start-line="47" selection-start-column="32" selection-end-line="47" selection-end-column="32" />
++        <state relative-caret-position="0">
++          <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/ImageUtils.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="4014">
+-          <caret line="249" column="27" lean-forward="false" selection-start-line="249" selection-start-column="27" selection-end-line="249" selection-end-column="27" />
++        <state relative-caret-position="1025">
++          <caret line="299" column="0" lean-forward="false" selection-start-line="299" selection-start-column="0" selection-end-line="299" selection-end-column="0" />
+           <folding>
+-            <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
++            <element signature="imports" expanded="false" />
+           </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Output.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2592">
+-          <caret line="178" column="37" lean-forward="false" selection-start-line="178" selection-start-column="37" selection-end-line="178" selection-end-column="37" />
+-          <folding />
++        <state relative-caret-position="80">
++          <caret line="20" column="53" lean-forward="false" selection-start-line="20" selection-start-column="53" selection-end-line="20" selection-end-column="53" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operand.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="720">
+-          <caret line="62" column="89" lean-forward="false" selection-start-line="62" selection-start-column="89" selection-end-line="62" selection-end-column="89" />
++        <state relative-caret-position="334">
++          <caret line="36" column="17" lean-forward="false" selection-start-line="36" selection-start-column="17" selection-end-line="36" selection-end-column="17" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/examples/LabelImage.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Shape.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="324">
+-          <caret line="18" column="27" lean-forward="false" selection-start-line="18" selection-start-column="27" selection-end-line="18" selection-end-column="27" />
++        <state relative-caret-position="140">
++          <caret line="20" column="19" lean-forward="false" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/AutoFitTextureView.java">
++    <entry file="file://$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="109">
+-          <caret line="54" column="25" lean-forward="false" selection-start-line="54" selection-start-column="25" selection-end-line="54" selection-end-column="25" />
++        <state relative-caret-position="100">
++          <caret line="5" column="77" lean-forward="false" selection-start-line="5" selection-start-column="77" selection-end-line="5" selection-end-column="77" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/graphics/RectF.java">
++    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.properties">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="234">
+-          <caret line="31" column="13" lean-forward="false" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
++        <state relative-caret-position="40">
++          <caret line="2" column="22" lean-forward="true" selection-start-line="2" selection-start-column="22" selection-end-line="2" selection-end-column="22" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/media/ImageReader.java">
++    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="3672">
+-          <caret line="239" column="19" lean-forward="false" selection-start-line="239" selection-start-column="19" selection-end-line="239" selection-end-column="19" />
++        <state relative-caret-position="20">
++          <caret line="8" column="47" lean-forward="false" selection-start-line="8" selection-start-column="47" selection-end-line="8" selection-end-column="47" />
++          <folding />
+         </state>
+       </provider>
++      <provider editor-type-id="android-manifest">
++        <state />
++      </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/env/Logger.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/util/List.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="108">
+-          <caret line="22" column="3" lean-forward="false" selection-start-line="22" selection-start-column="3" selection-end-line="22" selection-end-column="3" />
++        <state relative-caret-position="165">
++          <caret line="65" column="21" lean-forward="false" selection-start-line="65" selection-start-column="21" selection-end-line="65" selection-end-column="21" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/util/Log.java">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/util/ArrayList.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2052">
+-          <caret line="138" column="0" lean-forward="false" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
++        <state relative-caret-position="174">
++          <caret line="113" column="29" lean-forward="false" selection-start-line="113" selection-start-column="29" selection-end-line="113" selection-end-column="29" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/lang/String.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/SavedModelBundle.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="18">
+-          <caret line="1390" column="20" lean-forward="false" selection-start-line="1390" selection-start-column="20" selection-end-line="1390" selection-end-column="20" />
++        <state relative-caret-position="335">
++          <caret line="100" column="3" lean-forward="false" selection-start-line="100" selection-start-column="3" selection-end-line="100" selection-end-column="3" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraConnectionFragment.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/NameScope.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="288">
+-          <caret line="73" column="57" lean-forward="false" selection-start-line="73" selection-start-column="57" selection-end-line="73" selection-end-column="57" />
++        <state relative-caret-position="-120">
++          <caret line="66" column="27" lean-forward="false" selection-start-line="66" selection-start-column="27" selection-end-line="66" selection-end-column="27" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/CameraActivity.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/NativeLibrary.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2070">
+-          <caret line="145" column="114" lean-forward="false" selection-start-line="145" selection-start-column="114" selection-end-line="145" selection-end-column="114" />
++        <state relative-caret-position="-340">
++          <caret line="47" column="29" lean-forward="true" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/HandlerThread.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Tensor.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="828">
+-          <caret line="60" column="0" lean-forward="false" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
++        <state relative-caret-position="526">
++          <caret line="65" column="71" lean-forward="false" selection-start-line="65" selection-start-column="71" selection-end-line="65" selection-end-column="71" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/Looper.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/PrimitiveOp.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2304">
+-          <caret line="147" column="0" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
++        <state relative-caret-position="940">
++          <caret line="60" column="5" lean-forward="true" selection-start-line="60" selection-start-column="5" selection-end-line="60" selection-end-column="5" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/android/os/Handler.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/op/Scope.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="12330">
+-          <caret line="738" column="0" lean-forward="false" selection-start-line="738" selection-start-column="0" selection-end-line="738" selection-end-column="0" />
++        <state relative-caret-position="160">
++          <caret line="75" column="19" lean-forward="false" selection-start-line="75" selection-start-column="19" selection-end-line="75" selection-end-column="19" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/DataType.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="-1239">
+-          <caret line="110" column="18" lean-forward="false" selection-start-line="110" selection-start-column="18" selection-end-line="110" selection-end-column="18" />
++        <state relative-caret-position="-223">
++          <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Output.java">
++    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/RunStats.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="324">
+-          <caret line="31" column="9" lean-forward="false" selection-start-line="31" selection-start-column="9" selection-end-line="31" selection-end-column="9" />
++        <state relative-caret-position="526">
++          <caret line="65" column="29" lean-forward="false" selection-start-line="65" selection-start-column="29" selection-end-line="65" selection-end-column="29" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/nio/FloatBuffer.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/OperationBuilder.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="205">
+-          <caret line="443" column="0" lean-forward="false" selection-start-line="443" selection-start-column="0" selection-end-line="443" selection-end-column="0" />
++        <state relative-caret-position="480">
++          <caret line="37" column="37" lean-forward="false" selection-start-line="37" selection-start-column="37" selection-end-line="37" selection-end-column="37" />
++          <folding>
++            <element signature="e#0#9607#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/local.properties">
++    <entry file="file://$PROJECT_DIR$/../../core/kernels/conv_ops.cc">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
++        <state relative-caret-position="100">
++          <caret line="80" column="17" lean-forward="true" selection-start-line="80" selection-start-column="17" selection-end-line="80" selection-end-column="17" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/gradlew.bat">
++    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
++        <state relative-caret-position="2740">
++          <caret line="171" column="46" lean-forward="false" selection-start-line="171" selection-start-column="46" selection-end-line="171" selection-end-column="46" />
++          <folding>
++            <element signature="e#0#18667#0" expanded="false" />
++            <element signature="e#6586#6587#0" expanded="false" />
++            <element signature="e#6604#6605#0" expanded="false" />
++            <element signature="e#7009#7010#0" expanded="false" />
++            <element signature="e#7070#7071#0" expanded="false" />
++            <element signature="e#12334#12335#0" expanded="false" />
++            <element signature="e#12384#12385#0" expanded="false" />
++            <element signature="e#12706#12707#0" expanded="false" />
++            <element signature="e#12754#12755#0" expanded="false" />
++            <element signature="e#13079#13080#0" expanded="false" />
++            <element signature="e#13130#13131#0" expanded="false" />
++            <element signature="e#13453#13454#0" expanded="false" />
++            <element signature="e#13502#13503#0" expanded="false" />
++            <element signature="e#13896#13897#0" expanded="false" />
++            <element signature="e#13940#13941#0" expanded="false" />
++            <element signature="e#14332#14333#0" expanded="false" />
++            <element signature="e#14376#14377#0" expanded="false" />
++            <element signature="e#14771#14772#0" expanded="false" />
++            <element signature="e#14815#14816#0" expanded="false" />
++            <element signature="e#15208#15209#0" expanded="false" />
++            <element signature="e#15252#15253#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/gradlew">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/Classifier.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
++        <state relative-caret-position="180">
++          <caret line="24" column="17" lean-forward="false" selection-start-line="24" selection-start-column="17" selection-end-line="24" selection-end-column="17" />
++          <folding>
++            <element signature="e#0#2738#0" expanded="false" />
++            <element signature="imports" expanded="false" />
++            <element signature="e#1819#1820#0" expanded="false" />
++            <element signature="e#1842#1843#0" expanded="false" />
++            <element signature="e#1874#1875#0" expanded="false" />
++            <element signature="e#1900#1901#0" expanded="false" />
++            <element signature="e#1936#1937#0" expanded="false" />
++            <element signature="e#1967#1968#0" expanded="false" />
++            <element signature="e#2001#2002#0" expanded="false" />
++            <element signature="e#2041#2042#0" expanded="false" />
++            <element signature="e#2088#2089#0" expanded="false" />
++            <element signature="e#2126#2127#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/download-models.gradle">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/TensorFlow.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="100">
+-          <caret line="13" column="31" lean-forward="false" selection-start-line="13" selection-start-column="31" selection-end-line="13" selection-end-column="31" />
+-          <folding />
++        <state relative-caret-position="160">
++          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
++          <folding>
++            <element signature="e#0#1533#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
+-      <provider editor-type-id="android-manifest">
+-        <state />
+-      </provider>
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Operation.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="100">
+-          <caret line="8" column="47" lean-forward="false" selection-start-line="8" selection-start-column="47" selection-end-line="8" selection-end-column="47" />
+-          <folding />
++        <state relative-caret-position="1120">
++          <caret line="69" column="5" lean-forward="false" selection-start-line="69" selection-start-column="5" selection-end-line="69" selection-end-column="5" />
++          <folding>
++            <element signature="e#0#7244#0" expanded="false" />
++            <element signature="e#4484#4485#0" expanded="false" />
++            <element signature="e#4522#4523#0" expanded="false" />
++            <element signature="e#4561#4562#0" expanded="false" />
++            <element signature="e#4621#4622#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Tensor.java">
++    <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Graph.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="860">
+-          <caret line="65" column="71" lean-forward="false" selection-start-line="65" selection-start-column="71" selection-end-line="65" selection-end-column="71" />
+-          <folding />
++        <state relative-caret-position="1840">
++          <caret line="105" column="4" lean-forward="false" selection-start-line="105" selection-start-column="4" selection-end-line="105" selection-end-column="4" />
++          <folding>
++            <element signature="e#0#6989#0" expanded="false" />
++            <element signature="e#6568#6569#0" expanded="false" />
++            <element signature="e#6600#6601#0" expanded="false" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="4520">
+-          <caret line="248" column="43" lean-forward="false" selection-start-line="248" selection-start-column="43" selection-end-line="248" selection-end-column="43" />
++        <state relative-caret-position="680">
++          <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+           <folding>
+-            <element signature="e#8942#8943#0" expanded="true" />
+-            <element signature="e#8987#8988#0" expanded="true" />
+-            <element signature="e#11229#11237#0" expanded="true" />
+-            <element signature="e#13020#13028#0" expanded="true" />
+-            <element signature="e#13090#13098#0" expanded="true" />
+-            <element signature="e#13155#13163#0" expanded="true" />
+-            <element signature="e#13223#13234#0" expanded="true" />
++            <element signature="e#0#18114#0" expanded="false" />
++            <element signature="e#6795#6796#0" expanded="false" />
++            <element signature="e#6845#6846#0" expanded="false" />
++            <element signature="e#9647#9648#0" expanded="false" />
++            <element signature="e#9692#9693#0" expanded="false" />
+           </folding>
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/build.gradle">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="1280">
+-          <caret line="64" column="1" lean-forward="false" selection-start-line="64" selection-start-column="1" selection-end-line="64" selection-end-column="1" />
++        <state relative-caret-position="-2240">
++          <caret line="42" column="3" lean-forward="false" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="3" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsConv.h">
++    <entry file="file://$USER_HOME$/Android/Sdk/sources/android-23/java/lang/System.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2960">
+-          <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
++        <state relative-caret-position="247">
++          <caret line="655" column="0" lean-forward="false" selection-start-line="655" selection-start-column="0" selection-end-line="655" selection-end-column="0" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
++    <entry file="file://$PROJECT_DIR$/gradle.properties">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="280">
+-          <caret line="64" column="42" lean-forward="false" selection-start-line="64" selection-start-column="42" selection-end-line="64" selection-end-column="42" />
++        <state relative-caret-position="40">
++          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/../../contrib/android/java/org/tensorflow/contrib/android/TensorFlowInferenceInterface.java">
++    <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="165">
+-          <caret line="169" column="14" lean-forward="false" selection-start-line="169" selection-start-column="14" selection-end-line="169" selection-end-column="14" />
+-          <folding />
++        <state relative-caret-position="-1528">
++          <caret line="60" column="76" lean-forward="false" selection-start-line="60" selection-start-column="76" selection-end-line="60" selection-end-column="76" />
++          <folding>
++            <element signature="e#5616#5789#0" expanded="true" />
++            <element signature="e#5788#5789#0" expanded="true" />
++            <element signature="e#7289#7901#0" expanded="true" />
++            <element signature="e#7900#7901#0" expanded="true" />
++            <element signature="e#8637#8645#0" expanded="true" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="1400">
+-          <caret line="413" column="3" lean-forward="false" selection-start-line="413" selection-start-column="3" selection-end-line="413" selection-end-column="3" />
++        <state relative-caret-position="180">
++          <caret line="244" column="0" lean-forward="false" selection-start-line="244" selection-start-column="0" selection-end-line="244" selection-end-column="0" />
+           <folding>
++            <element signature="e#0#16448#0" expanded="true" />
+             <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#readLabels#0;class#TensorFlowImageClassifier#0" expanded="false" />
+             <element signature="method#checkExternalMedia#0;class#TensorFlowImageClassifier#0" expanded="false" />
+             <element signature="method#writeToSDFile#0;class#TensorFlowImageClassifier#0" expanded="false" />
+-            <element signature="method#reportTime#0;class#TensorFlowImageClassifier#0" expanded="false" />
++            <element signature="method#recognizeImage#0;class#TensorFlowImageClassifier#0" expanded="false" />
+           </folding>
+         </state>
+       </provider>
+diff --git tensorflow/examples/android/android.iml tensorflow/examples/android/android.iml
+index 148cd1f..1c3eafc 100644
+--- tensorflow/examples/android/android.iml
++++ tensorflow/examples/android/android.iml
+@@ -79,15 +79,25 @@
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/downloads" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/assets" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/blame" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/builds" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/classes" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/dex-cache" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/incremental" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/incremental-classes" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/incremental-runtime-classes" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/incremental-safeguard" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/incremental-verifier" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/instant-run-resources" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/instant-run-support" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/jniLibs" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/manifests" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/pre-dexed" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/reload-dex" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/res" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/restart-dex" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/rs" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/shaders" />
++      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/split-apk" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/symbols" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/transforms" />
+       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/outputs" />
+diff --git tensorflow/examples/android/assets/ssd_mobilenet_v1_android_export.pb tensorflow/examples/android/assets/ssd_mobilenet_v1_android_export.pb
+deleted file mode 100644
+index 1c4cefa..0000000
+Binary files tensorflow/examples/android/assets/ssd_mobilenet_v1_android_export.pb and /dev/null differ
+diff --git tensorflow/examples/android/src/org/tensorflow/demo/ClassifierActivity.java tensorflow/examples/android/src/org/tensorflow/demo/ClassifierActivity.java
+index 383fa75..bb24ab6 100644
+--- tensorflow/examples/android/src/org/tensorflow/demo/ClassifierActivity.java
++++ tensorflow/examples/android/src/org/tensorflow/demo/ClassifierActivity.java
+@@ -58,7 +58,7 @@ public class ClassifierActivity extends CameraActivity implements OnImageAvailab
+ 
+ 
+ //  private static final String MODEL_FILE = "file:///android_asset/graph_fc_2_bat_4_64.pb";
+-private static final String MODEL_FILE = "file:///android_asset/graph_conv_2_bat_128_w_64.pb";
++private static final String MODEL_FILE = "file:///android_asset/graph_conv_4_bat_128_w_64.pb";
+ 
+ //  private static final String MODEL_FILE = "file:///android_asset/graph_saman.pb";
+ 
+diff --git tensorflow/examples/android/src/org/tensorflow/demo/TensorFlowImageClassifier.java tensorflow/examples/android/src/org/tensorflow/demo/TensorFlowImageClassifier.java
+index 56b378c..f62b3bf 100644
+--- tensorflow/examples/android/src/org/tensorflow/demo/TensorFlowImageClassifier.java
++++ tensorflow/examples/android/src/org/tensorflow/demo/TensorFlowImageClassifier.java
+@@ -228,27 +228,26 @@ public class TensorFlowImageClassifier implements Classifier {
+     //    Log.d("readImages", "feed input");
+         inferenceInterface.feed("label", labels_float, batch);
+ //      inferenceInterface.feed("label", outSignals, batch);
++      reportTime("loss start:\t" + "iteration\t" + iter);
++      inferenceInterface.run(new String[]{"loss"}, logStats);
++      reportTime("loss end:\t" + "iteration\t" + iter);
+ 
+-        inferenceInterface.run(new String[]{"loss"}, logStats);
+-
+-        float[] resu = new float[1];
++      float[] resu = new float[1];
+ //      inferenceInterface.fetch("loss", resu);
+         inferenceInterface.fetch("loss", resu);
+         Log.d(TAG, "The loss is " + resu[0]);
+ 
+ 
+-        // The training is commented out for measuring the inference 1/3/2018
+-
+-    ////    inferenceInterface.feed("input", bigCon, batch, inputSize);
+-    ////    inferenceInterface.feed("label", labels_float, batch);
++        inferenceInterface.feed("input", bigCon, batch, inputSize);
++        inferenceInterface.feed("label", labels_float, batch);
+ //      inferenceInterface.feed("label", outSignals, batch);
+         //writeToSDFile("Start a new iteration");
+-    ////    reportTime("training start:\t" + "iteration\t" + iter);
+-    ////    inferenceInterface.runTarget(new String[]{"train"});
+-    ////    reportTime("training ends:\t" + "iteration\t" + iter);
++       reportTime("training start:\t" + "iteration\t" + iter);
++        inferenceInterface.runTarget(new String[]{"train"});
++        reportTime("training ends:\t" + "iteration\t" + iter);
++        currentTime("training ends");
+     //    writeToSDFile("End an iteration");
+       //Log.d("readImages", "done training");
+-
+     }
+ 
+     return bigCon;
+@@ -409,9 +408,21 @@ public class TensorFlowImageClassifier implements Classifier {
+ 
+   }
+ 
++
++  // Add a function for current time
++  public void currentTime(String str) {
++    long time = System.currentTimeMillis();
++    //long time = System.nanoTime();
++    //long elapsed = time-lastTime;
++    int Pid = android.os.Process.myPid();
++    int Tid = android.os.Process.myTid();
++     Log.d("TFClassifier",str + "\t" + "Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
++
++  }
++
+   @Override
+   public List<Recognition> recognizeImage(final Bitmap bitmap) {
+-   
++
+     // Get the input from images
+     float[] inputSignals = readImages();
+ //    readImages();
+diff --git tensorflow/java/src/main/java/org/tensorflow/Graph.java tensorflow/java/src/main/java/org/tensorflow/Graph.java
+index c08fa9b..8bd7558 100644
+--- tensorflow/java/src/main/java/org/tensorflow/Graph.java
++++ tensorflow/java/src/main/java/org/tensorflow/Graph.java
+@@ -15,6 +15,8 @@ limitations under the License.
+ 
+ package org.tensorflow;
+ 
++import android.util.Log;
++
+ /**
+  * A data flow graph representing a TensorFlow computation.
+  *
+@@ -24,14 +26,17 @@ package org.tensorflow;
+  * the {@link #close()} method then the Graph object is no longer needed.
+  */
+ public final class Graph implements AutoCloseable {
++  String TAG = "Graph";
+ 
+   /** Create an empty Graph. */
+   public Graph() {
++    Log.d(TAG, "create an empty graph");
+     nativeHandle = allocate();
+   }
+ 
+   /** Create a Graph from an existing handle (takes ownership). */
+   Graph(long nativeHandle) {
++    Log.d(TAG,"Create a graph from existing handler");
+     this.nativeHandle = nativeHandle;
+   }
+ 
+@@ -43,6 +48,7 @@ public final class Graph implements AutoCloseable {
+    */
+   @Override
+   public void close() {
++    Log.d(TAG, "Release resourses");
+     synchronized (nativeHandleLock) {
+       if (nativeHandle == 0) {
+         return;
+@@ -61,12 +67,30 @@ public final class Graph implements AutoCloseable {
+     }
+   }
+ 
++
++  /**
++  Add a function to measure time
++   */
++  long lastTime=0;
++  public void reportTime(String str){
++    long time = System.currentTimeMillis();
++    long elapsed = time-lastTime;
++    int Pid = android.os.Process.myPid();
++    int Tid = android.os.Process.myTid();
++    // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
++    Log.d("Graph","Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
++    lastTime=System.currentTimeMillis();
++
++  }
++
+   /**
+    * Returns the operation (node in the Graph) with the provided name.
+    *
+    * <p>Or {@code null} if no such operation exists in the Graph.
+    */
+   public Operation operation(String name) {
++    Log.d(TAG, "Graph::operation starts");
++   // reportTime("Graph::operation starts");
+     synchronized (nativeHandleLock) {
+       long oph = operation(nativeHandle, name);
+       if (oph == 0) {
+@@ -74,6 +98,7 @@ public final class Graph implements AutoCloseable {
+       }
+       return new Operation(this, oph);
+     }
++
+   }
+ 
+   /**
+@@ -86,6 +111,7 @@ public final class Graph implements AutoCloseable {
+    *     then some resources may leak.
+    */
+   public OperationBuilder opBuilder(String type, String name) {
++    Log.d(TAG,"opBuilder");
+     return new OperationBuilder(this, type, name);
+   }
+ 
+@@ -99,6 +125,7 @@ public final class Graph implements AutoCloseable {
+    * @see #importGraphDef(byte[], String)
+    */
+   public void importGraphDef(byte[] graphDef) throws IllegalArgumentException {
++    Log.d(TAG, "importGraphDef ");
+     importGraphDef(graphDef, "");
+   }
+ 
+@@ -111,6 +138,7 @@ public final class Graph implements AutoCloseable {
+    * @see #importGraphDef(byte[])
+    */
+   public void importGraphDef(byte[] graphDef, String prefix) throws IllegalArgumentException {
++    Log.d(TAG, "importGraphDef_String");
+     if (graphDef == null || prefix == null) {
+       throw new IllegalArgumentException("graphDef and prefix cannot be null");
+     }
+diff --git tensorflow/java/src/main/java/org/tensorflow/NativeLibrary.java tensorflow/java/src/main/java/org/tensorflow/NativeLibrary.java
+index ca06177..98e316d 100644
+--- tensorflow/java/src/main/java/org/tensorflow/NativeLibrary.java
++++ tensorflow/java/src/main/java/org/tensorflow/NativeLibrary.java
+@@ -44,6 +44,7 @@ final class NativeLibrary {
+       System.getProperty("org.tensorflow.NativeLibrary.DEBUG") != null;
+   private static final String LIBNAME = "tensorflow_jni";
+ 
++
+   public static void load() {
+     if (isLoaded() || tryLoadLibrary()) {
+       // Either:
+@@ -82,6 +83,7 @@ final class NativeLibrary {
+ 
+   private static boolean tryLoadLibrary() {
+     try {
++      System.out.println("tryLoadLibrary");
+       System.loadLibrary(LIBNAME);
+       return true;
+     } catch (UnsatisfiedLinkError e) {
+diff --git tensorflow/java/src/main/java/org/tensorflow/Operation.java tensorflow/java/src/main/java/org/tensorflow/Operation.java
+index ec26309..35115ab 100644
+--- tensorflow/java/src/main/java/org/tensorflow/Operation.java
++++ tensorflow/java/src/main/java/org/tensorflow/Operation.java
+@@ -15,6 +15,8 @@ limitations under the License.
+ 
+ package org.tensorflow;
+ 
++import android.util.Log;
++
+ /**
+  * A Graph node that performs computation on Tensors.
+  *
+@@ -28,23 +30,45 @@ package org.tensorflow;
+  * <p>Operation instances are immutable and thread-safe.
+  */
+ public final class Operation {
++  String TAG = "Operation";
++
++  /**
++   Add a function to measure time
++   */
++  long lastTime=0;
++  public void reportTime(String str){
++    long time = System.currentTimeMillis();
++    long elapsed = time-lastTime;
++    int Pid = android.os.Process.myPid();
++    int Tid = android.os.Process.myTid();
++    // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
++    Log.d("Operation","Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
++    lastTime=System.currentTimeMillis();
++
++  }
+ 
+   // Create an Operation instance referring to an operation in g, with the given handle to the C
+   // TF_Operation object.  The handle is valid only as long as g has not been closed, hence it is
+   // called unsafeHandle.  Graph.ref() is used to safely use the unsafeHandle.
+   Operation(Graph g, long unsafeNativeHandle) {
++    reportTime("Create an Operation instance start");
+     this.graph = g;
+     this.unsafeNativeHandle = unsafeNativeHandle;
++    reportTime("Create an Operation instance ends");
++
+   }
+ 
+   /** Returns the full name of the Operation. */
+   public String name() {
+     Graph.Reference r = graph.ref();
++    reportTime("return name");
++
+     try {
+       return name(unsafeNativeHandle);
+     } finally {
+       r.close();
+     }
++
+   }
+ 
+   /**
+@@ -53,6 +77,8 @@ public final class Operation {
+    */
+   public String type() {
+     Graph.Reference r = graph.ref();
++    reportTime("return type");
++
+     try {
+       return type(unsafeNativeHandle);
+     } finally {
+diff --git tensorflow/java/src/main/java/org/tensorflow/Session.java tensorflow/java/src/main/java/org/tensorflow/Session.java
+index 83a300a..8abe154 100644
+--- tensorflow/java/src/main/java/org/tensorflow/Session.java
++++ tensorflow/java/src/main/java/org/tensorflow/Session.java
+@@ -15,6 +15,8 @@ limitations under the License.
+ 
+ package org.tensorflow;
+ 
++import android.util.Log;
++
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+@@ -47,9 +49,14 @@ import java.util.List;
+  */
+ public final class Session implements AutoCloseable {
+ 
++
++  String TAG = "Session";
++
+   /** Construct a new session with the associated {@link Graph}. */
+   public Session(Graph g) {
+     this(g, null);
++    Log.d(TAG, "Construct a new session");
++
+   }
+ 
+   /**
+@@ -81,6 +88,20 @@ public final class Session implements AutoCloseable {
+     graphRef = g.ref();
+   }
+ 
++
++  // Add a function to measure time
++  long lastTime=0;
++  public void reportTime(String str){
++    long time = System.currentTimeMillis();
++    long elapsed = time-lastTime;
++    int Pid = android.os.Process.myPid();
++    int Tid = android.os.Process.myTid();
++    // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
++    Log.d(TAG,"Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
++    lastTime=System.currentTimeMillis();
++  }
++
++
+   /**
+    * Release resources associated with the Session.
+    *
+@@ -195,10 +216,12 @@ public final class Session implements AutoCloseable {
+      * Make {@link #run()} execute {@code operation}, but not return any evaluated {@link Tensor}s.
+      */
+     public Runner addTarget(String operation) {
++      reportTime("Start Runner addTarget");
+       Operation op = operationByName(operation);
+       if (op != null) {
+         targets.add(op);
+       }
++      reportTime("Add targets end");
+       return this;
+     }
+ 
+@@ -225,6 +248,7 @@ public final class Session implements AutoCloseable {
+      * time.
+      */
+     public Runner setOptions(byte[] options) {
++      Log.d(TAG, "Start setOptions");
+       this.runOptions = options;
+       return this;
+     }
+@@ -258,6 +282,8 @@ public final class Session implements AutoCloseable {
+     }
+ 
+     private Run runHelper(boolean wantMetadata) {
++      //Log.d(TAG, "runHelper");
++      reportTime("runHelper starts");
+       long[] inputTensorHandles = new long[inputTensors.size()];
+       long[] inputOpHandles = new long[inputs.size()];
+       int[] inputOpIndices = new int[inputs.size()];
+@@ -288,9 +314,13 @@ public final class Session implements AutoCloseable {
+       for (Operation op : targets) {
+         targetOpHandles[idx++] = op.getUnsafeNativeHandle();
+       }
++      //Log.d(TAG, "getUnsafeNativeHandle ends");
++      reportTime("getUnsafeNativeHandle ends");
+       Reference runRef = new Reference();
+       byte[] metadata = null;
+       try {
++        //Log.d(TAG, "metadata = Session.run");
++        reportTime("metadata = Session.run starts");
+         metadata =
+             Session.run(
+                 nativeHandle,
+@@ -303,6 +333,7 @@ public final class Session implements AutoCloseable {
+                 targetOpHandles,
+                 wantMetadata,
+                 outputTensorHandles);
++        reportTime("metadata = Session.run ends");
+       } finally {
+         runRef.close();
+       }
+@@ -321,6 +352,8 @@ public final class Session implements AutoCloseable {
+       Run ret = new Run();
+       ret.outputs = outputs;
+       ret.metadata = metadata;
++      reportTime("runHelper ends");
++
+       return ret;
+     }
+ 
+@@ -348,7 +381,10 @@ public final class Session implements AutoCloseable {
+     }
+ 
+     private Operation operationByName(String opName) {
++      reportTime("Start operationByName");
+       Operation op = graph.operation(opName);
++      reportTime("end operationByName");
++
+       if (op == null) {
+         throw new IllegalArgumentException("No Operation named [" + opName + "] in the Graph");
+       }
+diff --git tensorflow/java/src/main/java/org/tensorflow/TensorFlow.java tensorflow/java/src/main/java/org/tensorflow/TensorFlow.java
+index c21214b..46686af 100644
+--- tensorflow/java/src/main/java/org/tensorflow/TensorFlow.java
++++ tensorflow/java/src/main/java/org/tensorflow/TensorFlow.java
+@@ -15,8 +15,11 @@ limitations under the License.
+ 
+ package org.tensorflow;
+ 
++import android.util.Log;
++
+ /** Static utility methods describing the TensorFlow runtime. */
+ public final class TensorFlow {
++    String TAG = "TensorFlow";
+   /** Returns the version of the underlying TensorFlow runtime. */
+   public static native String version();
+ 
+@@ -33,6 +36,7 @@ public final class TensorFlow {
+ 
+   /** Load the TensorFlow runtime C library. */
+   static void init() {
++    Log.d("TensorFlow", "Load TF runtime C library");
+     NativeLibrary.load();
+   }
+ 
+diff --git tensorflow/java/src/main/native/graph_jni.cc tensorflow/java/src/main/native/graph_jni.cc
+index 8e9187b..c5b4e6d 100644
+--- tensorflow/java/src/main/native/graph_jni.cc
++++ tensorflow/java/src/main/native/graph_jni.cc
+@@ -18,6 +18,15 @@ limitations under the License.
+ #include <limits>
+ #include "tensorflow/c/c_api.h"
+ #include "tensorflow/java/src/main/native/exception_jni.h"
++#include <stdio.h>
++#include <stdlib.h>
++#include <android/log.h>
++
++#define LOG_TAG "JNI_LOG"
++#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
++#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
++#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
++
+ 
+ namespace {
+ TF_Graph* requireHandle(JNIEnv* env, jlong handle) {
+@@ -33,11 +42,13 @@ TF_Graph* requireHandle(JNIEnv* env, jlong handle) {
+ }  // namespace
+ 
+ JNIEXPORT jlong JNICALL Java_org_tensorflow_Graph_allocate(JNIEnv*, jclass) {
++  LOGD("Java_org_tensorflow_Graph_allocate");
+   return reinterpret_cast<jlong>(TF_NewGraph());
+ }
+ 
+ JNIEXPORT void JNICALL Java_org_tensorflow_Graph_delete(JNIEnv*, jclass,
+                                                         jlong handle) {
++  LOGD("Java_org_tensorflow_Graph_delete");
+   if (handle == 0) return;
+   TF_DeleteGraph(reinterpret_cast<TF_Graph*>(handle));
+ }
+@@ -46,6 +57,8 @@ JNIEXPORT jlong JNICALL Java_org_tensorflow_Graph_operation(JNIEnv* env,
+                                                             jclass clazz,
+                                                             jlong handle,
+                                                             jstring name) {
++
++  LOGD("Java_org_tensorflow_Graph_operation");
+   TF_Graph* g = requireHandle(env, handle);
+   if (g == nullptr) return 0;
+   const char* cname = env->GetStringUTFChars(name, nullptr);
+@@ -57,6 +70,8 @@ JNIEXPORT jlong JNICALL Java_org_tensorflow_Graph_operation(JNIEnv* env,
+ JNIEXPORT void JNICALL Java_org_tensorflow_Graph_importGraphDef(
+     JNIEnv* env, jclass clazz, jlong handle, jbyteArray graph_def,
+     jstring prefix) {
++  LOGD("importGraphDef");
++
+   TF_Graph* g = requireHandle(env, handle);
+   if (g == nullptr) return;
+ 
+@@ -86,6 +101,7 @@ JNIEXPORT void JNICALL Java_org_tensorflow_Graph_importGraphDef(
+ 
+ JNIEXPORT jbyteArray JNICALL
+ Java_org_tensorflow_Graph_toGraphDef(JNIEnv* env, jclass clazz, jlong handle) {
++  LOGD("Java_org_tensorflow_Graph_toGraphDef");
+   jbyteArray ret = nullptr;
+   TF_Graph* g = requireHandle(env, handle);
+   if (g == nullptr) return ret;
+diff --git tensorflow/java/src/main/native/session_jni.cc tensorflow/java/src/main/native/session_jni.cc
+index e26367e..5abf567 100644
+--- tensorflow/java/src/main/native/session_jni.cc
++++ tensorflow/java/src/main/native/session_jni.cc
+@@ -19,9 +19,41 @@ limitations under the License.
+ #include "tensorflow/c/c_api.h"
+ #include "tensorflow/java/src/main/native/exception_jni.h"
+ #include "tensorflow/java/src/main/native/session_jni.h"
++#include <stdio.h>
++#include <stdlib.h>
++#include <android/log.h>
++#include <sstream>
++#include <iostream>
++#include <sys/time.h>
++#include <fstream>
++
++// Android log
++#include <stdio.h>
++#include <stdlib.h>
++#include <android/log.h>
++
++
++#define LOG_TAG "JNI_LOG"
++#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
++#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
++#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
++
++
++//#include <sys/time.h>
++#include <jni.h>
++//#include <stdio.h>
++//#include <stdlib.h>
++#include <unistd.h>
++#include <android/asset_manager.h>
++#include <android/asset_manager_jni.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/errno.h>
++
+ 
+ namespace {
+ TF_Session* requireHandle(JNIEnv* env, jlong handle) {
++  LOGD("Session_jni::requireHandle");
+   static_assert(sizeof(jlong) >= sizeof(TF_Session*),
+                 "Cannot package C object pointers as a Java long");
+   if (handle == 0) {
+@@ -35,6 +67,7 @@ TF_Session* requireHandle(JNIEnv* env, jlong handle) {
+ template <class T>
+ void resolveHandles(JNIEnv* env, const char* type, jlongArray src_array,
+                     T** dst, jint n) {
++//  LOGD("Session_jni::resolveHandles");
+   if (env->ExceptionCheck()) return;
+   jint len = env->GetArrayLength(src_array);
+   if (len != n) {
+@@ -55,8 +88,49 @@ void resolveHandles(JNIEnv* env, const char* type, jlongArray src_array,
+   env->ReleaseLongArrayElements(src_array, src_start, JNI_ABORT);
+ }
+ 
++  double elapse;
++  struct timespec currentTime, lastTime;
++
++  void reportTime(const char* str) {
++    std::stringstream stringstream;
++    clock_gettime(CLOCK_MONOTONIC, &currentTime);
++    elapse = ( currentTime.tv_sec - lastTime.tv_sec) + (double)( currentTime.tv_nsec - lastTime.tv_nsec)/1E9;
++    LOGI("%s, time elapse:\t%f", str, elapse);
++    //stringstream << " Time is " << elapse << " sec";
++    //android_log_print(stringstream.str().c_str());
++    lastTime = currentTime;
++  }
++
++
++  // Rewrite the timing function for reporting timestamp only with a precision of millisecond
++  void currentTimeCheck(const char* str) {
++    struct timeval tp;
++    std::stringstream stringstream;
++    gettimeofday(&tp, NULL);
++    long long int ms = tp.tv_sec * 1000 + tp.tv_usec/1000;
++    LOGI("%s, \t%lld", str, ms);
++    //std::cout << ms << "millisecond\n";
++
++    const char * internalStoragePath;
++    char fName[64];
++    
++    internalStoragePath = "/mnt/sdcard";
++    strcpy(fName,internalStoragePath);
++    strcat(fName,"/myfile.txt");
++    
++    LOGI("fname = %s", fName);
++    FILE *file_ptr = fopen(fName, "w+");
++    fprintf (file_ptr, "The UTC time is %lld\n", ms);
++    fclose(file_ptr);
++
++    //stringstream << " Time is " << ms << " millisecond";
++    //androidrs::conv::android_log_print(stringstream.str().c_str());
++  }
++
++
+ void resolveOutputs(JNIEnv* env, const char* type, jlongArray src_op,
+                     jintArray src_index, TF_Output* dst, jint n) {
++  LOGD("Session_jni::resolveOutputs");
+   if (env->ExceptionCheck()) return;
+   jint len = env->GetArrayLength(src_op);
+   if (len != n) {
+@@ -87,6 +161,8 @@ void resolveOutputs(JNIEnv* env, const char* type, jlongArray src_op,
+ }
+ 
+ void TF_MaybeDeleteBuffer(TF_Buffer* buf) {
++  LOGD("Session_jni::TF_MaybeDeleteBuffer");
++
+   if (buf == nullptr) return;
+   TF_DeleteBuffer(buf);
+ }
+@@ -102,6 +178,7 @@ unique_tf_buffer MakeUniqueBuffer(TF_Buffer* buf) {
+ 
+ JNIEXPORT jlong JNICALL Java_org_tensorflow_Session_allocate(
+     JNIEnv* env, jclass clazz, jlong graph_handle) {
++  LOGD("Java_org_tensorflow_Session_allocate");
+   return Java_org_tensorflow_Session_allocate2(env, clazz, graph_handle,
+                                                nullptr, nullptr);
+ }
+@@ -113,6 +190,8 @@ JNIEXPORT jlong JNICALL Java_org_tensorflow_Session_allocate2(
+     throwException(env, kNullPointerException, "Graph has been close()d");
+     return 0;
+   }
++  LOGD("Java_org_tensorflow_Session_allocate2");
++
+   TF_Graph* graph = reinterpret_cast<TF_Graph*>(graph_handle);
+   TF_Status* status = TF_NewStatus();
+   TF_SessionOptions* opts = TF_NewSessionOptions();
+@@ -147,6 +226,8 @@ JNIEXPORT jlong JNICALL Java_org_tensorflow_Session_allocate2(
+ JNIEXPORT void JNICALL Java_org_tensorflow_Session_delete(JNIEnv* env,
+                                                           jclass clazz,
+                                                           jlong handle) {
++  LOGD("Java_org_tensorflow_Session_delete");
++
+   TF_Session* session = requireHandle(env, handle);
+   if (session == nullptr) return;
+   TF_Status* status = TF_NewStatus();
+@@ -163,7 +244,11 @@ JNIEXPORT jbyteArray JNICALL Java_org_tensorflow_Session_run(
+     jintArray input_op_indices, jlongArray output_op_handles,
+     jintArray output_op_indices, jlongArray target_op_handles,
+     jboolean want_run_metadata, jlongArray output_tensor_handles) {
++  LOGD("Java_org_tensorflow_Session_run");
++  reportTime("Java_org_tensorflow_Session_run starts");
++  currentTimeCheck("Session_jni::currentTimeCheck");
+   TF_Session* session = requireHandle(env, handle);
++  reportTime("Session_jni::requireHandle");
+   if (session == nullptr) return nullptr;
+ 
+   const jint ninputs = env->GetArrayLength(input_tensor_handles);
+@@ -180,12 +265,16 @@ JNIEXPORT jbyteArray JNICALL Java_org_tensorflow_Session_run(
+ 
+   resolveHandles(env, "input Tensors", input_tensor_handles, input_values.get(),
+                  ninputs);
++  reportTime("Session_jni::resolve input tensors");
+   resolveOutputs(env, "input", input_op_handles, input_op_indices, inputs.get(),
+                  ninputs);
++  reportTime("Session_jni::resolve input");
+   resolveOutputs(env, "output", output_op_handles, output_op_indices,
+                  outputs.get(), noutputs);
++  reportTime("Session_jni::resolve output");
+   resolveHandles(env, "target Operations", target_op_handles, targets.get(),
+                  ntargets);
++  reportTime("Session_jni::resolve target Operations");
+   if (env->ExceptionCheck()) return nullptr;
+ 
+   TF_Status* status = TF_NewStatus();
+@@ -200,12 +289,16 @@ JNIEXPORT jbyteArray JNICALL Java_org_tensorflow_Session_run(
+           TF_NewBufferFromString(static_cast<void*>(jrun_options_data), sz));
+     }
+   }
++  //LOGD("Session_jni::TFSessionRun");
+ 
++  reportTime("Session_jni::TF_SessionRun starts");
+   TF_SessionRun(session, run_options.get(), inputs.get(), input_values.get(),
+                 static_cast<int>(ninputs), outputs.get(), output_values.get(),
+                 static_cast<int>(noutputs), targets.get(),
+                 static_cast<int>(ntargets), run_metadata.get(), status);
+ 
++  reportTime("Session_jni::TF_SessionRun ends");
++
+   if (jrun_options_data != nullptr) {
+     env->ReleaseByteArrayElements(jrun_options, jrun_options_data, JNI_ABORT);
+   }
+@@ -228,5 +321,6 @@ JNIEXPORT jbyteArray JNICALL Java_org_tensorflow_Session_run(
+     env->ReleaseByteArrayElements(ret, elems, JNI_COMMIT);
+   }
+   TF_DeleteStatus(status);
++  reportTime("Java_org_tensorflow_Session_run ends");
+   return ret;
+ }
+diff --git tensorflow/java/src/main/native/tensorflow_jni.cc tensorflow/java/src/main/native/tensorflow_jni.cc
+index c553582..5788a55 100644
+--- tensorflow/java/src/main/native/tensorflow_jni.cc
++++ tensorflow/java/src/main/native/tensorflow_jni.cc
+@@ -15,6 +15,16 @@ limitations under the License.
+ 
+ #include "tensorflow/java/src/main/native/tensorflow_jni.h"
+ #include "tensorflow/c/c_api.h"
++#define LOG_TAG "JNI_LOG"
++
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <android/log.h>
++#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
++#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
++#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
++
+ 
+ JNIEXPORT jstring JNICALL Java_org_tensorflow_TensorFlow_version(JNIEnv* env,
+                                                                  jclass clazz) {
+@@ -23,6 +33,8 @@ JNIEXPORT jstring JNICALL Java_org_tensorflow_TensorFlow_version(JNIEnv* env,
+ 
+ JNIEXPORT jbyteArray JNICALL
+ Java_org_tensorflow_TensorFlow_registeredOpList(JNIEnv* env, jclass clazz) {
++  LOGD("registeredOpList");
++
+   TF_Buffer* buf = TF_GetAllOpList();
+   jint length = static_cast<int>(buf->length);
+   jbyteArray ret = env->NewByteArray(length);

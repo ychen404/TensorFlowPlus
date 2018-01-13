@@ -15,18 +15,26 @@ limitations under the License.
 
 package org.tensorflow.contrib.android;
 
+import android.nfc.Tag;
+import android.util.Log;
+
 /** Accumulate and analyze stats from metadata obtained from Session.Runner.run. */
 public class RunStats implements AutoCloseable {
+
+  String TAG = "RunStats";
 
   /**
    * Options to be provided to a {@link org.tensorflow.Session.Runner} to enable stats accumulation.
    */
   public static byte[] runOptions() {
+    Log.d("RunStats", "runOptions");
     return fullTraceRunOptions;
   }
 
   public RunStats() {
+    Log.d(TAG, "RunStats method");
     nativeHandle = allocate();
+
   }
 
   @Override
@@ -39,11 +47,13 @@ public class RunStats implements AutoCloseable {
 
   /** Accumulate stats obtained when executing a graph. */
   public synchronized void add(byte[] runMetadata) {
+    Log.d(TAG, "add");
     add(nativeHandle, runMetadata);
   }
 
   /** Summary of the accumulated runtime stats. */
   public synchronized String summary() {
+    Log.d(TAG, "summary");
     return summary(nativeHandle);
   }
 

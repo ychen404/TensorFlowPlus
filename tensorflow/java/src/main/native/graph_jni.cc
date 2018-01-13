@@ -18,6 +18,15 @@ limitations under the License.
 #include <limits>
 #include "tensorflow/c/c_api.h"
 #include "tensorflow/java/src/main/native/exception_jni.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <android/log.h>
+
+#define LOG_TAG "JNI_LOG"
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+
 
 namespace {
 TF_Graph* requireHandle(JNIEnv* env, jlong handle) {
@@ -33,11 +42,13 @@ TF_Graph* requireHandle(JNIEnv* env, jlong handle) {
 }  // namespace
 
 JNIEXPORT jlong JNICALL Java_org_tensorflow_Graph_allocate(JNIEnv*, jclass) {
+  LOGD("Java_org_tensorflow_Graph_allocate");
   return reinterpret_cast<jlong>(TF_NewGraph());
 }
 
 JNIEXPORT void JNICALL Java_org_tensorflow_Graph_delete(JNIEnv*, jclass,
                                                         jlong handle) {
+  LOGD("Java_org_tensorflow_Graph_delete");
   if (handle == 0) return;
   TF_DeleteGraph(reinterpret_cast<TF_Graph*>(handle));
 }
@@ -46,6 +57,8 @@ JNIEXPORT jlong JNICALL Java_org_tensorflow_Graph_operation(JNIEnv* env,
                                                             jclass clazz,
                                                             jlong handle,
                                                             jstring name) {
+
+  LOGD("Java_org_tensorflow_Graph_operation");
   TF_Graph* g = requireHandle(env, handle);
   if (g == nullptr) return 0;
   const char* cname = env->GetStringUTFChars(name, nullptr);
@@ -57,6 +70,8 @@ JNIEXPORT jlong JNICALL Java_org_tensorflow_Graph_operation(JNIEnv* env,
 JNIEXPORT void JNICALL Java_org_tensorflow_Graph_importGraphDef(
     JNIEnv* env, jclass clazz, jlong handle, jbyteArray graph_def,
     jstring prefix) {
+  LOGD("importGraphDef");
+
   TF_Graph* g = requireHandle(env, handle);
   if (g == nullptr) return;
 
@@ -86,6 +101,7 @@ JNIEXPORT void JNICALL Java_org_tensorflow_Graph_importGraphDef(
 
 JNIEXPORT jbyteArray JNICALL
 Java_org_tensorflow_Graph_toGraphDef(JNIEnv* env, jclass clazz, jlong handle) {
+  LOGD("Java_org_tensorflow_Graph_toGraphDef");
   jbyteArray ret = nullptr;
   TF_Graph* g = requireHandle(env, handle);
   if (g == nullptr) return ret;

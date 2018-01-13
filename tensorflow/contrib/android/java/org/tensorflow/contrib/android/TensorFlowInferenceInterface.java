@@ -72,10 +72,12 @@ public class TensorFlowInferenceInterface {
       }
     }
 
+    Log.d(TAG, "Setting up some context start");
     this.modelName = model;
     this.g = new Graph();
     this.sess = new Session(g);
     this.runner = sess.runner();
+    Log.d(TAG, "Setting up some context ends");
 
     final boolean hasAssetPrefix = model.startsWith(ASSET_FILE_PREFIX);
     InputStream is = null;

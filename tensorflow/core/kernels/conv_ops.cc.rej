@@ -1,0 +1,64 @@
+--- tensorflow/core/kernels/conv_ops.cc
++++ tensorflow/core/kernels/conv_ops.cc
+@@ -462,37 +532,48 @@ class Conv2DOp : public BinaryOp<T> {
+             context, input, filter, batch, input_rows, input_cols, in_depth,
+             filter_rows, filter_cols, pad_rows, pad_cols, out_rows, out_cols,
+             out_depth, stride_rows, stride_cols, output, data_format_)) {
++      LOGD("conv_ops::ifdef LaunchDeepConvOp::Run");
++
+       return;
+     }
+ 
+     //////////////////////// renderscript support
+     std::stringstream ss;
+-    double start, finish;
+-    start = (double)(clock()/(double)CLOCKS_PER_SEC);
+-    /*androidrs::conv::rsConvInfo convInfo(in_depth, input_rows, input_cols, filter_rows, filter_cols,
++   // double start, finish;
++   // start = (double)(clock()/(double)CLOCKS_PER_SEC);
++    reportTime("conv_ops::start of rsConv");
++
++    androidrs::conv::rsConvInfo convInfo(in_depth, input_rows, input_cols, filter_rows, filter_cols,
+                                          stride_rows, stride_cols, pad_rows, pad_cols,
+-                                         out_depth, out_rows, out_cols, batch, sizeof(T));*/
++                                         out_depth, out_rows, out_cols, batch, sizeof(T));
+     /*androidrs::conv::rsConv_intrinsic<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
+                                       static_cast<void*>(const_cast<char*>(input.tensor_data().data())),
+                                       static_cast<void*>(const_cast<char*>(output->tensor_data().data())),
+                                       convInfo);*/
+     
+-   /* androidrs::conv::rsConv_script<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
++    androidrs::conv::rsConv_script<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
+                                       static_cast<void*>(const_cast<char*>(input.tensor_data().data())),
+                                       static_cast<void*>(const_cast<char*>(output->tensor_data().data())),
+-                                      convInfo);*/
+-   // finish = (double)(clock()/(double)CLOCKS_PER_SEC);
+-   // ss << "Conv consume time: " << (finish - start) << " sec";
+-   // android_log_print(ss.str().c_str());
+-   // return;
++                                      convInfo);
++    struct timeval tp;
++    std::stringstream stringstream;
++    gettimeofday(&tp, NULL);
++    long long int ms = tp.tv_sec * 1000 + tp.tv_usec /1000;
++    reportTime("conv_ops::end of rsConv");
++    ss << "conv_ops::current time: " << ms << " milliseconds";
++    android_log_print(ss.str().c_str()); 
++    return;
+     //////////////////////// renderscript support
++    reportTime("conv_ops::Conv2Dop:Compute before launch");
++    reportTime("conv_ops::Start of launch");
+ 
+     launcher_.launch(context, use_cudnn_, cudnn_use_autotune_, input, filter,
+                      stride_rows, stride_cols,
+                      BrainPadding2EigenPadding(padding_), output, data_format_);
+-    finish = (double)(clock()/(double)CLOCKS_PER_SEC);
+-    ss << "Normal conv consume time: " << (finish - start) << " sec";
+-    android_log_print(ss.str().c_str());
++   // finish = (double)(clock()/(double)CLOCKS_PER_SEC);
++   // ss << "Normal conv consume time: " << (finish - start) << " sec";
++   // android_log_print(ss.str().c_str());
++    reportTime("conv_ops::End of launch");
+   }
+ 
+  private:

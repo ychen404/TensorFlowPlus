@@ -15,6 +15,8 @@ limitations under the License.
 
 package org.tensorflow;
 
+import android.util.Log;
+
 /**
  * A Graph node that performs computation on Tensors.
  *
@@ -28,23 +30,45 @@ package org.tensorflow;
  * <p>Operation instances are immutable and thread-safe.
  */
 public final class Operation {
+  String TAG = "Operation";
+
+  /**
+   Add a function to measure time
+   */
+  long lastTime=0;
+  public void reportTime(String str){
+    long time = System.currentTimeMillis();
+    long elapsed = time-lastTime;
+    int Pid = android.os.Process.myPid();
+    int Tid = android.os.Process.myTid();
+    // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
+    Log.d("Operation","Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
+    lastTime=System.currentTimeMillis();
+
+  }
 
   // Create an Operation instance referring to an operation in g, with the given handle to the C
   // TF_Operation object.  The handle is valid only as long as g has not been closed, hence it is
   // called unsafeHandle.  Graph.ref() is used to safely use the unsafeHandle.
   Operation(Graph g, long unsafeNativeHandle) {
+    reportTime("Create an Operation instance start");
     this.graph = g;
     this.unsafeNativeHandle = unsafeNativeHandle;
+    reportTime("Create an Operation instance ends");
+
   }
 
   /** Returns the full name of the Operation. */
   public String name() {
     Graph.Reference r = graph.ref();
+    reportTime("return name");
+
     try {
       return name(unsafeNativeHandle);
     } finally {
       r.close();
     }
+
   }
 
   /**
@@ -53,6 +77,8 @@ public final class Operation {
    */
   public String type() {
     Graph.Reference r = graph.ref();
+    reportTime("return type");
+
     try {
       return type(unsafeNativeHandle);
     } finally {

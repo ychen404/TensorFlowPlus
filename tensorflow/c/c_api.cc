@@ -54,6 +54,11 @@ limitations under the License.
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/public/version.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <android/log.h>
+
+
 // The implementation below is at the top level instead of the
 // brain namespace because we are defining 'extern "C"' functions.
 using tensorflow::error::Code;
@@ -84,32 +89,49 @@ using tensorflow::TensorId;
 using tensorflow::TensorShape;
 using tensorflow::TensorShapeProto;
 
+
+#define LOG_TAG "JNI_LOG"
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+
+
 extern "C" {
 
 // --------------------------------------------------------------------------
-const char* TF_Version() { return TF_VERSION_STRING; }
+const char* TF_Version() { 
+  LOGD("c_api::TF_Version");
+  return TF_VERSION_STRING; }
 
 // --------------------------------------------------------------------------
 size_t TF_DataTypeSize(TF_DataType dt) {
+    LOGD("c_api::TF_DataTypeSize");
   return static_cast<size_t>(
       tensorflow::DataTypeSize(static_cast<DataType>(dt)));
 }
 
 // --------------------------------------------------------------------------
 
-TF_Status* TF_NewStatus() { return new TF_Status; }
+TF_Status* TF_NewStatus() { 
+LOGD("c_api::TF_NewStatus");
+  return new TF_Status; }
 
-void TF_DeleteStatus(TF_Status* s) { delete s; }
+void TF_DeleteStatus(TF_Status* s) { 
+LOGD("c_api::TF_DeleteStatus");
+  delete s; }
 
 void TF_SetStatus(TF_Status* s, TF_Code code, const char* msg) {
+  LOGD("c_api::TF_SetStatus");
   s->status = Status(static_cast<Code>(code), tensorflow::StringPiece(msg));
 }
 
 TF_Code TF_GetCode(const TF_Status* s) {
+  LOGD("c_api::TF_GetCode");
   return static_cast<TF_Code>(s->status.code());
 }
 
 const char* TF_Message(const TF_Status* s) {
+  LOGD("c_api::TF_Message");
   return s->status.error_message().c_str();
 }
 
@@ -129,18 +151,42 @@ class TF_ManagedBuffer : public TensorBuffer {
 
   void* data() const override { return data_; }
   size_t size() const override { return len_; }
-  TensorBuffer* root_buffer() override { return this; }
+  TensorBuffer* root_buffer() override { 
+    LOGD("c_api::root_buffer");
+    return this; }
   void FillAllocationDescription(AllocationDescription* proto) const override {
+    LOGD("c_api::FillAllocationDescription");
     tensorflow::int64 rb = size();
+    LOGD("c_api::rb = size()");
     proto->set_requested_bytes(rb);
+    LOGD("c_api::set_requestd_bytes");
     proto->set_allocator_name(tensorflow::cpu_allocator()->Name());
+    LOGD("c_api::set_allocator_name");
   }
 
   // Prevents input forwarding from mutating this buffer.
-  bool OwnsMemory() const override { return false; }
+  bool OwnsMemory() const override { 
+    LOGD("c_api::OwnsMemory"); 
+    return false; }
 };
 
+
+  double elapse;
+  struct timespec currentTime, lastTime;
+
+  void reportTime(const char* str) {
+    std::stringstream stringstream;
+    clock_gettime(CLOCK_MONOTONIC, &currentTime);
+    elapse = ( currentTime.tv_sec - lastTime.tv_sec) + (double)( currentTime.tv_nsec - lastTime.tv_nsec)/1E9;
+    LOGI("%s, time elapse:\t%f", str, elapse);
+    //stringstream << " Time is " << elapse << " sec";
+    //android_log_print(stringstream.str().c_str());
+    lastTime = currentTime;
+  }
+
+
 void* allocate_tensor(const char* operation, size_t len) {
+  LOGD("c_api::allocate_tensor");
   void* data =
       tensorflow::cpu_allocator()->AllocateRaw(EIGEN_MAX_ALIGN_BYTES, len);
   if (tensorflow::LogMemory::IsEnabled()) {
@@ -152,6 +198,7 @@ void* allocate_tensor(const char* operation, size_t len) {
 }
 
 void deallocate_buffer(void* data, size_t len, void* arg) {
+  LOGD("c_api::deallocate_buffer");
   if (tensorflow::LogMemory::IsEnabled()) {
     tensorflow::LogMemory::RecordRawDeallocation(
         "TensorFlow C Api",
@@ -163,6 +210,7 @@ void deallocate_buffer(void* data, size_t len, void* arg) {
 
 Status MessageToBuffer(const tensorflow::protobuf::Message& in,
                        TF_Buffer* out) {
+  LOGD("c_api::MessageToBuffer");
   if (out->data != nullptr) {
     return InvalidArgument("Passing non-empty TF_Buffer is invalid.");
   }
@@ -181,6 +229,7 @@ Status MessageToBuffer(const tensorflow::protobuf::Message& in,
 
 TF_Tensor* TF_AllocateTensor(TF_DataType dtype, const int64_t* dims,
                              int num_dims, size_t len) {
+  LOGD("c_api::allocate_tensor");
   void* data = allocate_tensor("TF_AllocateTensor", len);
   return TF_NewTensor(dtype, dims, num_dims, data, len, deallocate_buffer,
                       nullptr);
@@ -190,6 +239,7 @@ TF_Tensor* TF_NewTensor(TF_DataType dtype, const int64_t* dims, int num_dims,
                         void* data, size_t len,
                         void (*deallocator)(void* data, size_t len, void* arg),
                         void* deallocator_arg) {
+  LOGD("c_api::TF_NewTensor");
   std::vector<tensorflow::int64> dimvec(num_dims);
   for (int i = 0; i < num_dims; ++i) {
     dimvec[i] = static_cast<tensorflow::int64>(dims[i]);
@@ -215,6 +265,7 @@ TF_Tensor* TF_NewTensor(TF_DataType dtype, const int64_t* dims, int num_dims,
 }
 
 TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor) {
+  LOGD("c_api::TF_TensorMaybeMove");
   // It is safe to move the Tensor if and only if we own the unique reference to
   // it. In that case, we might as well not delete and reallocate, but a future
   // implementation might need to do so.
@@ -227,21 +278,32 @@ TF_Tensor* TF_TensorMaybeMove(TF_Tensor* tensor) {
 }
 
 void TF_DeleteTensor(TF_Tensor* t) {
+  LOGD("c_api::TF_DeleteTensor");
   t->buffer->Unref();
   delete t;
 }
 
-TF_DataType TF_TensorType(const TF_Tensor* t) { return t->dtype; }
-int TF_NumDims(const TF_Tensor* t) { return t->shape.dims(); }
+TF_DataType TF_TensorType(const TF_Tensor* t) { 
+  LOGD("c_api::TF_TensorType");
+  return t->dtype; }
+int TF_NumDims(const TF_Tensor* t) { 
+  LOGD("c_api::TF_NumDims");
+  return t->shape.dims(); }
 int64_t TF_Dim(const TF_Tensor* t, int dim_index) {
+  LOGD("c_api::TF_Dim");
   return static_cast<int64_t>(t->shape.dim_size(dim_index));
 }
-size_t TF_TensorByteSize(const TF_Tensor* t) { return t->buffer->size(); }
-void* TF_TensorData(const TF_Tensor* t) { return t->buffer->data(); }
+size_t TF_TensorByteSize(const TF_Tensor* t) { 
+  LOGD("c_api::TensorByteSize");
+  return t->buffer->size(); }
+void* TF_TensorData(const TF_Tensor* t) { 
+  LOGD("c_api::TF_TensorData");
+  return t->buffer->data(); }
 
 // --------------------------------------------------------------------------
 size_t TF_StringEncode(const char* src, size_t src_len, char* dst,
                        size_t dst_len, TF_Status* status) {
+  LOGD("c_api::TF_StringEncode");
   const size_t sz = TF_StringEncodedSize(src_len);
   if (sz < src_len) {
     status->status = InvalidArgument("src string is too large to encode");
@@ -260,6 +322,8 @@ size_t TF_StringEncode(const char* src, size_t src_len, char* dst,
 
 size_t TF_StringDecode(const char* src, size_t src_len, const char** dst,
                        size_t* dst_len, TF_Status* status) {
+
+  LOGD("c_api::TF_StringDecode");
   tensorflow::uint64 len64 = 0;
   const char* p = tensorflow::core::GetVarint64Ptr(src, src + src_len, &len64);
   if (p == nullptr) {
@@ -279,27 +343,37 @@ size_t TF_StringDecode(const char* src, size_t src_len, const char** dst,
 }
 
 size_t TF_StringEncodedSize(size_t len) {
+  LOGD("c_api::TF_StringEncodeSize");
   return static_cast<size_t>(tensorflow::core::VarintLength(len)) + len;
 }
 
 // --------------------------------------------------------------------------
-TF_SessionOptions* TF_NewSessionOptions() { return new TF_SessionOptions; }
-void TF_DeleteSessionOptions(TF_SessionOptions* opt) { delete opt; }
+TF_SessionOptions* TF_NewSessionOptions() { 
+  LOGD("c_api::TF_NewSessionOptions");
+  return new TF_SessionOptions; }
+void TF_DeleteSessionOptions(TF_SessionOptions* opt) { 
+  LOGD("c_api::TF_DeleteSessionOptions");
+  delete opt; }
 
 void TF_SetTarget(TF_SessionOptions* options, const char* target) {
+  LOGD("c_api::TF_SetTarget");
   options->options.target = target;
 }
 
 void TF_SetConfig(TF_SessionOptions* options, const void* proto,
                   size_t proto_len, TF_Status* status) {
+  LOGD("c_api::TF_SetConfig");
   if (!options->options.config.ParseFromArray(proto, proto_len)) {
     status->status = InvalidArgument("Unparseable ConfigProto");
   }
 }
 // --------------------------------------------------------------------------
-TF_Buffer* TF_NewBuffer() { return new TF_Buffer{nullptr, 0, nullptr}; }
+TF_Buffer* TF_NewBuffer() { 
+  LOGD("c_api::TF_NewBuffer");
+  return new TF_Buffer{nullptr, 0, nullptr}; }
 
 TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len) {
+  LOGD("c_api::TF_NewBufferFromString");
   void* copy = tensorflow::port::Malloc(proto_len);
   memcpy(copy, proto, proto_len);
 
@@ -313,6 +387,7 @@ TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len) {
 }
 
 void TF_DeleteBuffer(TF_Buffer* buffer) {
+  LOGD("c_api::TF_DeleteBuffer");
   if (buffer->data_deallocator != nullptr) {
     (*buffer->data_deallocator)(const_cast<void*>(buffer->data),
                                 buffer->length);
@@ -320,12 +395,15 @@ void TF_DeleteBuffer(TF_Buffer* buffer) {
   delete buffer;
 }
 
-TF_Buffer TF_GetBuffer(TF_Buffer* buffer) { return *buffer; }
+TF_Buffer TF_GetBuffer(TF_Buffer* buffer) { 
+  LOGD("c_api::TF_GetBuffer");
+  return *buffer; }
 
 // --------------------------------------------------------------------------
 
 TF_DeprecatedSession* TF_NewDeprecatedSession(const TF_SessionOptions* opt,
                                               TF_Status* status) {
+  LOGD("c_api::TF_NewDeprecatedSession");
   Session* session;
   status->status = NewSession(opt->options, &session);
   if (status->status.ok()) {
@@ -337,10 +415,12 @@ TF_DeprecatedSession* TF_NewDeprecatedSession(const TF_SessionOptions* opt,
 }
 
 void TF_CloseDeprecatedSession(TF_DeprecatedSession* s, TF_Status* status) {
+  LOGD("c_api::TF_CloseDeprecatedSession");
   status->status = s->session->Close();
 }
 
 void TF_DeleteDeprecatedSession(TF_DeprecatedSession* s, TF_Status* status) {
+  LOGD("c_api::TF_DeleteDeprecatedSession");
   status->status = Status::OK();
   delete s->session;
   delete s;
@@ -348,6 +428,7 @@ void TF_DeleteDeprecatedSession(TF_DeprecatedSession* s, TF_Status* status) {
 
 void TF_ExtendGraph(TF_DeprecatedSession* s, const void* proto,
                     size_t proto_len, TF_Status* status) {
+  LOGD("c_api::TF_ExtendGraph");
   GraphDef g;
   if (!tensorflow::ParseProtoUnlimited(&g, proto, proto_len)) {
     status->status = InvalidArgument("Invalid GraphDef");
@@ -357,6 +438,7 @@ void TF_ExtendGraph(TF_DeprecatedSession* s, const void* proto,
 }
 
 static void DeleteArray(void* data, size_t size, void* arg) {
+  LOGD("c_api::DeleteArray");
   DCHECK_EQ(data, arg);
   delete[] reinterpret_cast<char*>(arg);
 }
@@ -369,6 +451,7 @@ namespace {
 // Reset helper for converting character arrays to string vectors.
 void TF_Reset_Helper(const TF_SessionOptions* opt, const char** containers,
                      int ncontainers, TF_Status* status) {
+  LOGD("c_api::TF_Reset_Helper");
   std::vector<tensorflow::string> container_names(ncontainers);
   for (int i = 0; i < ncontainers; ++i) {
     container_names[i] = containers[i];
@@ -384,6 +467,7 @@ extern "C" {
 
 void TF_Reset(const TF_SessionOptions* opt, const char** containers,
               int ncontainers, TF_Status* status) {
+  LOGD("c_api::TF_Reset");
   tensorflow::TF_Reset_Helper(opt, containers, ncontainers, status);
 }
 
@@ -393,6 +477,7 @@ namespace tensorflow {
 
 // Non-static for testing.
 bool TF_Tensor_DecodeStrings(TF_Tensor* src, Tensor* dst, TF_Status* status) {
+  LOGD("c_api::TF_Tensor_DecodeStrings");
   const tensorflow::int64 num_elements = src->shape.num_elements();
   const char* input = reinterpret_cast<const char*>(TF_TensorData(src));
   const size_t src_size = TF_TensorByteSize(src);
@@ -429,6 +514,7 @@ bool TF_Tensor_DecodeStrings(TF_Tensor* src, Tensor* dst, TF_Status* status) {
 
 // Non-static for testing.
 TF_Tensor* TF_Tensor_EncodeStrings(const Tensor& src) {
+  LOGD("c_api::TF_Tensor_EncodeStrings");
   // Compute bytes needed for encoding.
   size_t size = 0;
   const auto& srcarray = src.flat<tensorflow::string>();
@@ -472,6 +558,8 @@ TF_Tensor* TF_Tensor_EncodeStrings(const Tensor& src) {
 // Create an empty tensor of type 'dtype'. 'shape' can be arbitrary, but has to
 // result in a zero-sized tensor.
 static TF_Tensor* EmptyTensor(TF_DataType dtype, const TensorShape& shape) {
+  LOGD("c_api::EmptyTensor");
+
   static char empty;
   tensorflow::int64 nelems = 1;
   std::vector<tensorflow::int64> dims;
@@ -495,16 +583,21 @@ Status LoadLibrary(const char* library_filename, void** result,
 
 static void TF_Run_Setup(int noutputs, TF_Tensor** c_outputs,
                          TF_Status* status) {
+  //LOGD("c_api::TF_Run_Setup");
+  reportTime("c_api::TF_Run_Setup starts");
   status->status = Status::OK();
   for (int i = 0; i < noutputs; ++i) {
     c_outputs[i] = nullptr;
   }
+  reportTime("c_api::TF_Run_Setup ends");
 }
 
 static bool TF_Run_Inputs(
     TF_Tensor* const* c_inputs,
     std::vector<std::pair<tensorflow::string, Tensor>>* input_pairs,
     TF_Status* status) {
+  //LOGD("c_api::TF_Run_Inputs");
+  reportTime("TF_Run_Inputs starts");
   const int ninputs = input_pairs->size();
   for (int i = 0; i < ninputs; ++i) {
     TF_Tensor* src = c_inputs[i];
@@ -518,6 +611,7 @@ static bool TF_Run_Inputs(
       return false;
     }
   }
+  reportTime("TF_Run_Inputs ends");
   return true;
 }
 
@@ -531,26 +625,41 @@ static void TF_Run_Helper(
     // Target nodes
     const std::vector<tensorflow::string>& target_oper_names,
     TF_Buffer* run_metadata, TF_Status* status) {
+
+  LOGD("c_api::TF_Run_Helper");
   const int noutputs = output_tensor_names.size();
   std::vector<Tensor> outputs(noutputs);
   Status result;
+  reportTime("c_api::TF_Run_Helper::starts");
 
   if (handle == nullptr) {
+    //LOGD("c_api::handle == nullptr");
+
     RunOptions run_options_proto;
+    reportTime("c_api::TF_Run_Helper::handle == nullptr");
     if (run_options != nullptr && !run_options_proto.ParseFromArray(
                                       run_options->data, run_options->length)) {
+
+      LOGD("c_api::handle != nullptr");
+
       status->status = InvalidArgument("Unparseable RunOptions proto");
       return;
     }
     if (run_metadata != nullptr && run_metadata->data != nullptr) {
+      LOGD("c_api::run_metadata != nullptr");
+
       status->status =
           InvalidArgument("Passing non-empty run_metadata is invalid.");
       return;
     }
 
     RunMetadata run_metadata_proto;
+    reportTime("c_api::TF_Run_Helper::instantiate run_metadata_proto");
+
+    //LOGD("c_api::session->Run");
     result = session->Run(run_options_proto, input_pairs, output_tensor_names,
                           target_oper_names, &outputs, &run_metadata_proto);
+    reportTime("c_api::TF_Run_Helper::session->Run");
 
     // Serialize back to upstream client, who now owns the new buffer
     if (run_metadata != nullptr) {
@@ -564,9 +673,14 @@ static void TF_Run_Helper(
   if (!result.ok()) {
     status->status = result;
     return;
+  
   }
 
+  reportTime("c_api::TF_Run_Helper::serialize back to upstream client");
+
   // Store results in c_outputs[]
+  //LOGD("c_api::store results in c_ouputs[]");
+
   for (int i = 0; i < noutputs; ++i) {
     const Tensor& src = outputs[i];
     if (!src.IsInitialized() || src.NumElements() == 0) {
@@ -584,6 +698,8 @@ static void TF_Run_Helper(
       c_outputs[i] = tensorflow::TF_Tensor_EncodeStrings(src);
     }
   }
+  reportTime("c_api::TF_Run_Helper::store results in c_output[]");
+
 }
 
 extern "C" {
@@ -596,6 +712,7 @@ void TF_Run(TF_DeprecatedSession* s, const TF_Buffer* run_options,
             // Target nodes
             const char** c_target_oper_names, int ntargets,
             TF_Buffer* run_metadata, TF_Status* status) {
+  LOGD("c_api::TF_Run");
   TF_Run_Setup(noutputs, c_outputs, status);
   std::vector<std::pair<tensorflow::string, Tensor>> input_pairs(ninputs);
   if (!TF_Run_Inputs(c_inputs, &input_pairs, status)) return;
@@ -627,6 +744,7 @@ void TF_PRunSetup(TF_DeprecatedSession* s,
   std::vector<tensorflow::string> input_names(ninputs);
   std::vector<tensorflow::string> output_names(noutputs);
   std::vector<tensorflow::string> target_oper_names(ntargets);
+  LOGD("c_api::TF_PRunSetup");
   for (int i = 0; i < ninputs; ++i) {
     input_names[i] = c_input_names[i];
   }
@@ -654,6 +772,7 @@ void TF_PRun(TF_DeprecatedSession* s, const char* handle,
              // Target nodes
              const char** c_target_oper_names, int ntargets,
              TF_Status* status) {
+  LOGD("c_api::TF_PRun");
   TF_Run_Setup(noutputs, c_outputs, status);
   std::vector<std::pair<tensorflow::string, Tensor>> input_pairs(ninputs);
   if (!TF_Run_Inputs(c_inputs, &input_pairs, status)) return;
@@ -674,6 +793,7 @@ void TF_PRun(TF_DeprecatedSession* s, const char* handle,
 }
 
 TF_Library* TF_LoadLibrary(const char* library_filename, TF_Status* status) {
+  LOGD("c_api::TF_LoadLibrary");
   TF_Library* lib_handle = new TF_Library;
   status->status = tensorflow::LoadLibrary(
       library_filename, &lib_handle->lib_handle, &lib_handle->op_list.data,
@@ -685,14 +805,18 @@ TF_Library* TF_LoadLibrary(const char* library_filename, TF_Status* status) {
   return lib_handle;
 }
 
-TF_Buffer TF_GetOpList(TF_Library* lib_handle) { return lib_handle->op_list; }
+TF_Buffer TF_GetOpList(TF_Library* lib_handle) { 
+  LOGD("c_api::TF_GetOpList");
+  return lib_handle->op_list; }
 
 void TF_DeleteLibraryHandle(TF_Library* lib_handle) {
+  LOGD("c_api::TF_DeleteLibraryHandle");
   tensorflow::port::Free(const_cast<void*>(lib_handle->op_list.data));
   delete lib_handle;
 }
 
 TF_Buffer* TF_GetAllOpList() {
+  LOGD("c_api::TF_GetAllOpList");
   std::vector<tensorflow::OpDef> op_defs;
   tensorflow::OpRegistry::Global()->GetRegisteredOps(&op_defs);
   tensorflow::OpList op_list;
@@ -707,7 +831,9 @@ TF_Buffer* TF_GetAllOpList() {
 // --------------------------------------------------------------------------
 // ListDevices & SessionListDevices API
 
-void TF_DeleteDeviceList(TF_DeviceList* s) { delete s; }
+void TF_DeleteDeviceList(TF_DeviceList* s) { 
+  LOGD("c_api::TF_DeleteDeviceList");
+  delete s; }
 
 TF_DeviceList* TF_SessionListDevices(TF_Session* session, TF_Status* status) {
   TF_DeviceList* response = new TF_DeviceList;
@@ -717,12 +843,15 @@ TF_DeviceList* TF_SessionListDevices(TF_Session* session, TF_Status* status) {
 
 TF_DeviceList* TF_DeprecatedSessionListDevices(TF_DeprecatedSession* session,
                                                TF_Status* status) {
+
+  LOGD("c_api::TF_DeprecatedSessionListDevices");
   TF_DeviceList* response = new TF_DeviceList;
   status->status = session->session->ListDevices(&response->response);
   return response;
 }
 
 int TF_DeviceListCount(const TF_DeviceList* list) {
+  LOGD("c_api::TF_DeviceListCount");
   return list->response.size();
 }
 
@@ -757,16 +886,38 @@ TF_DEVICELIST_METHOD(int64_t, TF_DeviceListMemoryBytes, memory_limit(), -1);
 namespace {
 
 TF_Operation* ToOperation(Node* node) {
+  LOGD("c_api::ToOperation");
   return static_cast<TF_Operation*>(static_cast<void*>(node));
 }
 
+
+
+//double elapse1;
+//struct timespec currentTime1, lastTime1;
+
+  // void reportTime(const char* str) {
+  //   std::stringstream stringstream;
+  //   clock_gettime(CLOCK_MONOTONIC, &currentTime);
+  //   elapse = ( currentTime.tv_sec - lastTime.tv_sec) + (double)( currentTime.tv_nsec - lastTime.tv_nsec)/1E9;
+  //   LOGI("%s, time elapse:\t%f", str, elapse);
+  //   //stringstream << " Time is " << elapse << " sec";
+  //   //android_log_print(stringstream.str().c_str());
+  //   lastTime = currentTime;
+  // }
+//clock_gettime(CLOCK_MONOTONIC, &currentTime1);
+
+//reportTime("c_api::OutputName starts");
 tensorflow::string OutputName(const TF_Output& output) {
+  //LOGD("c_api::OutputName");
   return StrCat(output.oper->node.name(), ":", output.index);
 }
+//clock_gettime(CLOCK_MONOTONIC, &lastTime1);
+//reportTime("c_api::OutputName ends");
 
 const tensorflow::AttrValue* GetAttrValue(TF_Operation* oper,
                                           const char* attr_name,
                                           TF_Status* status) {
+  LOGD("c_api::AttrValue");
   const tensorflow::AttrValue* attr = oper->node.attrs().Find(attr_name);
   if (attr == nullptr) {
     status->status =
@@ -782,6 +933,7 @@ const tensorflow::AttrValue* GetAttrValue(TF_Operation* oper,
 void TF_GraphSetTensorShape(TF_Graph* graph, TF_Output output,
                             const int64_t* dims, const int num_dims,
                             TF_Status* status) {
+  LOGD("c_api::TF_GraphSetTensorShape");
   Node* node = &output.oper->node;
 
   mutex_lock l(graph->mu);
@@ -806,6 +958,7 @@ void TF_GraphSetTensorShape(TF_Graph* graph, TF_Output output,
 
 int TF_GraphGetTensorNumDims(TF_Graph* graph, TF_Output output,
                              TF_Status* status) {
+  LOGD("c_api::TF_GraphGetTensorNumDims");
   Node* node = &output.oper->node;
 
   mutex_lock l(graph->mu);
@@ -829,6 +982,7 @@ int TF_GraphGetTensorNumDims(TF_Graph* graph, TF_Output output,
 
 void TF_GraphGetTensorShape(TF_Graph* graph, TF_Output output, int64_t* dims,
                             int num_dims, TF_Status* status) {
+  LOGD("c_api::TF_GraphGetTensorShape");
   Node* node = &output.oper->node;
 
   mutex_lock l(graph->mu);
@@ -877,6 +1031,7 @@ extern "C" {
 static TF_OperationDescription* TF_NewOperationLocked(TF_Graph* graph,
                                                       const char* op_type,
                                                       const char* oper_name)
+    //LOGD("c_api::TF_NewOperationLocked");
     EXCLUSIVE_LOCKS_REQUIRED(graph->mu) {
   return new TF_OperationDescription(graph, op_type, oper_name);
 }
@@ -888,15 +1043,18 @@ TF_OperationDescription* TF_NewOperation(TF_Graph* graph, const char* op_type,
 }
 
 void TF_SetDevice(TF_OperationDescription* desc, const char* device) {
+  LOGD("c_api::TF_SetDevice");
   desc->node_builder.Device(device);
 }
 
 void TF_AddInput(TF_OperationDescription* desc, TF_Output input) {
+  LOGD("c_api::TF_AddInput");
   desc->node_builder.Input(&input.oper->node, input.index);
 }
 
 void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs,
                      int num_inputs) {
+  LOGD("c_api::TF_AddInputList");
   std::vector<NodeBuilder::NodeOut> input_list;
   input_list.reserve(num_inputs);
   for (int i = 0; i < num_inputs; ++i) {
@@ -906,16 +1064,19 @@ void TF_AddInputList(TF_OperationDescription* desc, const TF_Output* inputs,
 }
 
 void TF_AddControlInput(TF_OperationDescription* desc, TF_Operation* input) {
+  LOGD("c_api::TF_AddControlInput");
   desc->node_builder.ControlInput(&input->node);
 }
 
 void TF_ColocateWith(TF_OperationDescription* desc, TF_Operation* op) {
+  LOGD("c_api::TF_ColocateWith");
   desc->colocation_constraints.emplace_back(
       StrCat(tensorflow::kColocationGroupPrefix, op->node.name()));
 }
 
 void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name,
                       const void* value, size_t length) {
+  LOGD("c_api::TF_SetAttrString");
   tensorflow::StringPiece s(static_cast<const char*>(value), length);
   desc->node_builder.Attr(attr_name, s);
 }
@@ -923,6 +1084,7 @@ void TF_SetAttrString(TF_OperationDescription* desc, const char* attr_name,
 void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,
                           const void* const* values, const size_t* lengths,
                           int num_values) {
+  LOGD("c_api::TF_SetAttrStringList");
   std::vector<tensorflow::StringPiece> v;
   v.reserve(num_values);
   for (int i = 0; i < num_values; ++i) {
@@ -933,6 +1095,7 @@ void TF_SetAttrStringList(TF_OperationDescription* desc, const char* attr_name,
 
 void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name,
                    int64_t value) {
+  LOGD("c_api::TF_SetAttrInt");
   static_assert(sizeof(int64_t) == sizeof(tensorflow::int64),
                 "64-bit int types should match in size");
   desc->node_builder.Attr(attr_name, static_cast<tensorflow::int64>(value));
@@ -940,6 +1103,7 @@ void TF_SetAttrInt(TF_OperationDescription* desc, const char* attr_name,
 
 void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name,
                        const int64_t* values, int num_values) {
+  LOGD("c_api::TF_SetAttrIntList");
   static_assert(sizeof(int64_t) == sizeof(tensorflow::int64),
                 "64-bit int types should match in size");
   desc->node_builder.Attr(
@@ -950,22 +1114,26 @@ void TF_SetAttrIntList(TF_OperationDescription* desc, const char* attr_name,
 
 void TF_SetAttrFloat(TF_OperationDescription* desc, const char* attr_name,
                      float value) {
+  LOGD("c_api::TF_SetAttrFloat");
   desc->node_builder.Attr(attr_name, value);
 }
 
 void TF_SetAttrFloatList(TF_OperationDescription* desc, const char* attr_name,
                          const float* values, int num_values) {
+  LOGD("c_api::TF_SetAttrFloatList");
   desc->node_builder.Attr(attr_name,
                           ArraySlice<const float>(values, num_values));
 }
 
 void TF_SetAttrBool(TF_OperationDescription* desc, const char* attr_name,
                     unsigned char value) {
+  LOGD("c_api::TF_SetAttrBool");
   desc->node_builder.Attr(attr_name, static_cast<bool>(value));
 }
 
 void TF_SetAttrBoolList(TF_OperationDescription* desc, const char* attr_name,
                         const unsigned char* values, int num_values) {
+  LOGD("c_api::TF_SetAttrBoolList");
   std::unique_ptr<bool[]> b(new bool[num_values]);
   for (int i = 0; i < num_values; ++i) {
     b[i] = values[i];
@@ -976,11 +1144,13 @@ void TF_SetAttrBoolList(TF_OperationDescription* desc, const char* attr_name,
 
 void TF_SetAttrType(TF_OperationDescription* desc, const char* attr_name,
                     TF_DataType value) {
+  LOGD("c_api::TF_SetAttrType");
   desc->node_builder.Attr(attr_name, static_cast<DataType>(value));
 }
 
 void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name,
                         const TF_DataType* values, int num_values) {
+  LOGD("c_api::TF_SetAttrTypeList");
   desc->node_builder.Attr(
       attr_name, ArraySlice<const DataType>(
                      reinterpret_cast<const DataType*>(values), num_values));
@@ -988,6 +1158,7 @@ void TF_SetAttrTypeList(TF_OperationDescription* desc, const char* attr_name,
 
 void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name,
                      const int64_t* dims, int num_dims) {
+  LOGD("c_api::TF_SetAttrShape");
   PartialTensorShape shape;
   if (num_dims >= 0) {
     static_assert(sizeof(int64_t) == sizeof(tensorflow::int64),
@@ -1001,6 +1172,7 @@ void TF_SetAttrShape(TF_OperationDescription* desc, const char* attr_name,
 void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name,
                          const int64_t* const* dims, const int* num_dims,
                          int num_shapes) {
+  LOGD("c_api::TF_SetAttrShapeList");
   std::vector<PartialTensorShape> shapes;
   shapes.reserve(num_shapes);
   for (int i = 0; i < num_shapes; ++i) {
@@ -1019,6 +1191,7 @@ void TF_SetAttrShapeList(TF_OperationDescription* desc, const char* attr_name,
 void TF_SetAttrTensorShapeProto(TF_OperationDescription* desc,
                                 const char* attr_name, const void* proto,
                                 size_t proto_len, TF_Status* status) {
+  LOGD("c_api::TF_SetAttrTensorShapeProto");
   // shape.ParseFromArray takes an int as length, this function takes size_t,
   // make sure there is no information loss.
   if (proto_len > std::numeric_limits<int>::max()) {
@@ -1041,6 +1214,7 @@ void TF_SetAttrTensorShapeProtoList(TF_OperationDescription* desc,
                                     const void* const* protos,
                                     const size_t* proto_lens, int num_shapes,
                                     TF_Status* status) {
+  LOGD("c_api::TF_SetAttrTensorShapeProtoList");
   std::vector<TensorShapeProto> shapes;
   shapes.resize(num_shapes);
   for (int i = 0; i < num_shapes; ++i) {
@@ -1062,6 +1236,8 @@ void TF_SetAttrTensorShapeProtoList(TF_OperationDescription* desc,
 
 void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name,
                       TF_Tensor* value, TF_Status* status) {
+  LOGD("c_api::TF_SetAttrTensor");
+
   status->status = Status::OK();
   Tensor t;
   bool ok = true;
@@ -1081,6 +1257,8 @@ void TF_SetAttrTensor(TF_OperationDescription* desc, const char* attr_name,
 void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name,
                           TF_Tensor* const* values, int num_values,
                           TF_Status* status) {
+  LOGD("c_api::TF_SetAttrTensorList");
+
   status->status = Status::OK();
   std::vector<Tensor> t;
   t.reserve(num_values);
@@ -1104,6 +1282,7 @@ void TF_SetAttrTensorList(TF_OperationDescription* desc, const char* attr_name,
 void TF_SetAttrValueProto(TF_OperationDescription* desc, const char* attr_name,
                           const void* proto, size_t proto_len,
                           TF_Status* status) {
+  LOGD("c_api::TF_SetAttrValueProto");
   tensorflow::AttrValue attr_value;
   if (attr_value.ParseFromArray(proto, proto_len)) {
     desc->node_builder.Attr(attr_name, attr_value);
@@ -1116,6 +1295,7 @@ void TF_SetAttrValueProto(TF_OperationDescription* desc, const char* attr_name,
 static TF_Operation* TF_FinishOperationLocked(TF_OperationDescription* desc,
                                               TF_Status* status)
     EXCLUSIVE_LOCKS_REQUIRED(desc->graph->mu) {
+      LOGD("c_api::TF_FinishOperationLocked");
   Node* ret = nullptr;
 
   if (desc->graph->name_map.count(desc->node_builder.node_name())) {
@@ -1148,6 +1328,7 @@ static TF_Operation* TF_FinishOperationLocked(TF_OperationDescription* desc,
 
 TF_Operation* TF_FinishOperation(TF_OperationDescription* desc,
                                  TF_Status* status) {
+  LOGD("c_api::TF_FinishOperation");
   mutex_lock l(desc->graph->mu);
   return TF_FinishOperationLocked(desc, status);
 }
@@ -1156,28 +1337,34 @@ TF_Operation* TF_FinishOperation(TF_OperationDescription* desc,
 // ----------------------------------------------------------
 
 const char* TF_OperationName(TF_Operation* oper) {
+  LOGD("c_api::TF_OperationName");
   return oper->node.name().c_str();
 }
 
 const char* TF_OperationOpType(TF_Operation* oper) {
+  LOGD("c_api::OperationOpType");
   return oper->node.type_string().c_str();
 }
 
 const char* TF_OperationDevice(TF_Operation* oper) {
+  LOGD("c_api::TF_OperationDevice");
   return oper->node.requested_device().c_str();
 }
 
 int TF_OperationNumOutputs(TF_Operation* oper) {
+  LOGD("c_api::TF_OperationNumOutputs");
   return oper->node.num_outputs();
 }
 
 TF_DataType TF_OperationOutputType(TF_Output oper_out) {
+  LOGD("c_api::TF_OperationOutputType");
   return static_cast<TF_DataType>(
       oper_out.oper->node.output_type(oper_out.index));
 }
 
 int TF_OperationOutputListLength(TF_Operation* oper, const char* arg_name,
                                  TF_Status* status) {
+  LOGD("c_api::TF_OperationOutputListLength");
   NameRangeMap name_ranges;
   status->status =
       NameRangesForNode(oper->node, oper->node.op_def(), nullptr, &name_ranges);
@@ -1191,15 +1378,18 @@ int TF_OperationOutputListLength(TF_Operation* oper, const char* arg_name,
 }
 
 int TF_OperationNumInputs(TF_Operation* oper) {
+  LOGD("c_api::TF_OperationNumInputs");
   return oper->node.num_inputs();
 }
 
 TF_DataType TF_OperationInputType(TF_Input oper_in) {
+  LOGD("c_api::TF_OperationInputType");
   return static_cast<TF_DataType>(oper_in.oper->node.input_type(oper_in.index));
 }
 
 int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name,
                                 TF_Status* status) {
+  LOGD("c_api::TF_OperationInputListLength");
   NameRangeMap name_ranges;
   status->status =
       NameRangesForNode(oper->node, oper->node.op_def(), &name_ranges, nullptr);
@@ -1213,6 +1403,7 @@ int TF_OperationInputListLength(TF_Operation* oper, const char* arg_name,
 }
 
 TF_Output TF_OperationInput(TF_Input oper_in) {
+  LOGD("c_api::TF_OperationInput");
   const tensorflow::Edge* edge;
   Status s = oper_in.oper->node.input_edge(oper_in.index, &edge);
   if (!s.ok()) {
@@ -1223,6 +1414,7 @@ TF_Output TF_OperationInput(TF_Input oper_in) {
 }
 
 int TF_OperationOutputNumConsumers(TF_Output oper_out) {
+  LOGD("c_api::TF_OperationOutputNumConsumers");
   int count = 0;
   for (const auto* edge : oper_out.oper->node.out_edges()) {
     if (edge->src_output() == oper_out.index) {
@@ -1234,6 +1426,7 @@ int TF_OperationOutputNumConsumers(TF_Output oper_out) {
 
 int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers,
                                 int max_consumers) {
+  LOGD("c_api::TF_OperationOutputConsumers");
   int count = 0;
   for (const auto* edge : oper_out.oper->node.out_edges()) {
     if (edge->src_output() == oper_out.index) {
@@ -1247,12 +1440,16 @@ int TF_OperationOutputConsumers(TF_Output oper_out, TF_Input* consumers,
 }
 
 int TF_OperationNumControlInputs(TF_Operation* oper) {
+  LOGD("c_api::TF_OperationNumControlInputs");
+
   return oper->node.in_edges().size() - oper->node.num_inputs();
 }
 
 int TF_OperationGetControlInputs(TF_Operation* oper,
                                  TF_Operation** control_inputs,
                                  int max_control_inputs) {
+  LOGD("c_api::TF_OperationGetControlInputs");
+
   int count = 0;
   for (const auto* edge : oper->node.in_edges()) {
     if (edge->IsControlEdge()) {
@@ -1266,6 +1463,7 @@ int TF_OperationGetControlInputs(TF_Operation* oper,
 }
 
 int TF_OperationNumControlOutputs(TF_Operation* oper) {
+  LOGD("c_api::TF_OperationNumControlOutputs");
   int count = 0;
   for (const auto* edge : oper->node.out_edges()) {
     if (edge->IsControlEdge()) {
@@ -1278,6 +1476,8 @@ int TF_OperationNumControlOutputs(TF_Operation* oper) {
 int TF_OperationGetControlOutputs(TF_Operation* oper,
                                   TF_Operation** control_outputs,
                                   int max_control_outputs) {
+  LOGD("c_api::TF_OperationGetControlOutputs");
+
   int count = 0;
   for (const auto* edge : oper->node.out_edges()) {
     if (edge->IsControlEdge()) {
@@ -1293,6 +1493,8 @@ int TF_OperationGetControlOutputs(TF_Operation* oper,
 TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper,
                                             const char* attr_name,
                                             TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrMetadata");
+
   TF_AttrMetadata metadata;
   const auto* attr = GetAttrValue(oper, attr_name, status);
   if (!status->status.ok()) return metadata;
@@ -1399,6 +1601,8 @@ TF_AttrMetadata TF_OperationGetAttrMetadata(TF_Operation* oper,
 void TF_OperationGetAttrString(TF_Operation* oper, const char* attr_name,
                                void* value, size_t max_length,
                                TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrString");
+
   const auto* attr = GetAttrValue(oper, attr_name, status);
   if (!status->status.ok()) return;
   if (attr->value_case() != tensorflow::AttrValue::kS) {
@@ -1417,6 +1621,8 @@ void TF_OperationGetAttrStringList(TF_Operation* oper, const char* attr_name,
                                    void** values, size_t* lengths,
                                    int max_values, void* storage,
                                    size_t storage_size, TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrStringList");
+
   const auto* attr = GetAttrValue(oper, attr_name, status);
   if (!status->status.ok()) return;
   if (attr->value_case() != tensorflow::AttrValue::kList) {
@@ -1470,6 +1676,8 @@ DEFINE_GETATTR(TF_OperationGetAttrType, TF_DataType, DataType, type);
 
 void TF_OperationGetAttrShape(TF_Operation* oper, const char* attr_name,
                               int64_t* value, int num_dims, TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrShape");
+
   PartialTensorShape shape;
   status->status =
       tensorflow::GetNodeAttr(oper->node.attrs(), attr_name, &shape);
@@ -1484,6 +1692,8 @@ void TF_OperationGetAttrShapeList(TF_Operation* oper, const char* attr_name,
                                   int64_t** values, int* num_dims,
                                   int max_values, int64_t* storage,
                                   int storage_size, TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrShapeList");
+
   std::vector<PartialTensorShape> shapes;
   status->status =
       tensorflow::GetNodeAttr(oper->node.attrs(), attr_name, &shapes);
@@ -1514,6 +1724,8 @@ void TF_OperationGetAttrShapeList(TF_Operation* oper, const char* attr_name,
 void TF_OperationGetAttrTensorShapeProto(TF_Operation* oper,
                                          const char* attr_name,
                                          TF_Buffer* value, TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrTensorShapeProto");
+
   const auto* attr = GetAttrValue(oper, attr_name, status);
   if (!status->status.ok()) return;
   if (attr->value_case() != tensorflow::AttrValue::kShape) {
@@ -1528,6 +1740,8 @@ void TF_OperationGetAttrTensorShapeProtoList(TF_Operation* oper,
                                              const char* attr_name,
                                              TF_Buffer** values, int max_values,
                                              TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrTensorShapeProtoList");
+
   const auto* attr = GetAttrValue(oper, attr_name, status);
   if (!status->status.ok()) return;
   if (attr->value_case() != tensorflow::AttrValue::kList) {
@@ -1551,6 +1765,8 @@ void TF_OperationGetAttrTensorShapeProtoList(TF_Operation* oper,
 
 void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name,
                                TF_Tensor** value, TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrTensor");
+
   *value = nullptr;
   Tensor t;
   status->status = tensorflow::GetNodeAttr(oper->node.attrs(), attr_name, &t);
@@ -1563,6 +1779,8 @@ void TF_OperationGetAttrTensor(TF_Operation* oper, const char* attr_name,
 void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name,
                                    TF_Tensor** values, int max_values,
                                    TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrTensorList");
+
   std::vector<Tensor> ts;
   status->status = tensorflow::GetNodeAttr(oper->node.attrs(), attr_name, &ts);
   if (!status->status.ok()) return;
@@ -1578,6 +1796,8 @@ void TF_OperationGetAttrTensorList(TF_Operation* oper, const char* attr_name,
 void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name,
                                    TF_Buffer* output_attr_value,
                                    TF_Status* status) {
+  LOGD("c_api::TF_OperationGetAttrValueProto");
+
   const auto* attr = GetAttrValue(oper, attr_name, status);
   if (!status->status.ok()) return;
   status->status = MessageToBuffer(*attr, output_attr_value);
@@ -1585,6 +1805,8 @@ void TF_OperationGetAttrValueProto(TF_Operation* oper, const char* attr_name,
 
 void TF_OperationToNodeDef(TF_Operation* oper, TF_Buffer* output_node_def,
                            TF_Status* status) {
+  LOGD("c_api::TF_OperationToNodeDef");
+
   status->status = MessageToBuffer(oper->node.def(), output_node_def);
 }
 
@@ -1598,9 +1820,14 @@ TF_Graph::TF_Graph()
       parent(nullptr),
       parent_inputs(nullptr) {}
 
-TF_Graph* TF_NewGraph() { return new TF_Graph; }
+TF_Graph* TF_NewGraph() { 
+  LOGD("c_api::TF_NewGraph");
+
+  return new TF_Graph; }
 
 void TF_DeleteGraph(TF_Graph* g) {
+  LOGD("c_api::TF_DeleteGraph");
+
   g->mu.lock();
   g->delete_requested = true;
   const bool del = g->num_sessions == 0;
@@ -1609,6 +1836,8 @@ void TF_DeleteGraph(TF_Graph* g) {
 }
 
 TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name) {
+  LOGD("c_api::TF_GraphOperationByName");
+
   mutex_lock l(graph->mu);
   auto iter = graph->name_map.find(oper_name);
   if (iter == graph->name_map.end()) {
@@ -1619,6 +1848,8 @@ TF_Operation* TF_GraphOperationByName(TF_Graph* graph, const char* oper_name) {
 }
 
 TF_Operation* TF_GraphNextOperation(TF_Graph* graph, size_t* pos) {
+  LOGD("c_api::TF_GraphNextOperation");
+
   if (*pos == 0) {
     // Advance past the first sentinel nodes in every graph (the source & sink).
     *pos += 2;
@@ -1643,6 +1874,8 @@ TF_Operation* TF_GraphNextOperation(TF_Graph* graph, size_t* pos) {
 
 void TF_GraphToGraphDef(TF_Graph* graph, TF_Buffer* output_graph_def,
                         TF_Status* status) {
+  LOGD("c_api::TF_GraphToGraphDef");
+
   GraphDef def;
   {
     mutex_lock l(graph->mu);
@@ -1652,13 +1885,19 @@ void TF_GraphToGraphDef(TF_Graph* graph, TF_Buffer* output_graph_def,
 }
 
 TF_ImportGraphDefOptions* TF_NewImportGraphDefOptions() {
+  LOGD("c_api::TF_NewImportGraphDefOptions");
+
   return new TF_ImportGraphDefOptions;
 }
 void TF_DeleteImportGraphDefOptions(TF_ImportGraphDefOptions* opts) {
+  LOGD("c_api::TF_DeleteImportGraphDefOptions");
+
   delete opts;
 }
 void TF_ImportGraphDefOptionsSetPrefix(TF_ImportGraphDefOptions* opts,
                                        const char* prefix) {
+  LOGD("c_api::TF_ImportGraphDefOptionsSetPrefix");
+
   opts->opts.prefix = prefix;
 }
 
@@ -1673,27 +1912,37 @@ TensorId ToTensorId(const TF_Output& output) {
 void TF_ImportGraphDefOptionsAddInputMapping(TF_ImportGraphDefOptions* opts,
                                              const char* src_name,
                                              int src_index, TF_Output dst) {
+  LOGD("c_api::TF_ImportGraphDefOptionsAddInputMapping");
+
   opts->opts.input_map[TensorId(src_name, src_index)] = ToTensorId(dst);
 }
 
 void TF_ImportGraphDefOptionsRemapControlDependency(
     TF_ImportGraphDefOptions* opts, const char* src_name, TF_Operation* dst) {
+  LOGD("c_api::TF_ImportGraphDefOptionsRemapControlDependency");
+
   opts->opts.input_map[TensorId(src_name, tensorflow::Graph::kControlSlot)] =
       TensorId(dst->node.name(), tensorflow::Graph::kControlSlot);
 }
 
 extern void TF_ImportGraphDefOptionsAddControlDependency(
     TF_ImportGraphDefOptions* opts, TF_Operation* oper) {
+  LOGD("c_api::TF_ImportGraphDefOptionsAddControlDependency");
+
   opts->opts.control_dependencies.push_back(oper->node.name());
 }
 
 void TF_ImportGraphDefOptionsAddReturnOutput(TF_ImportGraphDefOptions* opts,
                                              const char* oper_name, int index) {
+  LOGD("c_api::TF_ImportGraphDefOptionsAddReturnOutput");
+
   opts->opts.return_tensors.push_back({oper_name, index});
 }
 
 int TF_ImportGraphDefOptionsNumReturnOutputs(
     const TF_ImportGraphDefOptions* opts) {
+  LOGD("c_api::TF_ImportGraphDefOptionsNumReturnOutputs");
+
   return opts->opts.return_tensors.size();
 }
 
@@ -1702,6 +1951,8 @@ static void GraphImportGraphDefLocked(TF_Graph* graph, const GraphDef& def,
                                       TF_Output* return_outputs,
                                       int num_return_outputs, TF_Status* status)
     EXCLUSIVE_LOCKS_REQUIRED(graph->mu) {
+  LOGD("c_api::GraphImportGraphDefLocked");
+    
   if (num_return_outputs != opts->opts.return_tensors.size()) {
     status->status = InvalidArgument("Expected 'num_return_outputs' to be ",
                                      opts->opts.return_tensors.size(), ", got ",
@@ -1733,6 +1984,9 @@ void TF_GraphImportGraphDefWithReturnOutputs(
     TF_Graph* graph, const TF_Buffer* graph_def,
     const TF_ImportGraphDefOptions* opts, TF_Output* return_outputs,
     int num_return_outputs, TF_Status* status) {
+
+  LOGD("c_api::TF_GraphImportGraphDefWithReturnOutputs");
+
   GraphDef def;
   if (!def.ParseFromArray(graph_def->data, graph_def->length)) {
     status->status = InvalidArgument("Invalid GraphDef");
@@ -1746,6 +2000,8 @@ void TF_GraphImportGraphDefWithReturnOutputs(
 void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def,
                             const TF_ImportGraphDefOptions* options,
                             TF_Status* status) {
+  LOGD("c_api::TF_GraphImportGraphDef");
+
   TF_GraphImportGraphDefWithReturnOutputs(graph, graph_def, options, nullptr, 0,
                                           status);
 }
@@ -1755,6 +2011,8 @@ void TF_GraphImportGraphDef(TF_Graph* graph, const TF_Buffer* graph_def,
 namespace {
 bool CreateInput(const TF_Output& parent_input, TF_Graph* g, const char* name,
                  TF_Output* input, TF_Status* status) {
+  LOGD("c_api::CreateInput");
+
   TF_OperationDescription* desc = TF_NewOperation(g, "Placeholder", name);
   TF_SetAttrType(desc, "dtype", TF_OperationOutputType(parent_input));
   // TODO(skyewm): set placeholder shape
@@ -1767,6 +2025,8 @@ bool CreateInput(const TF_Output& parent_input, TF_Graph* g, const char* name,
 bool CreateEnter(TF_Graph* g, const char* node_name, const char* frame_name,
                  const TF_Output& input, TF_Output* enter, TF_Status* status)
     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
+  //LOGD("c_api::CreateEnter");
+
   TF_OperationDescription* desc = TF_NewOperationLocked(g, "Enter", node_name);
   TF_AddInput(desc, input);
   TF_SetAttrString(desc, "frame_name", frame_name, strlen(frame_name));
@@ -1780,6 +2040,8 @@ bool CreateMerge(TF_Graph* g, const char* name, const TF_Output& input,
                  const char* backedge_name, int backedge_index,
                  TF_Output* merge, TF_Status* status)
     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
+      LOGD("c_api::CreateMerge");
+
   TF_OperationDescription* desc = TF_NewOperationLocked(g, "Merge", name);
 
   // The merge nodes accept the while loop's back edges as an input. Use the
@@ -1804,6 +2066,8 @@ bool CreateSwitch(TF_Graph* g, const char* name, const TF_Output& input,
                   const TF_Output& predicate, TF_Output* switch_true,
                   TF_Output* switch_false, TF_Status* status)
     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
+  LOGD("c_api::CreateSwitch");
+
   TF_OperationDescription* desc = TF_NewOperationLocked(g, "Switch", name);
   TF_AddInput(desc, input);
   TF_AddInput(desc, predicate);
@@ -1817,6 +2081,8 @@ bool CreateSwitch(TF_Graph* g, const char* name, const TF_Output& input,
 bool CreateNext(TF_Graph* g, const char* name, const TF_Output& input,
                 TF_Output* next, TF_Status* status)
     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
+    LOGD("c_api::CreateNext");
+
   TF_OperationDescription* desc =
       TF_NewOperationLocked(g, "NextIteration", name);
   TF_AddInput(desc, input);
@@ -1829,6 +2095,8 @@ bool CreateNext(TF_Graph* g, const char* name, const TF_Output& input,
 bool CreateExit(TF_Graph* g, const char* name, const TF_Output& input,
                 TF_Output* exit, TF_Status* status)
     EXCLUSIVE_LOCKS_REQUIRED(g->mu) {
+      LOGD("c_api::CreateExit");
+
   TF_OperationDescription* desc = TF_NewOperationLocked(g, "Exit", name);
   TF_AddInput(desc, input);
   TF_Operation* oper = TF_FinishOperationLocked(desc, status);
@@ -1861,6 +2129,8 @@ bool CopyGraph(TF_Graph* src_graph, TF_Graph* dst_graph,
                const TF_Output* nodes_to_return, int nreturn_nodes,
                TF_Output* return_nodes, TF_Status* s)
     EXCLUSIVE_LOCKS_REQUIRED(dst_graph->mu) {
+  LOGD("c_api::CopyGraph");
+
   GraphDef gdef;
   src_graph->graph.ToGraphDef(&gdef);
 
@@ -1889,6 +2159,8 @@ bool CopyGraph(TF_Graph* src_graph, TF_Graph* dst_graph,
 }
 
 bool ValidateConstWhileParams(const TF_WhileParams& params, TF_Status* s) {
+  LOGD("c_api::ValidateConstWhileParams");
+
   if (params.cond_graph == nullptr || params.body_graph == nullptr ||
       params.cond_graph->parent == nullptr ||
       params.cond_graph->parent != params.body_graph->parent ||
@@ -1903,6 +2175,8 @@ bool ValidateConstWhileParams(const TF_WhileParams& params, TF_Status* s) {
 }
 
 bool ValidateInputWhileParams(const TF_WhileParams& params, TF_Status* s) {
+  LOGD("c_api::ValidateInputWhileParams");
+
   if (params.cond_output.oper == nullptr) {
     s->status = InvalidArgument("TF_WhileParams `cond_output` field isn't set");
     return false;
@@ -1922,6 +2196,8 @@ bool ValidateInputWhileParams(const TF_WhileParams& params, TF_Status* s) {
 }
 
 void FreeWhileResources(const TF_WhileParams* params) {
+  LOGD("c_api::FreeWhileResources");
+
   TF_DeleteGraph(params->cond_graph);
   TF_DeleteGraph(params->body_graph);
   delete[] params->cond_inputs;
@@ -1930,6 +2206,8 @@ void FreeWhileResources(const TF_WhileParams* params) {
 }
 
 TF_WhileParams EmptyWhileParams() {
+  LOGD("c_api::EmptyWhileParams");
+
   return {0,       nullptr, nullptr, {nullptr, 0},
           nullptr, nullptr, nullptr, nullptr};
 }
@@ -1938,6 +2216,8 @@ TF_WhileParams EmptyWhileParams() {
 
 TF_WhileParams TF_NewWhile(TF_Graph* g, TF_Output* inputs, int ninputs,
                            TF_Status* status) {
+  LOGD("c_api::TF_NewWhile");
+
   if (ninputs == 0) {
     status->status =
         InvalidArgument("TF_NewWhile() must be passed at least one input");
@@ -1985,6 +2265,8 @@ namespace {
 // TODO(skyewm): make nodes in while loop unfetchable like in Python version
 void TF_FinishWhileHelper(const TF_WhileParams* params, TF_Status* status,
                           TF_Output* outputs) {
+  LOGD("c_api::TF_FinishWhileHelper");
+
   if (!ValidateInputWhileParams(*params, status)) return;
 
   TF_Graph* parent = params->cond_graph->parent;
@@ -2065,19 +2347,27 @@ void TF_FinishWhileHelper(const TF_WhileParams* params, TF_Status* status,
 
 void TF_FinishWhile(const TF_WhileParams* params, TF_Status* status,
                     TF_Output* outputs) {
+  LOGD("c_api::TF_FinishWhile");
+
   // If it appears the caller created or modified `params`, don't free resources
   if (!ValidateConstWhileParams(*params, status)) return;
   TF_FinishWhileHelper(params, status, outputs);
   FreeWhileResources(params);
 }
 
-void TF_AbortWhile(const TF_WhileParams* params) { FreeWhileResources(params); }
+void TF_AbortWhile(const TF_WhileParams* params) {
+
+   LOGD("c_api::TF_AbortWhile");
+
+ FreeWhileResources(params); }
 
 #ifndef __ANDROID__
 namespace {
 
 void OutputsFromTFOutputs(TF_Output* tf_outputs, int n, TF_Status* status,
                           std::vector<tensorflow::Output>* outputs) {
+  LOGD("c_api::OutputsFromTFOutputs");
+
   outputs->resize(n);
   for (int i = 0; i < n; i++) {
     const TF_Output& tf_output = tf_outputs[i];
@@ -2087,6 +2377,8 @@ void OutputsFromTFOutputs(TF_Output* tf_outputs, int n, TF_Status* status,
 
 void TFOutputsFromOutputs(const std::vector<tensorflow::Output>& outputs,
                           TF_Output* tf_outputs) {
+  LOGD("c_api::TFOutputsFromOutputs");
+
   for (int i = 0; i < outputs.size(); i++) {
     tf_outputs[i].oper = ToOperation(outputs[i].node());
     tf_outputs[i].index = outputs[i].index();
@@ -2098,6 +2390,8 @@ void TFOutputsFromOutputs(const std::vector<tensorflow::Output>& outputs,
 
 void TF_AddGradients(TF_Graph* g, TF_Output* y, int ny, TF_Output* x, int nx,
                      TF_Output* dx, TF_Status* status, TF_Output* dy) {
+  LOGD("c_api::TF_AddGradients");
+
 #ifdef __ANDROID__
   status->status = tensorflow::errors::Unimplemented(
       "Adding gradients is not supported in Android. File a bug at "
@@ -2147,6 +2441,8 @@ void TF_AddGradients(TF_Graph* g, TF_Output* y, int ny, TF_Output* x, int nx,
 
 TF_Session* TF_NewSession(TF_Graph* graph, const TF_SessionOptions* opt,
                           TF_Status* status) {
+  LOGD("c_api::TF_NewSession");
+
   Session* session;
   status->status = NewSession(opt->options, &session);
   if (status->status.ok()) {
@@ -2165,6 +2461,8 @@ TF_Session* TF_LoadSessionFromSavedModel(
     const TF_SessionOptions* session_options, const TF_Buffer* run_options,
     const char* export_dir, const char* const* tags, int tags_len,
     TF_Graph* graph, TF_Buffer* meta_graph_def, TF_Status* status) {
+  LOGD("c_api::TF_LoadSessionFromSavedModel");
+
 // TODO(ashankar): Remove the __ANDROID__ guard. This will require ensuring that
 // the tensorflow/cc/saved_model:loader build target is Android friendly.
 #ifdef __ANDROID__
@@ -2225,10 +2523,14 @@ TF_Session* TF_LoadSessionFromSavedModel(
 }
 
 void TF_CloseSession(TF_Session* s, TF_Status* status) {
+  LOGD("c_api::TF_CloseSession");
+
   status->status = s->session->Close();
 }
 
 void TF_DeleteSession(TF_Session* s, TF_Status* status) {
+  LOGD("c_api::TF_DeleteSession");
+
   status->status = Status::OK();
   TF_Graph* const graph = s->graph;
   if (graph != nullptr) {
@@ -2245,7 +2547,11 @@ void TF_DeleteSession(TF_Session* s, TF_Status* status) {
 // TODO(josh11b,mrry): Change Session to be able to use a Graph*
 // directly, instead of requiring us to serialize to a GraphDef and
 // call Session::Extend().
+
+
 static bool ExtendSessionGraphHelper(TF_Session* session, TF_Status* status) {
+  //LOGD("c_api::ExtendSessionGraphHelper");
+  reportTime("c_api::ExtendSessionGraphHelper starts");
   if (session->graph != nullptr) {
     mutex_lock session_lock(session->mu);
     session->graph->mu.lock();
@@ -2278,6 +2584,8 @@ static bool ExtendSessionGraphHelper(TF_Session* session, TF_Status* status) {
       session->graph->mu.unlock();
     }
   }
+  reportTime("c_api::ExtendSessionGraphHelper ends");
+
   return true;
 }
 
@@ -2290,6 +2598,8 @@ void TF_SessionRun(TF_Session* session, const TF_Buffer* run_options,
   // TODO(josh11b,mrry): Change Session to be able to use a Graph*
   // directly, instead of requiring us to serialize to a GraphDef and
   // call Session::Extend().
+  //LOGD("c_api::TF_SessionRun");
+  reportTime("c_api::TF_SessionRun starts");
   if (!ExtendSessionGraphHelper(session, status)) {
     return;
   }
@@ -2315,40 +2625,57 @@ void TF_SessionRun(TF_Session* session, const TF_Buffer* run_options,
     target_names[i] = target_opers[i]->node.name();
   }
 
+  reportTime("c_api::TF_Run_Helper starts");
+
   // Actually run.
   TF_Run_Helper(session->session, nullptr, run_options, input_pairs,
                 output_names, output_values, target_names, run_metadata,
                 status);
+  reportTime("c_api::TF_Run_Helper ends");
+
 }
 
 void TF_SessionPRunSetup(TF_Session* session, const TF_Output* inputs,
                          int ninputs, const TF_Output* outputs, int noutputs,
                          const TF_Operation* const* target_opers, int ntargets,
                          const char** handle, TF_Status* status) {
+ 
+  LOGD("c_api::TF_SessionRunSetup");
+
   *handle = nullptr;
 
   if (!ExtendSessionGraphHelper(session, status)) {
     return;
   }
 
+  LOGD("c_api::input_names");
+
   std::vector<tensorflow::string> input_names(ninputs);
   for (int i = 0; i < ninputs; ++i) {
     input_names[i] = OutputName(inputs[i]);
   }
+
+  LOGD("c_api::output_names");
 
   std::vector<tensorflow::string> output_names(noutputs);
   for (int i = 0; i < noutputs; ++i) {
     output_names[i] = OutputName(outputs[i]);
   }
 
+  LOGD("c_api::target_names");
+
   std::vector<tensorflow::string> target_names(ntargets);
   for (int i = 0; i < ntargets; ++i) {
     target_names[i] = target_opers[i]->node.name();
   }
 
+  
   tensorflow::string new_handle;
+  LOGD("c_api::PRunSetup");
   status->status = session->session->PRunSetup(input_names, output_names,
                                                target_names, &new_handle);
+  LOGD("c_api::status.ok()");
+
   if (status->status.ok()) {
     char* buf = new char[new_handle.size() + 1];
     memcpy(buf, new_handle.c_str(), new_handle.size() + 1);
@@ -2357,6 +2684,8 @@ void TF_SessionPRunSetup(TF_Session* session, const TF_Output* inputs,
 }
 
 void TF_DeletePRunHandle(const char* handle) {
+  LOGD("c_api::TF_DeletePRunHandle");
+
   delete[] handle;
   // TODO(suharshs): Free up any resources held by the partial run state.
 }
@@ -2370,6 +2699,9 @@ void TF_SessionPRun(TF_Session* session, const char* handle,
   // TODO(josh11b,mrry): Change Session to be able to use a Graph*
   // directly, instead of requiring us to serialize to a GraphDef and
   // call Session::Extend().
+
+  LOGD("c_api::TF_SessionPRun");
+
   if (!ExtendSessionGraphHelper(session, status)) {
     return;
   }
