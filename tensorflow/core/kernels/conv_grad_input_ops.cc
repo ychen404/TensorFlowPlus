@@ -22,6 +22,8 @@ limitations under the License.
 
 #include <algorithm>
 #include <vector>
+#include <string>
+#include <sstream>
 
 #include "tensorflow/core/framework/numeric_op.h"
 #include "tensorflow/core/framework/op_kernel.h"
@@ -43,6 +45,26 @@ limitations under the License.
 #include "tensorflow/core/util/use_cudnn.h"
 #include "tensorflow/core/util/work_sharder.h"
 
+
+// renderscript support
+//#include <fstream>
+//#include <time.h>
+#include "tensorflow/contrib/android_renderscript_ops/jni/rsMatmul.h"
+//#include "tensorflow/contrib/android_renderscript_ops/utils/android_utils.h"
+// renderscript support
+
+
+// Android log
+#include <stdio.h>
+#include <stdlib.h>
+#include <android/log.h>
+
+
+#define LOG_TAG "NDK_LOG"
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+
 #if GOOGLE_CUDA
 #include "tensorflow/core/kernels/conv_ops_gpu.h"
 #include "tensorflow/core/platform/stream_executor.h"
@@ -59,6 +81,7 @@ void Col2im(const T* col_data, const int depth, const int height,
             const int width, const int filter_h, const int filter_w,
             const int pad_t, const int pad_l, const int pad_b, const int pad_r,
             const int stride_h, const int stride_w, T* im_data) {
+  //LOGD("conv_grad_input_ops::Col2im");
   int height_col = (height + pad_t + pad_b - filter_h) / stride_h + 1;
   int width_col = (width + pad_l + pad_r - filter_w) / stride_w + 1;
   int h_pad = -pad_t;
@@ -195,6 +218,8 @@ class Conv2DFastBackpropInputOp : public OpKernel {
  public:
   explicit Conv2DFastBackpropInputOp(OpKernelConstruction* context)
       : OpKernel(context) {
+    //LOGD("conv_grad_input_ops::Conv2DFastBackpropInputOp");
+
     string data_format;
     OP_REQUIRES_OK(context, context->GetAttr("data_format", &data_format));
     OP_REQUIRES(context, FormatFromString(data_format, &data_format_),
@@ -273,6 +298,7 @@ class Conv2DFastBackpropInputOp : public OpKernel {
         filter.tensor<T, 4>(), out_backprop.tensor<T, 4>(),
         dims.spatial_dims[0].input_size, dims.spatial_dims[1].input_size,
         dims.spatial_dims[0].stride, dims.spatial_dims[1].stride, data_format_);
+
   }
 
  private:
@@ -308,9 +334,12 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
   }
 
   void Compute(OpKernelContext* context) override {
+
     const Tensor& input_sizes = context->input(0);
     const Tensor& filter = context->input(1);
     const Tensor& out_backprop = context->input(2);
+    LOGD("conv_grad_input_ops::Conv2DCustomBackpropInputOp::Compute start");
+
     OP_REQUIRES(
         context, TensorShapeUtils::IsVector(input_sizes.shape()),
         errors::InvalidArgument(
@@ -418,7 +447,7 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
     // parallel to keep all threads busy.
     // TODO(andydavis) Explore alternatives to branching the code in this way
     // (i.e. run multiple, parallel tensor contractions in another thread pool).
-    const bool use_parallel_contraction =
+    bool use_parallel_contraction =
         dims.batch_size == 1 ||
         thread_work_unit_size >= min_thread_work_unit_size;
 
@@ -426,6 +455,10 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
         use_parallel_contraction
             ? 1
             : (target_working_set_size + work_unit_size - 1) / work_unit_size;
+
+    // Added by saman, just for testing
+    use_parallel_contraction = 0;
+
 
     Tensor col_buffer;
     OP_REQUIRES_OK(context,
@@ -492,29 +525,180 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
                                              Eigen::RowMajor>>
           ConstMatrixMap;
 
+
+      const int m = 2, n = 2, k = 3, alpha = 1;
+      const int& alpha_ptr = alpha;
+
+      int a_sz = m * k, b_sz = n * k, c_sz = m * n;
+      T* a_ori = new T[a_sz];
+      T* b_ori = new T[b_sz];
+
+
+      T a_data[] = {
+                    1, 2, 3, 
+                    4, 5, 6
+                  };
+      T b_data[] = {
+                    1, 2, 3,
+                    4, 6, 2,
+      };
+
+
+      for (int i = 0; i < a_sz; ++i) {
+        a_ori[i] = a_data[i];
+      }
+
+      for (int i = 0; i < b_sz; ++i) {
+        b_ori[i] = b_data[i];
+      }
+
+      //T& a_ori_ptr = a_ori;
+      //T& b_ori_ptr = b_ori; 
+
+      T *c_out = new T[m * n];
+      
+      for (int i = 0; i < c_sz; ++i) {
+            c_out[i] = 0;
+      }
+
+      // Try to take the matmul out of the shard 
+
+      androidrs::matmul::rsMatmul_sgemm_tom (
+        static_cast<void*>(const_cast<float*>(a_ori)), false,
+        static_cast<void*>(const_cast<float*>(b_ori)), false,
+        static_cast<void*>(c_out),
+        m, n, k, 1.0, 0);
+
+      for (int i = 0; i < c_sz; ++i) {
+          LOGI("c_out %f", ((float *) c_out)[i]);
+      }
       for (int image_id = 0; image_id < dims.batch_size;
            image_id += shard_size) {
-        const int shard_limit =
-            std::min(static_cast<int>(shard_size),
-                     static_cast<int>(dims.batch_size) - image_id);
+        // change shard_limit to 1
+        const int shard_limit = 1;
+
+        // const int shard_limit =
+        //     std::min(static_cast<int>(shard_size),
+        //              static_cast<int>(dims.batch_size) - image_id);
+        LOGI ("batch_size, shard_size, shard_limit, %lld, %d, %d", 
+          dims.batch_size,
+          shard_size,
+          shard_limit);
+
+
 
         auto shard = [&dims, &pad_top, &pad_left, &pad_bottom, &pad_right,
                       &output_image_size, &filter_total_size,
                       &input_backprop_data, &col_buffer_data,
                       &out_backprop_data, &filter_data, &input_offset,
-                      &output_offset, &size_C](int64 start, int64 limit) {
+                      &output_offset, &size_C](int64 start, int64 limit)
+
+/* Add the test data into the capture list
+        auto shard = [&dims, &pad_top, &pad_left, &pad_bottom, &pad_right,
+                      &output_image_size, &filter_total_size,
+                      &input_backprop_data, &col_buffer_data,
+                      &out_backprop_data, &filter_data, &input_offset,
+                      &output_offset, &size_C, 
+                      &alpha_ptr, &a_ori, &b_ori, &c_out, &c_sz](int64 start, int64 limit) 
+                      */ 
+        {
+              LOGI ("start %lld, limit %ld", 
+              start, 
+              limit);
           for (int shard_id = start; shard_id < limit; ++shard_id) {
             T* im2col_buf = col_buffer_data + shard_id * size_C;
             T* input_data = input_backprop_data + shard_id * input_offset;
             const T* out_data = out_backprop_data + shard_id * output_offset;
+            
 
+            //T* out_data = out_backprop_data + shard_id * output_offset;
             // Compute gradient into 'im2col_buf'.
-            MatrixMap C(im2col_buf, output_image_size, filter_total_size);
+            // SAMAN
+            // We need to comment out three below lines
+            // MatrixMap C(im2col_buf, output_image_size, filter_total_size);
 
-            ConstMatrixMap A(out_data, output_image_size, dims.out_depth);
-            ConstMatrixMap B(filter_data, filter_total_size, dims.out_depth);
+            //ConstMatrixMap A(out_data, output_image_size, dims.out_depth);
+            // ConstMatrixMap B(filter_data, filter_total_size, dims.out_depth);
+            //std::stringstream logstring << "output_image_size: " << output_image_size << ", dims.out_depth: " << dims.out_depth; 
+            //LOGI("%s, time elapse:\t%f", str, elapse);
 
-            C.noalias() = A * B.transpose();
+            //android_log_print(ss.str().c_str());
+            LOGD("rsMatmul begins");
+
+            LOGI ("%d, %d, %d, %ld, %ld", 
+              output_image_size, 
+              filter_total_size,
+              static_cast<int>(dims.out_depth),
+              start, 
+              limit);
+
+            // androidrs::matmul::rsMatmul_sgemm (
+            //   static_cast<void*>(const_cast<float*>(out_data)), 0,
+            //   static_cast<void*>(const_cast<float*>(filter_data)), 0,
+            //   static_cast<void*>(im2col_buf),
+            //   output_image_size, filter_total_size, static_cast<int>(dims.out_depth), 1, 0);
+            
+            /* Move this part out of the lamda function. 3/7
+            int m = 2, n = 2, k = 3;
+            int a_sz = m * k, b_sz = n * k, c_sz = m * n;
+            T* a_ori = new T[a_sz];
+            T* b_ori = new T[b_sz];
+
+            T a_data[] = {
+                          1, 2, 3, 
+                          4, 5, 6
+                        };
+            T b_data[] = {
+                          1, 2, 3,
+                          4, 6, 2,
+            };
+
+
+            for (int i = 0; i < a_sz; ++i) {
+              a_ori[i] = a_data[i];
+            }
+
+            for (int i = 0; i < b_sz; ++i) {
+              b_ori[i] = b_data[i];
+            }
+
+            T *c_out = new T[m * n];
+            
+            for (int i = 0; i < c_sz; ++i) {
+                  c_out[i] = 0;
+            }
+            */
+
+            // for test purpose
+            // androidrs::matmul::rsMatmul_sgemm_tom (
+            //   static_cast<void*>(const_cast<float*>(a_ori)), false,
+            //   static_cast<void*>(const_cast<float*>(b_ori)), false,
+            //   static_cast<void*>(c_out),
+            //   m, n, k, 1.0, 0);
+
+            // Use reference
+            // androidrs::matmul::rsMatmul_sgemm_tom (
+            //   static_cast<void*>(const_cast<float*>(a_ori)), false,
+            //   static_cast<void*>(const_cast<float*>(b_ori)), false,
+            //   static_cast<void*>(c_out),
+            //   m, n, k, alpha_ptr, 0);
+
+            // for (int i = 0; i < c_sz; ++i) {
+            //     LOGI("c_out %f", ((float *) c_out)[i]);
+            // }
+            LOGD("Done with test");
+
+            androidrs::matmul::rsMatmul_sgemm_tom (
+              static_cast<void*>(const_cast<float*>(out_data)), false,
+              static_cast<void*>(const_cast<float*>(filter_data)), false,
+              static_cast<void*>(im2col_buf),
+              output_image_size, filter_total_size, static_cast<int>(dims.out_depth), 1.0, 0.0);
+
+            LOGD("rsMatmul ends");
+              
+            // SAMAN
+            // Also will replace below computation with above
+            //C.noalias() = A * B.transpose();
 
             Col2im<T>(im2col_buf, dims.in_depth,
                       dims.spatial_dims[0].input_size,
@@ -523,15 +707,36 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
                       dims.spatial_dims[1].filter_size, pad_top, pad_left,
                       pad_bottom, pad_right, dims.spatial_dims[0].stride,
                       dims.spatial_dims[1].stride, input_data);
+            LOGD("Col2im ends");
+
           }
         };
+
+        // LOGD("Col2im starts");
+        // Col2im<T>(im2col_buf, dims.in_depth,
+        //           dims.spatial_dims[0].input_size,
+        //           dims.spatial_dims[1].input_size,
+        //           dims.spatial_dims[0].filter_size,
+        //           dims.spatial_dims[1].filter_size, pad_top, pad_left,
+        //           pad_bottom, pad_right, dims.spatial_dims[0].stride,
+        //           dims.spatial_dims[1].stride, input_data);
+        // LOGD("Col2im ends");
+
+
+        LOGD("Shard starts");
+
         Shard(worker_threads.num_threads, worker_threads.workers, shard_limit,
               work_unit_size, shard);
+        LOGD("Shard ends");
 
         input_backprop_data += input_offset * shard_limit;
+        LOGD("input_backprop_data");
+
         out_backprop_data += output_offset * shard_limit;
+        LOGD("out_backprop_data");
       }
     }
+      LOGD("conv_grad_input_ops::Conv2DCustomBackpropInputOp::Compute ends");
   }
 
  private:
@@ -540,6 +745,8 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
   TensorFormat data_format_;
 
   TF_DISALLOW_COPY_AND_ASSIGN(Conv2DCustomBackpropInputOp);
+  //LOGD("conv_grad_input_ops::Conv2DCustomBackpropInputOp end");
+
 };
 
 #define REGISTER_CPU_KERNELS(T)                                              \
@@ -579,6 +786,7 @@ class Conv2DSlowBackpropInputOp : public OpKernel {
  public:
   explicit Conv2DSlowBackpropInputOp(OpKernelConstruction* context)
       : OpKernel(context) {
+    //LOGD("conv_grad_input_ops::Conv2DSlowBackpropInputOp");
     string data_format;
     OP_REQUIRES_OK(context, context->GetAttr("data_format", &data_format));
     OP_REQUIRES(context, FormatFromString(data_format, &data_format_),
