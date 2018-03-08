@@ -1,11 +1,8 @@
 /* Copyright 2015 The TensorFlow Authors. All Rights Reserved.
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,6 +39,24 @@ limitations under the License.
 #include "tensorflow/core/util/tensor_format.h"
 #include "tensorflow/core/util/use_cudnn.h"
 #include "tensorflow/core/util/work_sharder.h"
+
+
+// Android log
+#include <stdio.h>
+#include <stdlib.h>
+#include <android/log.h>
+
+
+#define LOG_TAG "NDK_LOG"
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+
+// renderscript support
+#include "tensorflow/contrib/android_renderscript_ops/jni/rsMatmul.h"
+// renderscript support
+
+
 
 #if GOOGLE_CUDA
 #include "tensorflow/core/kernels/conv_ops_gpu.h"
@@ -280,6 +295,8 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
     const Tensor& input = context->input(0);
     const Tensor& filter_sizes = context->input(1);
     const Tensor& out_backprop = context->input(2);
+          LOGD("conv_grad_filter_ops::Conv2DCustomBackpropFilterOp::Compute starts");
+
     OP_REQUIRES(
         context, TensorShapeUtils::IsVector(filter_sizes.shape()),
         errors::InvalidArgument(
@@ -388,8 +405,10 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
                              Eigen::Unaligned>
         ConstTensorMap;
 
-    TensorMap C(filter_backprop_data, filter_total_size, dims.out_depth);
-    C.setZero();
+
+    // Yitao: comment out the following two lines to redirect to the RenderScript
+    // TensorMap C(filter_backprop_data, filter_total_size, dims.out_depth);
+    // C.setZero();
 
     // Initialize contraction dims (we need to transpose 'A' below).
     Eigen::array<Eigen::IndexPair<Eigen::DenseIndex>, 1> contract_dims;
@@ -399,10 +418,13 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
     auto worker_threads = *(context->device()->tensorflow_cpu_worker_threads());
 
     for (int image_id = 0; image_id < dims.batch_size; image_id += shard_size) {
-      const int shard_limit =
-          std::min(static_cast<int>(shard_size),
-                   static_cast<int>(dims.batch_size) - image_id);
+      
 
+      // const int shard_limit =
+      //     std::min(static_cast<int>(shard_size),
+      //              static_cast<int>(dims.batch_size) - image_id);
+      // Change the shard_limit to 1 for RenderScript impl to run
+        const int shard_limit = 1;
       auto shard = [&input_data, &col_buffer_data, &dims, &pad_top, &pad_left,
                     &pad_bottom, &pad_right, &input_offset,
                     &size_A](int64 start, int64 limit) {
@@ -423,16 +445,27 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
       Shard(worker_threads.num_threads, worker_threads.workers, shard_limit,
             size_A, shard);
 
-      ConstTensorMap A(col_buffer_data, output_image_size * shard_limit,
-                       filter_total_size);
-      ConstTensorMap B(out_backprop_data, output_image_size * shard_limit,
-                       dims.out_depth);
+      /* Yitao
+      /* Comment out the following three lines to replace with RenderScript op
+       */
+      //ConstTensorMap A(col_buffer_data, output_image_size * shard_limit,
+      //                 filter_total_size);
+      //ConstTensorMap B(out_backprop_data, output_image_size * shard_limit,
+      //                 dims.out_depth);
 
       // Gradient with respect to filter.
-      C.device(context->eigen_cpu_device()) += A.contract(B, contract_dims);
+      //C.device(context->eigen_cpu_device()) += A.contract(B, contract_dims);
+
+      androidrs::matmul::rsMatmul_sgemm_tom (
+        static_cast<void*>(const_cast<float*>(col_buffer_data)), false,
+        static_cast<void*>(const_cast<float*>(out_backprop_data)), false,
+        static_cast<void*>(filter_backprop_data),
+        filter_total_size, static_cast<int>(dims.out_depth), output_image_size * shard_limit, 1.0, 1.0);
+
+      LOGD("conv_grad_filter_ops::Conv2DCustomBackpropFilterOp::Compute ends");
 
       input_data += input_offset * shard_limit;
-      out_backprop_data += output_offset * shard_limit;
+      filter_backprop_data += output_offset * shard_limit;
     }
   }
 
