@@ -75,6 +75,14 @@ void LogMessage::GenerateLogMessage() {
 
 #else
 
+
+inline static double CurrentRealTimeMillis() {
+     struct timespec tm;
+     clock_gettime(CLOCK_MONOTONIC, &tm);
+     return tm.tv_sec * 1000LL + double(tm.tv_nsec) / 1000000LL;
+}
+
+
 void LogMessage::GenerateLogMessage() {
   static EnvTime* env_time = tensorflow::EnvTime::Default();
   uint64 now_micros = env_time->NowMicros();
