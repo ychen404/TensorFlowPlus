@@ -11,11 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="6238b043-f18f-4fa5-b767-aef480faa091" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../cnn-cplusplus-TF" afterPath="$PROJECT_DIR$/../../cnn-cplusplus-TF" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../core/platform/default/logging.cc" afterPath="$PROJECT_DIR$/../../core/platform/default/logging.cc" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../core/platform/default/logging.h" afterPath="$PROJECT_DIR$/../../core/platform/default/logging.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android.iml" afterPath="$PROJECT_DIR$/android.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" afterPath="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" />
     </list>
     <ignored path="android.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -60,8 +56,8 @@
       <file leaf-file-name="ClassifierActivity.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="380">
-              <caret line="62" column="68" lean-forward="false" selection-start-line="62" selection-start-column="68" selection-end-line="62" selection-end-column="68" />
+            <state relative-caret-position="340">
+              <caret line="60" column="78" lean-forward="false" selection-start-line="60" selection-start-column="78" selection-end-line="60" selection-end-column="78" />
               <folding />
             </state>
           </provider>
@@ -1167,10 +1163,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="65" />
-    <option name="y" value="-4" />
+    <option name="x" value="95" />
+    <option name="y" value="148" />
     <option name="width" value="1855" />
-    <option name="height" value="1084" />
+    <option name="height" value="1028" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -1396,7 +1392,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520577208278" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520723985725" />
       </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
@@ -1451,7 +1447,7 @@
       </Profilers>
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520577208278" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520723985725" />
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -1598,7 +1594,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520577208278" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1520723985726" />
       </method>
     </configuration>
     <list size="1">
@@ -1646,7 +1642,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
+    <frame x="95" y="148" width="1855" height="1028" extended-state="0" />
     <layout>
       <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1659,7 +1655,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19371727" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Logcat" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Logcat" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.35038933" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -2336,8 +2332,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="62" column="68" lean-forward="false" selection-start-line="62" selection-start-column="68" selection-end-line="62" selection-end-column="68" />
+        <state relative-caret-position="340">
+          <caret line="60" column="78" lean-forward="false" selection-start-line="60" selection-start-column="78" selection-end-line="60" selection-end-column="78" />
           <folding />
         </state>
       </provider>
