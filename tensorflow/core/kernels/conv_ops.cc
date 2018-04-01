@@ -82,11 +82,11 @@ struct LaunchGeneric {
                      const Tensor& filter, int row_stride, int col_stride,
                      const Eigen::PaddingType& padding, Tensor* output,
                      TensorFormat data_format) {
-    //LOGD("conv_ops::LaunchGeneric");
-    androidrs::conv::reportTime("conv_ops::LaunchGeneric:starts");
+    ////LOGD("conv_ops::LaunchGeneric");
+    //androidrs::conv::reportTime("conv_ops::LaunchGeneric:starts");
     CHECK(data_format == FORMAT_NHWC) << "Generic conv implementation only "
                                          "supports NHWC tensor format for now.";
-    androidrs::conv::reportTime("conv_ops::LaunchGeneric:CHECK format");
+    //androidrs::conv::reportTime("conv_ops::LaunchGeneric:CHECK format");
 
     if (filter.dim_size(0) == 1 && filter.dim_size(1) == 1 && row_stride == 1 &&
         col_stride == 1) {
@@ -100,19 +100,19 @@ struct LaunchGeneric {
       for (int i = 0; i < 3; ++i) {
         conv_width *= output->dim_size(i);
       }
-      androidrs::conv::reportTime("conv_ops::LaunchGeneric:output->dim_size");
+      //androidrs::conv::reportTime("conv_ops::LaunchGeneric:output->dim_size");
 
       Eigen::array<Eigen::IndexPair<Eigen::DenseIndex>, 1> dim_pair;
-      androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 Eigen::array");
+      //androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 Eigen::array");
       dim_pair[0] = Eigen::IndexPair<Eigen::DenseIndex>(1, 0);
-      androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 IndexPair");
+      //androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 IndexPair");
       functor::MatMulConvFunctor<Device, T>()(
           ctx->eigen_device<Device>(),
           output->shaped<T, 2>({conv_width, filter.dim_size(3)}),
           input.shaped<T, 2>({conv_width, filter.dim_size(2)}),
           filter.shaped<T, 2>({filter.dim_size(2), filter.dim_size(3)}),
           dim_pair);
-      androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 MatMulConvFunctor");
+     // androidrs::conv::reportTime("conv_ops::LaunchGeneric: 1x1 MatMulConvFunctor");
     } else if (filter.dim_size(0) == input.dim_size(1) &&
                filter.dim_size(1) == input.dim_size(2) &&
                padding == Eigen::PADDING_VALID) {
@@ -122,20 +122,20 @@ struct LaunchGeneric {
           filter.dim_size(0) * filter.dim_size(1) * filter.dim_size(2);
 
       Eigen::array<Eigen::IndexPair<Eigen::DenseIndex>, 1> dim_pair;
-      androidrs::conv::reportTime("conv_ops::LaunchGeneric: same width Eigen::array");
+     // androidrs::conv::reportTime("conv_ops::LaunchGeneric: same width Eigen::array");
       dim_pair[0] = Eigen::IndexPair<Eigen::DenseIndex>(1, 0);
       functor::MatMulConvFunctor<Device, T>()(
           ctx->eigen_device<Device>(),
           output->shaped<T, 2>({input.dim_size(0), filter.dim_size(3)}),
           input.shaped<T, 2>({input.dim_size(0), k}),
           filter.shaped<T, 2>({k, filter.dim_size(3)}), dim_pair);
-      androidrs::conv::reportTime("conv_ops::LaunchGeneric: same width MatMulConvFunctor");
+     // androidrs::conv::reportTime("conv_ops::LaunchGeneric: same width MatMulConvFunctor");
     } else {
       functor::SpatialConvolution<Device, T>()(
           ctx->eigen_device<Device>(), output->tensor<T, 4>(),
           input.tensor<T, 4>(), filter.tensor<T, 4>(), row_stride, col_stride,
           padding);
-      androidrs::conv::reportTime("conv_ops::LaunchGeneric:SpatialConvolution");
+     // androidrs::conv::reportTime("conv_ops::LaunchGeneric:SpatialConvolution");
     }
   //reportTime("conv_ops::LaunchGeneric:ends");
   }
@@ -149,7 +149,7 @@ class LaunchConv2DOp<CPUDevice, T> {
               const Tensor& input, const Tensor& filter, int row_stride,
               int col_stride, const Eigen::PaddingType& padding, Tensor* output,
               TensorFormat data_format) {
-    androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:launch starts");
+   // androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:launch starts");
 
     if (data_format != FORMAT_NHWC) {
       ctx->SetStatus(
@@ -157,12 +157,12 @@ class LaunchConv2DOp<CPUDevice, T> {
                                 "NHWC tensor format for now."));
       return;
     }
-    androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:data_format");
+   // androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:data_format");
 
     LaunchGeneric<CPUDevice, T>::launch(ctx, input, filter, row_stride,
                                         col_stride, padding, output,
                                         data_format);
-    androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:launch");
+   // androidrs::conv::reportTime("conv_ops::LaunchConv2DOp<CPU>:launch");
   }
 };
 
@@ -175,7 +175,7 @@ class LaunchDeepConvOp {
                   int filter_cols, int pad_rows, int pad_cols, int out_rows,
                   int out_cols, int out_depth, int stride_rows, int stride_cols,
                   Tensor* output, TensorFormat data_format) {
-    LOGD("conv_ops::LaunchDeepConvOp:Run");
+    //LOGD("conv_ops::LaunchDeepConvOp:Run");
 
     return false;
   }
@@ -196,7 +196,7 @@ class LaunchDeepConvOp<CPUDevice, float> {
                           in_depth, out_depth, out_rows, out_cols)) {
       return false;
     }
-    LOGD("conv_ops::LaunchDeepConvOp<CPU>:Run");
+    //LOGD("conv_ops::LaunchDeepConvOp<CPU>:Run");
 
     Conv2DArgs args;
     args.batch = batch;
@@ -231,7 +231,7 @@ class LaunchXsmmConvOp {
                   int filter_cols, int pad_rows, int pad_cols, int out_rows,
                   int out_cols, int out_depth, int stride_rows, int stride_cols,
                   Tensor* output, TensorFormat data_format) {
-    LOGD("conv_ops::LaunchXsmmConvOp:Run");
+    //LOGD("conv_ops::LaunchXsmmConvOp:Run");
 
     return false;
   }
@@ -246,7 +246,7 @@ class LaunchXsmmConvOp<CPUDevice, float> {
                   int filter_cols, int pad_rows, int pad_cols, int out_rows,
                   int out_cols, int out_depth, int stride_rows, int stride_cols,
                   Tensor* output, TensorFormat data_format) {
-    LOGD("conv_ops::LaunchXsmmConvOp:<CPU>Run");
+    //LOGD("conv_ops::LaunchXsmmConvOp:<CPU>Run");
 
     auto num_threads =
         ctx->device()->tensorflow_cpu_worker_threads()->num_threads;
@@ -298,8 +298,8 @@ template <typename Device, typename T>
 class Conv2DOp : public BinaryOp<T> {
  public:
   explicit Conv2DOp(OpKernelConstruction* context) : BinaryOp<T>(context) {
-    //LOGD("conv_ops::Conv2Dop");
-    reportTime("conv_ops::Conv2Dop starts");
+    ////LOGD("conv_ops::Conv2Dop");
+    //reportTime("conv_ops::Conv2Dop starts");
     OP_REQUIRES_OK(context, context->GetAttr("strides", &strides_));
     string data_format;
     OP_REQUIRES_OK(context, context->GetAttr("data_format", &data_format));
@@ -318,7 +318,7 @@ class Conv2DOp : public BinaryOp<T> {
         errors::InvalidArgument("Current implementation does not yet support "
                                 "strides in the batch and depth dimensions."));
     OP_REQUIRES_OK(context, context->GetAttr("padding", &padding_));
-    reportTime("conv_ops::Conv2Dop ends");
+    //reportTime("conv_ops::Conv2Dop ends");
   }
 
 
@@ -338,11 +338,9 @@ class Conv2DOp : public BinaryOp<T> {
 
 
 
-
-
   void Compute(OpKernelContext* context) override {
-    //LOGD("conv_ops::Conv2Dop:Compute");
-    reportTime("conv_ops::Conv2Dop:Compute starts");
+    ////LOGD("conv_ops::Conv2Dop:Compute");
+    //reportTime("conv_ops::Conv2Dop:Compute starts");
     // Input tensor is of the following dimensions:
     // [ batch, in_rows, in_cols, in_depth ]
 
@@ -359,7 +357,7 @@ class Conv2DOp : public BinaryOp<T> {
     OP_REQUIRES(context, filter.dims() == 4,
                 errors::InvalidArgument("filter must be 4-dimensional: ",
                                         filter.shape().DebugString()));
-    reportTime("conv_ops::Conv2Dop:Compute::OP_REQUIRES");
+    //reportTime("conv_ops::Conv2Dop:Compute::OP_REQUIRES");
 
 
     for (int i = 0; i < 3; i++) {
@@ -368,7 +366,7 @@ class Conv2DOp : public BinaryOp<T> {
           FastBoundsCheck(filter.dim_size(i), std::numeric_limits<int>::max()),
           errors::InvalidArgument("filter too large"));
     }
-    reportTime("conv_ops::Conv2Dop:Compute::FastBoundsCheck");
+    //reportTime("conv_ops::Conv2Dop:Compute::FastBoundsCheck");
 
     // The last dimension for input is in_depth. It must be the same as the
     // filter's in_depth.
@@ -377,7 +375,7 @@ class Conv2DOp : public BinaryOp<T> {
                 errors::InvalidArgument(
                     "input and filter must have the same depth: ", in_depth,
                     " vs ", filter.dim_size(2)));
-    reportTime("conv_ops::Conv2Dop:Compute::filter depth");
+    //reportTime("conv_ops::Conv2Dop:Compute::filter depth");
 
     // The last dimension for filter is out_depth.
     const int out_depth = static_cast<int>(filter.dim_size(3));
@@ -389,7 +387,7 @@ class Conv2DOp : public BinaryOp<T> {
         context,
         FastBoundsCheck(input_rows_raw, std::numeric_limits<int>::max()),
         errors::InvalidArgument("Input rows too large"));
-    reportTime("conv_ops::Conv2Dop:Compute::FastBoundsCheck numeric_limits");
+    //reportTime("conv_ops::Conv2Dop:Compute::FastBoundsCheck numeric_limits");
     const int input_rows = static_cast<int>(input_rows_raw);
     const int filter_rows = static_cast<int>(filter.dim_size(0));
 
@@ -424,13 +422,13 @@ class Conv2DOp : public BinaryOp<T> {
                                          padding_, &out_cols, &pad_cols));
     TensorShape out_shape =
         ShapeFromFormat(data_format_, batch, out_rows, out_cols, out_depth);
-    reportTime("conv_ops::Conv2Dop:Compute::out_shape");
+    //reportTime("conv_ops::Conv2Dop:Compute::out_shape");
 
     // Output tensor is of the following dimensions:
     // [ in_batch, out_rows, out_cols, out_depth ]
     Tensor* output = nullptr;
     OP_REQUIRES_OK(context, context->allocate_output(0, out_shape, &output));
-    reportTime("conv_ops::Conv2Dop:Compute::OP_REQUIRES_OK");
+    //reportTime("conv_ops::Conv2Dop:Compute::OP_REQUIRES_OK");
 
     VLOG(2) << "Conv2D: in_depth = " << in_depth
             << ", input_cols = " << input_cols
@@ -451,7 +449,7 @@ class Conv2DOp : public BinaryOp<T> {
             context, input, filter, batch, input_rows, input_cols, in_depth,
             filter_rows, filter_cols, pad_rows, pad_cols, out_rows, out_cols,
             out_depth, stride_rows, stride_cols, output, data_format_)) {
-      LOGD("conv_ops::ifdef LaunchXsmmConvOp::Run");
+      //LOGD("conv_ops::ifdef LaunchXsmmConvOp::Run");
 
       return;
     }
@@ -462,37 +460,56 @@ class Conv2DOp : public BinaryOp<T> {
             context, input, filter, batch, input_rows, input_cols, in_depth,
             filter_rows, filter_cols, pad_rows, pad_cols, out_rows, out_cols,
             out_depth, stride_rows, stride_cols, output, data_format_)) {
+      //LOGD("conv_ops::ifdef LaunchDeepConvOp::Run");
+
       return;
     }
 
     //////////////////////// renderscript support
     std::stringstream ss;
-    double start, finish;
-    start = (double)(clock()/(double)CLOCKS_PER_SEC);
+   // double start, finish;
+   // start = (double)(clock()/(double)CLOCKS_PER_SEC);
+    //reportTime("conv_ops::start of rsConv");
+    LOGD("conv_ops::start of rsConv");
+
     androidrs::conv::rsConvInfo convInfo(in_depth, input_rows, input_cols, filter_rows, filter_cols,
                                          stride_rows, stride_cols, pad_rows, pad_cols,
                                          out_depth, out_rows, out_cols, batch, sizeof(T));
-    androidrs::conv::rsConv_intrinsic<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
-                                      static_cast<void*>(const_cast<char*>(input.tensor_data().data())),
-                                      static_cast<void*>(const_cast<char*>(output->tensor_data().data())),
-                                      convInfo);
-    
-    /*androidrs::conv::rsConv_script<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
+    /*androidrs::conv::rsConv_intrinsic<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
                                       static_cast<void*>(const_cast<char*>(input.tensor_data().data())),
                                       static_cast<void*>(const_cast<char*>(output->tensor_data().data())),
                                       convInfo);*/
-    finish = (double)(clock()/(double)CLOCKS_PER_SEC);
-    ss << "Conv consume time: " << (finish - start) << " sec";
-    android_log_print(ss.str().c_str());
+
+    androidrs::conv::rsConv_script<T>(static_cast<void*>(const_cast<char*>(filter.tensor_data().data())),
+                                      static_cast<void*>(const_cast<char*>(input.tensor_data().data())),
+                                      static_cast<void*>(const_cast<char*>(output->tensor_data().data())),
+                                      convInfo);
+    struct timeval tp;
+    std::stringstream stringstream;
+    gettimeofday(&tp, NULL);
+    long long int ms = tp.tv_sec * 1000 + tp.tv_usec /1000;
+    //reportTime("conv_ops::end of rsConv");
+    //ss << "conv_ops::current time: " << ms << " milliseconds";
+    LOGD("conv_ops::end of rsConv");
+
+    android_log_print(ss.str().c_str()); 
     return;
     //////////////////////// renderscript support
-
+  //  reportTime("conv_ops::Conv2Dop:Compute before launch");
+  //  reportTime("conv_ops::Start of launch");
 
     launcher_.launch(context, use_cudnn_, cudnn_use_autotune_, input, filter,
                      stride_rows, stride_cols,
                      BrainPadding2EigenPadding(padding_), output, data_format_);
+   // finish = (double)(clock()/(double)CLOCKS_PER_SEC);
+   // ss << "Normal conv consume time: " << (finish - start) << " sec";
+   // android_log_print(ss.str().c_str());
+  //  reportTime("conv_ops::End of launch");
   }
 
+ /*
+  * In C++, an underscore usually indicates a private member variable. 
+  */
  private:
   std::vector<int32> strides_;
   bool use_cudnn_;
@@ -542,13 +559,13 @@ int64 GetCudnnWorkspaceLimit(const string& envvar_in_mb,
   return default_value_in_bytes;
 }
 
-reportTime("conv_ops::GetCudnnWorkspaceLimit");
+//reportTime("conv_ops::GetCudnnWorkspaceLimit");
 
 // A dummy type to group forward convolution autotune results together.
 struct ConvAutoTuneGroup {
   static string name() { return "Conv"; }
 };
-reportTime("conv_ops::ConvAutoTuneGroup");
+//reportTime("conv_ops::ConvAutoTuneGroup");
 
 typedef AutoTuneSingleton<ConvAutoTuneGroup, ConvParameters,
                           perftools::gputools::dnn::AlgorithmConfig>
@@ -850,7 +867,7 @@ void LaunchConv2DOp<GPUDevice, T>::launch(
 
 }
 
-reportTime("conv_ops::GPULaunchConv2DOp");
+//reportTime("conv_ops::GPULaunchConv2DOp");
 // Forward declarations of the functor specializations for GPU.
 namespace functor {
 #define DECLARE_GPU_SPEC(T)                                                  \
@@ -885,7 +902,7 @@ DECLARE_GPU_SPEC(float);
 DECLARE_GPU_SPEC(Eigen::half);
 #undef DECLARE_GPU_SPEC
 }  // namespace functor
-reportTime("conv_ops::functor");
+//reportTime("conv_ops::functor");
 // Registration of the GPU implementations.
 REGISTER_KERNEL_BUILDER(
     Name("Conv2D").Device(DEVICE_GPU).TypeConstraint<Eigen::half>("T"),
@@ -896,7 +913,7 @@ REGISTER_KERNEL_BUILDER(
 
 // To be used inside depthwise_conv_op.cc.
 template class LaunchConv2DOp<GPUDevice, float>;
-reportTime("conv_ops::registration of the GPU implementations");
+//reportTime("conv_ops::registration of the GPU implementations");
 
 #endif  // GOOGLE_CUDA
 

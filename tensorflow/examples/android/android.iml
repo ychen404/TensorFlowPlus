@@ -97,6 +97,7 @@
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/restart-dex" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/rs" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/shaders" />
+      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/sourceFolderJavaResources" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/split-apk" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/symbols" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/transforms" />

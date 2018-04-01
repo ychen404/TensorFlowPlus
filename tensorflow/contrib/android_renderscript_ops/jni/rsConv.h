@@ -90,7 +90,7 @@ template <typename T>
 void rsConv_script(void* filter, void* input, void* output, rsConvInfo convInfo)
 {
 
-    reportTime("rsConv_script::start");
+    //reportTime("rsConv_script::start");
     if(!androidrs::conv::mRS->getContext()){
         androidrs::conv::mRS->init(androidrs::conv::cachePath);
     }
@@ -141,7 +141,7 @@ void rsConv_script(void* filter, void* input, void* output, rsConvInfo convInfo)
 
     // sync
     allOutputs_alloc_map[convInfo.output_sz]->copy1DTo(output);
-    reportTime("rsConv_script::ends");
+    //reportTime("rsConv_script::ends");
 
 };
 

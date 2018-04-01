@@ -74,7 +74,7 @@ public final class Session implements AutoCloseable {
     Graph.Reference r = g.ref();
     try {
       nativeHandle =
-          (config == null) ? allocate(r.nativeHandle()) : allocate2(r.nativeHandle(), null, config);
+              (config == null) ? allocate(r.nativeHandle()) : allocate2(r.nativeHandle(), null, config);
       graphRef = g.ref();
     } finally {
       r.close();
@@ -216,12 +216,12 @@ public final class Session implements AutoCloseable {
      * Make {@link #run()} execute {@code operation}, but not return any evaluated {@link Tensor}s.
      */
     public Runner addTarget(String operation) {
-      reportTime("Start Runner addTarget");
+      //reportTime("Start Runner addTarget");
       Operation op = operationByName(operation);
       if (op != null) {
         targets.add(op);
       }
-      reportTime("Add targets end");
+      //reportTime("Add targets end");
       return this;
     }
 
@@ -283,7 +283,7 @@ public final class Session implements AutoCloseable {
 
     private Run runHelper(boolean wantMetadata) {
       //Log.d(TAG, "runHelper");
-      reportTime("runHelper starts");
+      //reportTime("runHelper starts");
       long[] inputTensorHandles = new long[inputTensors.size()];
       long[] inputOpHandles = new long[inputs.size()];
       int[] inputOpIndices = new int[inputs.size()];
@@ -315,25 +315,25 @@ public final class Session implements AutoCloseable {
         targetOpHandles[idx++] = op.getUnsafeNativeHandle();
       }
       //Log.d(TAG, "getUnsafeNativeHandle ends");
-      reportTime("getUnsafeNativeHandle ends");
+      //reportTime("getUnsafeNativeHandle ends");
       Reference runRef = new Reference();
       byte[] metadata = null;
       try {
         //Log.d(TAG, "metadata = Session.run");
-        reportTime("metadata = Session.run starts");
+        //reportTime("metadata = Session.run starts");
         metadata =
-            Session.run(
-                nativeHandle,
-                runOptions,
-                inputTensorHandles,
-                inputOpHandles,
-                inputOpIndices,
-                outputOpHandles,
-                outputOpIndices,
-                targetOpHandles,
-                wantMetadata,
-                outputTensorHandles);
-        reportTime("metadata = Session.run ends");
+                Session.run(
+                        nativeHandle,
+                        runOptions,
+                        inputTensorHandles,
+                        inputOpHandles,
+                        inputOpIndices,
+                        outputOpHandles,
+                        outputOpIndices,
+                        targetOpHandles,
+                        wantMetadata,
+                        outputTensorHandles);
+        //reportTime("metadata = Session.run ends");
       } finally {
         runRef.close();
       }
@@ -352,7 +352,7 @@ public final class Session implements AutoCloseable {
       Run ret = new Run();
       ret.outputs = outputs;
       ret.metadata = metadata;
-      reportTime("runHelper ends");
+      //reportTime("runHelper ends");
 
       return ret;
     }
@@ -381,9 +381,9 @@ public final class Session implements AutoCloseable {
     }
 
     private Operation operationByName(String opName) {
-      reportTime("Start operationByName");
+      //reportTime("Start operationByName");
       Operation op = graph.operation(opName);
-      reportTime("end operationByName");
+      //reportTime("end operationByName");
 
       if (op == null) {
         throw new IllegalArgumentException("No Operation named [" + opName + "] in the Graph");
@@ -482,14 +482,14 @@ public final class Session implements AutoCloseable {
    *     buffer, false otherwise.
    */
   private static native byte[] run(
-      long handle,
-      byte[] runOptions,
-      long[] inputTensorHandles,
-      long[] inputOpHandles,
-      int[] inputOpIndices,
-      long[] outputOpHandles,
-      int[] outputOpIndices,
-      long[] targetOpHandles,
-      boolean wantRunMetadata,
-      long[] outputTensorHandles);
+          long handle,
+          byte[] runOptions,
+          long[] inputTensorHandles,
+          long[] inputOpHandles,
+          int[] inputOpIndices,
+          long[] outputOpHandles,
+          int[] outputOpIndices,
+          long[] targetOpHandles,
+          boolean wantRunMetadata,
+          long[] outputTensorHandles);
 }
