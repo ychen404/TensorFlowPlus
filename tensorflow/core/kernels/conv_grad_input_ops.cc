@@ -525,7 +525,8 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
                                              Eigen::RowMajor>>
           ConstMatrixMap;
 
-
+      
+      /* Unit test 
       const int m = 2, n = 2, k = 3, alpha = 1;
       const int& alpha_ptr = alpha;
 
@@ -551,27 +552,29 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
       for (int i = 0; i < b_sz; ++i) {
         b_ori[i] = b_data[i];
       }
+      */
 
       //T& a_ori_ptr = a_ori;
       //T& b_ori_ptr = b_ori; 
 
-      T *c_out = new T[m * n];
+      //T *c_out = new T[m * n];
       
-      for (int i = 0; i < c_sz; ++i) {
-            c_out[i] = 0;
-      }
+      //for (int i = 0; i < c_sz; ++i) {
+      //      c_out[i] = 0;
+     // }
 
       // Try to take the matmul out of the shard 
 
-      androidrs::matmul::rsMatmul_sgemm_tom (
+      /*androidrs::matmul::rsMatmul_sgemm_tom (
         static_cast<void*>(const_cast<float*>(a_ori)), false,
         static_cast<void*>(const_cast<float*>(b_ori)), false,
         static_cast<void*>(c_out),
-        m, n, k, 1.0, 0);
+        m, n, k, 1.0, 0); */
 
-      for (int i = 0; i < c_sz; ++i) {
+      /*for (int i = 0; i < c_sz; ++i) {
           LOGI("c_out %f", ((float *) c_out)[i]);
-      }
+      }*/
+
       for (int image_id = 0; image_id < dims.batch_size;
            image_id += shard_size) {
         // change shard_limit to 1
@@ -602,9 +605,9 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
                       &alpha_ptr, &a_ori, &b_ori, &c_out, &c_sz](int64 start, int64 limit) 
                       */ 
         {
-              LOGI ("start %lld, limit %ld", 
-              start, 
-              limit);
+              // LOGI ("start %lld, limit %ld", 
+              // start, 
+              // limit);
           for (int shard_id = start; shard_id < limit; ++shard_id) {
             T* im2col_buf = col_buffer_data + shard_id * size_C;
             T* input_data = input_backprop_data + shard_id * input_offset;
@@ -1225,3 +1228,4 @@ REGISTER_KERNEL_BUILDER(Name("Conv2DBackpropInput")
 #endif  // GOOGLE_CUDA
 
 }  // namespace tensorflow
+
