@@ -385,7 +385,7 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
     // const size_t shard_size =
     //     (target_working_set_size + work_unit_size - 1) / work_unit_size;
 
-    const size_t shard_size = 64;
+    const size_t shard_size = 32;
     LOGI("shard_size, %d", shard_size);
 
     Tensor col_buffer;
@@ -546,6 +546,12 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
                                 static_cast<int>(output_image_size), static_cast<int>(shard_limit));
       
        
+
+      if (col_buffer_data == NULL && out_backprop_data == NULL && filter_backprop_data == NULL)
+        LOGD("something is null");
+      else 
+        LOGD("input ptr check OK");
+
        androidrs::matmul::rsMatmul_sgemm_tom (
          static_cast<void*>(const_cast<float*>(col_buffer_data)), false,
          static_cast<void*>(const_cast<float*>(out_backprop_data)), false,

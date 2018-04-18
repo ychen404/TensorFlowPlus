@@ -95,8 +95,9 @@ int32 NumInterOpThreadsFromSessionOptions(const SessionOptions& options) {
 
 thread::ThreadPool* NewThreadPoolFromSessionOptions(
     const SessionOptions& options) {
-  const int32 num_threads = NumInterOpThreadsFromSessionOptions(options);
-
+  // Yitao: Try to hardcode the number of thread to 1 4/17/2018
+  //const int32 num_threads = NumInterOpThreadsFromSessionOptions(options);
+  const int32 num_threads = 1;
   VLOG(1) << "Direct session inter op parallelism threads: " << num_threads;
   LOGI("Direct session inter op parallelism threads: %d", num_threads);
 

@@ -65,8 +65,6 @@ static sp<ScriptIntrinsicBLAS>& initSC()
   8) Tear down the RenderScript context
 
  */
-
-
 // float
 static void rsMatmul_sgemm_tom(void* a_ptr, bool a_trans, void* b_ptr, bool b_trans, void* c_ptr,
                     int m, int n, int k, const float alpha, float beta)
@@ -108,6 +106,18 @@ static void rsMatmul_sgemm_tom(void* a_ptr, bool a_trans, void* b_ptr, bool b_tr
 
     a_alloc_map[std::make_pair(k, m)]->copy2DRangeFrom(0, 0, k, m, a_ptr);
     b_alloc_map[std::make_pair(n, k)]->copy2DRangeFrom(0, 0, n, k, b_ptr);
+
+    /**
+     * Copy from an array into a rectangular region in this Allocation. The
+     * array is assumed to be tightly packed.
+     * @param[in] xoff X offset of region to update in this Allocation
+     * @param[in] yoff Y offset of region to update in this Allocation
+     * @param[in] w Width of region to update
+     * @param[in] h Height of region to update
+     * @param[in] data Array from which to copy
+     */
+    //void copy2DRangeFrom(uint32_t xoff, uint32_t yoff, uint32_t w, uint32_t h,
+    //                     const void *data);
 
     LOGD("test2");
     RsBlasTranspose a_transpose = a_trans ? RsBlasTranspose::RsBlasTrans : RsBlasTranspose::RsBlasNoTrans;
@@ -195,6 +205,18 @@ static void rsMatmul_sgemm(void* a_ptr, bool a_trans, void* b_ptr, bool b_trans,
     LOGD("test4");
     c_alloc_map[std::make_pair(n, m)]->copy2DRangeTo(0, 0, n, m, c_ptr);
     LOGD("test5");
+
+        /**
+     * Copy from this Allocation into a rectangular region in an array. The
+     * array is assumed to be tightly packed.
+     * @param[in] xoff X offset of region to copy from this Allocation
+     * @param[in] yoff Y offset of region to copy from this Allocation
+     * @param[in] w Width of region to update
+     * @param[in] h Height of region to update
+     * @param[in] data destination array
+     */
+    //void copy2DRangeTo(uint32_t xoff, uint32_t yoff, uint32_t w, uint32_t h,
+    //                   void *data);
 
 };
 
