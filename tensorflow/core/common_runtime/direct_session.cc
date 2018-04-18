@@ -61,6 +61,19 @@ limitations under the License.
 #include "tensorflow/core/util/device_name_utils.h"
 #include "tensorflow/core/util/env_var.h"
 
+
+
+// Android log
+#include <stdio.h>
+#include <stdlib.h>
+#include <android/log.h>
+
+
+#define LOG_TAG "NDK_LOG"
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+
 #if GOOGLE_CUDA
 #include "tensorflow/core/common_runtime/gpu/gpu_tracer.h"
 #endif  // GOOGLE_CUDA
@@ -83,7 +96,10 @@ int32 NumInterOpThreadsFromSessionOptions(const SessionOptions& options) {
 thread::ThreadPool* NewThreadPoolFromSessionOptions(
     const SessionOptions& options) {
   const int32 num_threads = NumInterOpThreadsFromSessionOptions(options);
+
   VLOG(1) << "Direct session inter op parallelism threads: " << num_threads;
+  LOGI("Direct session inter op parallelism threads: %d", num_threads);
+
   return new thread::ThreadPool(options.env, "Compute", num_threads);
 }
 

@@ -64,7 +64,6 @@ limitations under the License.
 #endif  // GOOGLE_CUDA
 
 namespace {
-
 // Returns in 'col_data', image patches in storage order (height, width, depth)
 // extracted from image at 'input_data', which is required to be in storage
 // order (batch, height, width, depth).
@@ -351,9 +350,16 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
     const int filter_total_size = dims.spatial_dims[0].filter_size *
                                   dims.spatial_dims[1].filter_size *
                                   dims.in_depth;
+
+    LOGI("filter_total_size, %d", filter_total_size);
+    LOGI("dims.spatial_dims[0].filter_size, dims.spatial_dims[1].filter_size, dims.in_depth, %lld, %lld, %lld", \
+            dims.spatial_dims[0].filter_size, dims.spatial_dims[1].filter_size, dims.in_depth);
     // The output image size is the spatial size of the output.
     const int output_image_size =
         dims.spatial_dims[0].output_size * dims.spatial_dims[1].output_size;
+
+    LOGI("conv_grad_filter_ops: dims.spatial_dims[0].output_size, dims.spatial_dims[1].output_size, output_image_size, %lld, %lldd, %lld", \
+                              dims.spatial_dims[0].output_size, dims.spatial_dims[1].output_size, output_image_size);
 
     // Shard 'batch' images into 'shard_size' groups of images to be fed
     // into the parallel matmul. Calculate 'shard_size' by dividing the L3 cache
@@ -374,8 +380,13 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
 
     const size_t work_unit_size = size_A + size_B + size_C;
 
-    const size_t shard_size =
-        (target_working_set_size + work_unit_size - 1) / work_unit_size;
+    // Commented the following line out to try change to shard_size = 128 (same as the batch size). Only need to run once for each thread
+    
+    // const size_t shard_size =
+    //     (target_working_set_size + work_unit_size - 1) / work_unit_size;
+
+    const size_t shard_size = 64;
+    LOGI("shard_size, %d", shard_size);
 
     Tensor col_buffer;
     OP_REQUIRES_OK(context,
@@ -407,8 +418,9 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
 
 
     // Yitao: comment out the following two lines to redirect to the RenderScript
-     TensorMap C(filter_backprop_data, filter_total_size, dims.out_depth);
-     C.setZero();
+     //TensorMap C(filter_backprop_data, filter_total_size, dims.out_depth);
+     //C.setZero();
+
 
     // Initialize contraction dims (we need to transpose 'A' below).
     Eigen::array<Eigen::IndexPair<Eigen::DenseIndex>, 1> contract_dims;
@@ -417,12 +429,17 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
 
     auto worker_threads = *(context->device()->tensorflow_cpu_worker_threads());
 
+
     for (int image_id = 0; image_id < dims.batch_size; image_id += shard_size) {
       
-
+       
        const int shard_limit =
            std::min(static_cast<int>(shard_size),
                     static_cast<int>(dims.batch_size) - image_id);
+        LOGI("shard_size, %d", static_cast<int>(shard_size));
+
+        LOGI("dims.batch_size, image_id, shard_limit, %d, %d, %d", static_cast<int>(dims.batch_size), image_id, shard_limit);
+ 
       // Yitao 
       // Change the shard_limit to 1 for RenderScript impl to run
       //  const int shard_limit = 1;
@@ -432,10 +449,12 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
                     &size_A](int64 start, int64 limit) {
         for (int shard_id = start; shard_id < limit; ++shard_id) {
           const T* input_data_shard = input_data + shard_id * input_offset;
+          // output_image_size is size_A
           T* col_data_shard = col_buffer_data + shard_id * size_A;
 
           // When we compute the gradient with respect to the filters, we need
           // to do im2col to allow gemm-type computation.
+          // Yitao: the Im2Col function change the input_data_shard to col_data_shard
           Im2col<T>(
               input_data_shard, dims.in_depth, dims.spatial_dims[0].input_size,
               dims.spatial_dims[1].input_size, dims.spatial_dims[0].filter_size,
@@ -444,28 +463,96 @@ class Conv2DCustomBackpropFilterOp : public OpKernel {
               dims.spatial_dims[1].stride, col_data_shard);
         }
       };
-      Shard(worker_threads.num_threads, worker_threads.workers, shard_limit,
-            size_A, shard);
+
+      /*
+      Shard declaration is as below:
+
+      void Shard(int max_parallelism, thread::ThreadPool* workers, int64 total, 
+                 int64 cost_per_unit, std::function<void(int64, int64)> work);
+      */
+      
+
+      // Shard(worker_threads.num_threads, worker_threads.workers, shard_limit,
+      //       size_A, shard);
+      // Try to chagne here to 1 thread
+      Shard(1, worker_threads.workers, shard_limit, size_A, shard);
 
       /* Yitao
       /* Comment out the following three lines to replace with RenderScript op
        */
-      ConstTensorMap A(col_buffer_data, output_image_size * shard_limit,
-                       filter_total_size);
-      ConstTensorMap B(out_backprop_data, output_image_size * shard_limit,
-                       dims.out_depth);
+      //ConstTensorMap A(col_buffer_data, output_image_size * shard_limit,
+      //                 filter_total_size);
+      //ConstTensorMap B(out_backprop_data, output_image_size * shard_limit,
+      //                 dims.out_depth);
 
       // Gradient with respect to filter.
-      C.device(context->eigen_cpu_device()) += A.contract(B, contract_dims);
+      //C.device(context->eigen_cpu_device()) += A.contract(B, contract_dims);
 
 
+       //Unit test 
       /*
+      const int m = 2, n = 2, k = 3, alpha = 1;
+      const int& alpha_ptr = alpha;
+
+      int a_sz = m * k, b_sz = n * k, c_sz = m * n;
+      T* a_ori = new T[a_sz];
+      T* b_ori = new T[b_sz];
+
+
+      T a_data[] = {
+                    1, 2, 3, 
+                    4, 5, 6
+                  };
+      T b_data[] = {
+                    1, 2, 3,
+                    4, 6, 2,
+      };
+
+
+      for (int i = 0; i < a_sz; ++i) {
+        a_ori[i] = a_data[i];
+      }
+
+      for (int i = 0; i < b_sz; ++i) {
+        b_ori[i] = b_data[i];
+      }
+      
+
+      //T& a_ori_ptr = a_ori;
+      //T& b_ori_ptr = b_ori; 
+
+      T *c_out = new T[m * n];
+      
+      for (int i = 0; i < c_sz; ++i) {
+            c_out[i] = 2;
+      }
+ 
+
       androidrs::matmul::rsMatmul_sgemm_tom (
-        static_cast<void*>(const_cast<float*>(col_buffer_data)), false,
-        static_cast<void*>(const_cast<float*>(out_backprop_data)), false,
-        static_cast<void*>(filter_backprop_data),
-        filter_total_size, static_cast<int>(dims.out_depth), output_image_size * shard_limit, 1.0, 1.0);
-		*/
+        static_cast<void*>(const_cast<float*>(a_ori)), false,
+        static_cast<void*>(const_cast<float*>(b_ori)), false,
+        static_cast<void*>(c_out),
+        m, n, k, 1.0f, 1.0f); 
+
+      for (int i = 0; i < c_sz; ++i) {
+          LOGI("c_out %f", ((float *) c_out)[i]);
+      }
+
+      */
+      
+      //int A_col = output_image_size * shard_limit;
+      LOGI("filter_total_size, dims.out_depth, output_image_size, shard_limit,  %d, %d, %d, %d", \
+                                static_cast<int>(filter_total_size), static_cast<int>(dims.out_depth), \
+                                static_cast<int>(output_image_size), static_cast<int>(shard_limit));
+      
+       
+       androidrs::matmul::rsMatmul_sgemm_tom (
+         static_cast<void*>(const_cast<float*>(col_buffer_data)), false,
+         static_cast<void*>(const_cast<float*>(out_backprop_data)), false,
+         static_cast<void*>(filter_backprop_data),
+         static_cast<int>(filter_total_size), static_cast<int>(dims.out_depth),\
+              (static_cast<int>(output_image_size)) * (static_cast<int>(shard_limit)), 1.0f, 1.0f);
+		  
       LOGD("conv_grad_filter_ops::Conv2DCustomBackpropFilterOp::Compute ends");
 
       input_data += input_offset * shard_limit;

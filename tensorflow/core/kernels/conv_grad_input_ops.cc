@@ -578,17 +578,16 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
       for (int image_id = 0; image_id < dims.batch_size;
            image_id += shard_size) {
         // change shard_limit to 1
-        const int shard_limit = 1;
+        //const int shard_limit = 1;
 
-        // const int shard_limit =
-        //     std::min(static_cast<int>(shard_size),
-        //              static_cast<int>(dims.batch_size) - image_id);
-        LOGI ("batch_size, shard_size, shard_limit, %lld, %d, %d", 
-          dims.batch_size,
-          shard_size,
-          shard_limit);
-
-
+         const int shard_limit =
+             std::min(static_cast<int>(shard_size),
+                      static_cast<int>(dims.batch_size) - image_id);
+        // LOGI ("batch_size, shard_size, shard_limit, output_image_size, %lld, %d, %d, %d", 
+        //   dims.batch_size,
+        //   shard_size,
+        //   shard_limit,
+        //   output_image_size);
 
         auto shard = [&dims, &pad_top, &pad_left, &pad_bottom, &pad_right,
                       &output_image_size, &filter_total_size,
@@ -596,14 +595,6 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
                       &out_backprop_data, &filter_data, &input_offset,
                       &output_offset, &size_C](int64 start, int64 limit)
 
-/* Add the test data into the capture list
-        auto shard = [&dims, &pad_top, &pad_left, &pad_bottom, &pad_right,
-                      &output_image_size, &filter_total_size,
-                      &input_backprop_data, &col_buffer_data,
-                      &out_backprop_data, &filter_data, &input_offset,
-                      &output_offset, &size_C, 
-                      &alpha_ptr, &a_ori, &b_ori, &c_out, &c_sz](int64 start, int64 limit) 
-                      */ 
         {
               // LOGI ("start %lld, limit %ld", 
               // start, 
@@ -618,22 +609,22 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
             // Compute gradient into 'im2col_buf'.
             // SAMAN
             // We need to comment out three below lines
-            // MatrixMap C(im2col_buf, output_image_size, filter_total_size);
+             MatrixMap C(im2col_buf, output_image_size, filter_total_size);
 
-            //ConstMatrixMap A(out_data, output_image_size, dims.out_depth);
-            // ConstMatrixMap B(filter_data, filter_total_size, dims.out_depth);
+             ConstMatrixMap A(out_data, output_image_size, dims.out_depth);
+             ConstMatrixMap B(filter_data, filter_total_size, dims.out_depth);
             //std::stringstream logstring << "output_image_size: " << output_image_size << ", dims.out_depth: " << dims.out_depth; 
             //LOGI("%s, time elapse:\t%f", str, elapse);
 
             //android_log_print(ss.str().c_str());
             LOGD("rsMatmul begins");
 
-            LOGI ("%d, %d, %d, %ld, %ld", 
-              output_image_size, 
-              filter_total_size,
-              static_cast<int>(dims.out_depth),
-              start, 
-              limit);
+            // LOGI ("%d, %d, %d, %ld, %ld", 
+            //   output_image_size, 
+            //   filter_total_size,
+            //   static_cast<int>(dims.out_depth),
+            //   start, 
+            //   limit);
 
             // androidrs::matmul::rsMatmul_sgemm (
             //   static_cast<void*>(const_cast<float*>(out_data)), 0,
@@ -690,18 +681,20 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
             //     LOGI("c_out %f", ((float *) c_out)[i]);
             // }
             LOGD("Done with test");
+            LOGI ("The sizes in grad_input, a, b and c are: %lld, %lld, %lld", sizeof(out_data), sizeof(filter_data), sizeof(im2col_buf));
 
+            /*
             androidrs::matmul::rsMatmul_sgemm_tom (
               static_cast<void*>(const_cast<float*>(out_data)), false,
               static_cast<void*>(const_cast<float*>(filter_data)), false,
               static_cast<void*>(im2col_buf),
               output_image_size, filter_total_size, static_cast<int>(dims.out_depth), 1.0, 0.0);
-
+            */
             LOGD("rsMatmul ends");
               
             // SAMAN
             // Also will replace below computation with above
-            //C.noalias() = A * B.transpose();
+            C.noalias() = A * B.transpose();
 
             Col2im<T>(im2col_buf, dims.in_depth,
                       dims.spatial_dims[0].input_size,
