@@ -11,10 +11,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6238b043-f18f-4fa5-b767-aef480faa091" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsMatmul.h" afterPath="$PROJECT_DIR$/../../contrib/android_renderscript_ops/jni/rsMatmul.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../core/common_runtime/direct_session.cc" afterPath="$PROJECT_DIR$/../../core/common_runtime/direct_session.cc" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../core/kernels/conv_grad_filter_ops.cc" afterPath="$PROJECT_DIR$/../../core/kernels/conv_grad_filter_ops.cc" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../core/kernels/conv_grad_input_ops.cc" afterPath="$PROJECT_DIR$/../../core/kernels/conv_grad_input_ops.cc" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android.iml" afterPath="$PROJECT_DIR$/android.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" afterPath="$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java" />
     </list>
     <ignored path="android.iws" />
@@ -50,7 +49,7 @@
       <file leaf-file-name="TensorFlowImageClassifier.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-100">
+            <state relative-caret-position="920">
               <caret line="81" column="0" lean-forward="false" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
               <folding>
                 <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
@@ -62,9 +61,15 @@
       <file leaf-file-name="ClassifierActivity.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="61" column="0" lean-forward="true" selection-start-line="61" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
-              <folding />
+            <state relative-caret-position="320">
+              <caret line="65" column="72" lean-forward="false" selection-start-line="65" selection-start-column="72" selection-end-line="65" selection-end-column="72" />
+              <folding>
+                <element signature="e#5617#5790#0" expanded="true" />
+                <element signature="e#5789#5790#0" expanded="true" />
+                <element signature="e#7290#7902#0" expanded="true" />
+                <element signature="e#7901#7902#0" expanded="true" />
+                <element signature="e#8638#8646#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -92,7 +97,7 @@
       <file leaf-file-name="Session.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1014">
+            <state relative-caret-position="9200">
               <caret line="486" column="36" lean-forward="false" selection-start-line="486" selection-start-column="36" selection-end-line="486" selection-end-column="36" />
               <folding />
             </state>
@@ -104,36 +109,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="860">
               <caret line="65" column="71" lean-forward="false" selection-start-line="65" selection-start-column="71" selection-end-line="65" selection-end-column="71" />
-              <folding>
-                <element signature="e#0#21449#0" expanded="false" />
-                <element signature="imports" expanded="false" />
-                <element signature="e#9268#9269#0" expanded="false" />
-                <element signature="e#9290#9291#0" expanded="false" />
-                <element signature="e#9599#9600#0" expanded="false" />
-                <element signature="e#9632#9633#0" expanded="false" />
-                <element signature="e#9716#9717#0" expanded="false" />
-                <element signature="e#9753#9754#0" expanded="false" />
-                <element signature="e#9864#9865#0" expanded="false" />
-                <element signature="e#9903#9904#0" expanded="false" />
-                <element signature="e#10192#10193#0" expanded="false" />
-                <element signature="e#10218#10219#0" expanded="false" />
-                <element signature="e#10419#10420#0" expanded="false" />
-                <element signature="e#10461#10462#0" expanded="false" />
-                <element signature="e#10666#10667#0" expanded="false" />
-                <element signature="e#10709#10710#0" expanded="false" />
-                <element signature="e#10904#10905#0" expanded="false" />
-                <element signature="e#10944#10945#0" expanded="false" />
-                <element signature="e#11142#11143#0" expanded="false" />
-                <element signature="e#11183#11184#0" expanded="false" />
-                <element signature="e#11389#11390#0" expanded="false" />
-                <element signature="e#11433#11434#0" expanded="false" />
-                <element signature="e#11638#11639#0" expanded="false" />
-                <element signature="e#11680#11681#0" expanded="false" />
-                <element signature="e#16289#16290#0" expanded="false" />
-                <element signature="e#16318#16319#0" expanded="false" />
-                <element signature="e#16465#16466#0" expanded="false" />
-                <element signature="e#16533#16534#0" expanded="false" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -1190,34 +1166,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="&lt; Android API 23 Platform &gt;" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="android" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
       <pane id="AndroidView">
         <subPane>
           <PATH>
@@ -1256,6 +1204,36 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="android" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="External Libraries" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="&lt; Android API 23 Platform &gt;" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="android" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="android" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scratches" />
       <pane id="Scope">
         <subPane subId="Project Files">
           <PATH>
@@ -1270,8 +1248,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1379,7 +1355,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1524090841531" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1524273159210" />
       </method>
     </configuration>
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Instrumented Tests">
@@ -1434,7 +1410,7 @@
       </Profilers>
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1524090841531" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1524273159210" />
       </method>
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -1469,27 +1445,6 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <method />
-    </configuration>
-    <configuration default="true" type="JUnit" factoryName="JUnit">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="singleModule" />
-      </option>
-      <envs />
-      <patterns />
       <method />
     </configuration>
     <configuration default="true" type="JarApplication" factoryName="JAR Application">
@@ -1627,7 +1582,7 @@
       <option name="ACTIVITY_CLASS" value="" />
       <method>
         <option name="Android.Gradle.BeforeRunTask" enabled="true" />
-        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1524090841532" />
+        <option name="com.android.instantApps.provision.BeforeRunTask" enabled="true" clearCache="false" clearProvisionedDevices="false" myTimestamp="1524273159212" />
       </method>
     </configuration>
     <list size="1">
@@ -1676,7 +1631,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32984293" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1689,18 +1643,17 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36125654" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.45759162" sideWeight="0.4936429" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Logcat" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.45759162" sideWeight="0.4936429" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.249309" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42258066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Device File Explorer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42258066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1711,6 +1664,7 @@
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32946378" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -2073,36 +2027,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="860">
           <caret line="65" column="71" lean-forward="false" selection-start-line="65" selection-start-column="71" selection-end-line="65" selection-end-column="71" />
-          <folding>
-            <element signature="e#0#21449#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#9268#9269#0" expanded="false" />
-            <element signature="e#9290#9291#0" expanded="false" />
-            <element signature="e#9599#9600#0" expanded="false" />
-            <element signature="e#9632#9633#0" expanded="false" />
-            <element signature="e#9716#9717#0" expanded="false" />
-            <element signature="e#9753#9754#0" expanded="false" />
-            <element signature="e#9864#9865#0" expanded="false" />
-            <element signature="e#9903#9904#0" expanded="false" />
-            <element signature="e#10192#10193#0" expanded="false" />
-            <element signature="e#10218#10219#0" expanded="false" />
-            <element signature="e#10419#10420#0" expanded="false" />
-            <element signature="e#10461#10462#0" expanded="false" />
-            <element signature="e#10666#10667#0" expanded="false" />
-            <element signature="e#10709#10710#0" expanded="false" />
-            <element signature="e#10904#10905#0" expanded="false" />
-            <element signature="e#10944#10945#0" expanded="false" />
-            <element signature="e#11142#11143#0" expanded="false" />
-            <element signature="e#11183#11184#0" expanded="false" />
-            <element signature="e#11389#11390#0" expanded="false" />
-            <element signature="e#11433#11434#0" expanded="false" />
-            <element signature="e#11638#11639#0" expanded="false" />
-            <element signature="e#11680#11681#0" expanded="false" />
-            <element signature="e#16289#16290#0" expanded="false" />
-            <element signature="e#16318#16319#0" expanded="false" />
-            <element signature="e#16465#16466#0" expanded="false" />
-            <element signature="e#16533#16534#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2116,7 +2041,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../java/src/main/java/org/tensorflow/Session.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1014">
+        <state relative-caret-position="9200">
           <caret line="486" column="36" lean-forward="false" selection-start-line="486" selection-start-column="36" selection-end-line="486" selection-end-column="36" />
           <folding />
         </state>
@@ -2132,7 +2057,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/TensorFlowImageClassifier.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-100">
+        <state relative-caret-position="920">
           <caret line="81" column="0" lean-forward="false" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
           <folding>
             <element signature="method#bmpToArray#0;class#TensorFlowImageClassifier#0" expanded="false" />
@@ -2142,9 +2067,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/org/tensorflow/demo/ClassifierActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="61" column="0" lean-forward="true" selection-start-line="61" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="320">
+          <caret line="65" column="72" lean-forward="false" selection-start-line="65" selection-start-column="72" selection-end-line="65" selection-end-column="72" />
+          <folding>
+            <element signature="e#5617#5790#0" expanded="true" />
+            <element signature="e#5789#5790#0" expanded="true" />
+            <element signature="e#7290#7902#0" expanded="true" />
+            <element signature="e#7901#7902#0" expanded="true" />
+            <element signature="e#8638#8646#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
