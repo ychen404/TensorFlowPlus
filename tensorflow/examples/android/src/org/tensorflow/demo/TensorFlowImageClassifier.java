@@ -54,7 +54,7 @@ public class TensorFlowImageClassifier implements Classifier {
   private int inputSize;
   private int imageMean;
   private float imageStd;
-  private int batch = 128;
+  private int batch = 256;
   private int total_pic = 1024;
   //private int bat = 4; // temp variable for grouping as a batch
 
@@ -143,7 +143,7 @@ public class TensorFlowImageClassifier implements Classifier {
     c.imageMean = imageMean;
     c.imageStd = imageStd;
 
-    final int batch = 128;
+    final int batch = 256;
 
     // Pre-allocate buffers.
     Log.d(TAG, "Classifier::Pre-allocate buffers");
@@ -192,8 +192,7 @@ public class TensorFlowImageClassifier implements Classifier {
     For reading all the files in a directory: end
      */
 
-    //for (int iter = 0; iter < total_pic/batch; iter++)
-    for (int iter = 0; iter < 1; iter++)
+    for (int iter = 0; iter < total_pic/batch; iter++)
     {
       for (int j = 0; j < batch; j++)
       {
@@ -221,7 +220,7 @@ public class TensorFlowImageClassifier implements Classifier {
 //      }
 
 
-      //writeToSDFile("Start batch size of " + String.valueOf(batch));
+      writeToSDFile("Start batch size of " + String.valueOf(batch));
       inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
         inferenceInterface.feed("input", bigCon, batch, inputSize);
     //    Log.d("readImages", "feed input");
@@ -238,12 +237,11 @@ public class TensorFlowImageClassifier implements Classifier {
         inferenceInterface.feed("input", bigCon, batch, inputSize);
         inferenceInterface.feed("label", labels_float, batch);
 //      inferenceInterface.feed("label", outSignals, batch);
-        //writeToSDFile("Start a new iteration");
+
         reportTime("training start:\t" + "iteration\t" + iter);
         inferenceInterface.runTarget(new String[]{"train"});
         reportTime("training ends:\t" + "iteration\t" + iter);
-    //    writeToSDFile("End an iteration");
-      //Log.d("readImages", "done training");
+        //Log.d("readImages", "done training");
 
     }
 
@@ -427,7 +425,7 @@ public class TensorFlowImageClassifier implements Classifier {
     Trace.endSection();
 
     checkExternalMedia();
-    //reportTime("Create empty array");
+    reportTime("Create empty array");
 
     // Get the input from images
     float[] inputSignals = readImages();
@@ -435,7 +433,7 @@ public class TensorFlowImageClassifier implements Classifier {
 
 //    float[][][][] inputSignals = new float[batch][image_width][image_length][num_channels];
     float[] outSignals = new float[batch];
-   // reportTime("Start filling array");
+    reportTime("Start filling array");
     // Assign image array to input
 //    inputSignals = readImages();
 
@@ -443,22 +441,22 @@ public class TensorFlowImageClassifier implements Classifier {
       inputSignals[i] = (float) Math.random();
     }
 
-    //Log.d(TAG, "Classifier::filled array");
+    Log.d(TAG, "Classifier::filled array");
 
     for ( int i = 0; i < batch; i ++) {
       outSignals[i] = (float) Math.random();
     }
-    //reportTime("End filling array");
+    reportTime("End filling array");
     inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
-    //reportTime("init_all_vars_op");
-    //Log.d(TAG, "Classifier::variables initialization");
+    reportTime("init_all_vars_op");
+    Log.d(TAG, "Classifier::variables initialization");
 
 
     for (int i = 0; i < 1; i++) {
-      //Log.d(TAG, "The " + i + " iteration:");
+      Log.d(TAG, "The " + i + " iteration:");
 
       // Copy the input data into TensorFlow.
-      //Log.d(TAG, "Classifier::feed");
+      Log.d(TAG, "Classifier::feed");
 //    Trace.beginSection("feed");
 //    inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 3);
 
@@ -474,14 +472,14 @@ public class TensorFlowImageClassifier implements Classifier {
 //    inferenceInterface.feed("input", inputSignals, batch, inputSize);
       inferenceInterface.feed("input", inputSignals, batch, inputSize);
 //      reportTime("feed input\t" + "iteration\t" + i);
-     // Log.d(TAG, "Classifier::feed input");
+      Log.d(TAG, "Classifier::feed input");
 
 //    inferenceInterface.feed("x", floatValues, batch, 32);
       // floatValues = new float[inputSize * 100];
       //  Log.d(TAG,"feed x");
       inferenceInterface.feed("label", outSignals, batch);
       reportTime("feed label\t" + "iteration\t" + i);
-    //    Log.d(TAG, "Classifier::feed label");
+        Log.d(TAG, "Classifier::feed label");
 //    inferenceInterface.feed("y", outputs, batch, 8);
       // outputs = new float[800];
       //  Log.d(TAG,"feed y");
@@ -496,7 +494,7 @@ public class TensorFlowImageClassifier implements Classifier {
 //    inferenceInterface.run(outputNames, logStats);
       inferenceInterface.run(new String[]{"loss"}, logStats);
 
-    //  reportTime("run loss\t" + "iteration\t" + i);
+      reportTime("run loss\t" + "iteration\t" + i);
 //      inferenceInterface.run(new String[]{"loss"}, logStats);
 //      Trace.endSection();
 
@@ -528,7 +526,7 @@ public class TensorFlowImageClassifier implements Classifier {
     }
    /*Write to a file for plotting */
 
-  //  writeToSDFile("Hello!!");
+    writeToSDFile("Hello!!");
 
     // Find the best classifications.
     PriorityQueue<Recognition> pq =

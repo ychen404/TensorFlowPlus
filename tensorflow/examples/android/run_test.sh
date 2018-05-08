@@ -1,14 +1,17 @@
 #!/bin/bash
 
 declare -a array=(
-    '"'file:///android_asset/graph_conv_8_bat_128_w_64.pb'"'
-    '"'file:///android_asset/graph_conv_8_bat_128_w_128.pb'"'
-	'"'file:///android_asset/graph_conv_8_bat_128_w_256.pb'"'
-	'"'file:///android_asset/graph_conv_8_bat_128_w_512.pb'"'
+	'"'file:///android_asset/graph_fc_2_bat_256_w_64.pb'"' 
+	'"'file:///android_asset/graph_fc_2_bat_256_w_128.pb'"' 
+	'"'file:///android_asset/graph_fc_2_bat_256_w_256.pb'"'
+	'"'file:///android_asset/graph_fc_2_bat_256_w_512.pb'"'
+	'"'file:///android_asset/graph_fc_2_bat_256_w_1024.pb'"'
+	'"'file:///android_asset/graph_fc_2_bat_256_w_2048.pb'"'
+	'"'file:///android_asset/graph_fc_2_bat_256_w_4096.pb'"'
 	)
 
 
-#STR="file:///android_asset/graph_fc_1_bat_256_w_4096.pb"
+STR="file:///android_asset/graph_fc_1_bat_256_w_4096.pb"
 
 arraylength=${#array[@]}
 
@@ -55,18 +58,12 @@ do
     	
     	adb shell am force-stop org.tensorflow.demo
     	echo "run $i $j ends"
-    	adb shell cat /sdcard/measurements/myData.txt >> Conv_8_bat_128_results.txt
-    	sleep 2
-    	#get the last pid and kill to get out of the logcat process
-    	#PID_logcat=$!
-    	#sleep 2
-    	#kill $PID_logcat
-  		echo "run $i $j ends" >> Conv_8_bat_128_results.txt
-  		adb shell rm /sdcard/measurements/myData.txt
- 		adb logcat -c
+
+	 	
     }
 
-#    adb shell cat /sdcard/measurements/myData.txt > results_fc_1_bat_8.txt
-    #adb logcat -c
+
 done
+
+
 
