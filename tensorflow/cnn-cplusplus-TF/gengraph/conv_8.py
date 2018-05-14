@@ -80,6 +80,7 @@ with tf.Session() as sess:
         biases = tf.Variable(tf.constant(0.0, shape=[OUTPUT], dtype=tf.float32),
                                  trainable=True, name='biases')
         conv_7 = tf.nn.bias_add(conv, biases)
+        print "The conv_7 shape is" + str (conv.get_shape())
    
     with tf.name_scope('conv_8') as scope:
         kernel = tf.Variable(tf.truncated_normal([3, 3, OUTPUT, OUTPUT], dtype=tf.float32,

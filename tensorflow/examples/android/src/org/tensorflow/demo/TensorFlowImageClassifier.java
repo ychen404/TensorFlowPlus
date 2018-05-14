@@ -228,7 +228,9 @@ public class TensorFlowImageClassifier implements Classifier {
         inferenceInterface.feed("label", labels_float, batch);
 //      inferenceInterface.feed("label", outSignals, batch);
 
+        reportTime("inference starts:\t" + "iteration\t" + iter);
         inferenceInterface.run(new String[]{"loss"}, logStats);
+        reportTime("inference ends:\t" + "iteration\t" + iter);
 
         float[] resu = new float[1];
 //      inferenceInterface.fetch("loss", resu);
