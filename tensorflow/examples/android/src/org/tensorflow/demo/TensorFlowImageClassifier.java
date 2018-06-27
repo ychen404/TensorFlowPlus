@@ -237,15 +237,12 @@ public class TensorFlowImageClassifier implements Classifier {
         inferenceInterface.fetch("loss", resu);
         Log.d(TAG, "The loss is " + resu[0]);
 
-        inferenceInterface.feed("input", bigCon, batch, inputSize);
-        inferenceInterface.feed("label", labels_float, batch);
-//      inferenceInterface.feed("label", outSignals, batch);
-        //writeToSDFile("Start a new iteration");
-        reportTime("training start:\t" + "iteration\t" + iter);
-        inferenceInterface.runTarget(new String[]{"train"});
-        reportTime("training ends:\t" + "iteration\t" + iter);
-    //    writeToSDFile("End an iteration");
-      //Log.d("readImages", "done training");
+//        inferenceInterface.feed("input", bigCon, batch, inputSize);
+//        inferenceInterface.feed("label", labels_float, batch);
+
+//        reportTime("training start:\t" + "iteration\t" + iter);
+//        inferenceInterface.runTarget(new String[]{"train"});
+//        reportTime("training ends:\t" + "iteration\t" + iter);
 
     }
 
@@ -470,61 +467,45 @@ public class TensorFlowImageClassifier implements Classifier {
     of 100 (batch size defined here) * 32
      */
 
-
 //      Feed x and y again to find the loss
-//    inferenceInterface.feed("x", inputSignals, batch, 32);
-//    inferenceInterface.feed("input", inputSignals, batch, inputSize);
-      inferenceInterface.feed("input", inputSignals, batch, inputSize);
+
+//      inferenceInterface.feed("input", inputSignals, batch, inputSize);
 //      reportTime("feed input\t" + "iteration\t" + i);
-     // Log.d(TAG, "Classifier::feed input");
 
-//    inferenceInterface.feed("x", floatValues, batch, 32);
-      // floatValues = new float[inputSize * 100];
-      //  Log.d(TAG,"feed x");
-      inferenceInterface.feed("label", outSignals, batch);
-      reportTime("feed label\t" + "iteration\t" + i);
-    //    Log.d(TAG, "Classifier::feed label");
-//    inferenceInterface.feed("y", outputs, batch, 8);
-      // outputs = new float[800];
-      //  Log.d(TAG,"feed y");
+//      inferenceInterface.feed("label", outSignals, batch);
+//      reportTime("feed label\t" + "iteration\t" + i);
 
-//    Trace.endSection();
-
-      // Run the inference call.
-      //Log.d(TAG, "Classifier::recognizeImage:inferenceCall");
-
-      //  Trace.beginSection("run");
 
 //    inferenceInterface.run(outputNames, logStats);
-      inferenceInterface.run(new String[]{"loss"}, logStats);
+//      inferenceInterface.run(new String[]{"loss"}, logStats);
 
-    //  reportTime("run loss\t" + "iteration\t" + i);
+//      reportTime("run loss\t" + "iteration\t" + i);
 //      inferenceInterface.run(new String[]{"loss"}, logStats);
 //      Trace.endSection();
 
       // Copy the output Tensor back into the output array.
-      Log.d(TAG, "Classifier::fetch");
-      Trace.beginSection("fetch");
+//      Log.d(TAG, "Classifier::fetch");
+//      Trace.beginSection("fetch");
 //    inferenceInterface.fetch(outputName, outputs);
-      float[] resu = new float[1];
+//      float[] resu = new float[1];
 //      inferenceInterface.fetch("loss", resu);
-      inferenceInterface.fetch("loss", resu);
+//      inferenceInterface.fetch("loss", resu);
 //      Log.d(TAG, "The loss of " + i + " iteration is " + resu[0]);
 
-      Trace.endSection();
+//      Trace.endSection();
 /*
   Feed x and y again for the training
  */
 
-      inferenceInterface.feed("input", inputSignals, batch, inputSize);
+    //  inferenceInterface.feed("input", inputSignals, batch, inputSize);
 
       // Log.d(TAG, "feed x");
-      inferenceInterface.feed("label", outSignals, batch);
+    //  inferenceInterface.feed("label", outSignals, batch);
 
       //  Log.d(TAG, "feed y");
 
     //  reportTime("training start dummy:\t" + "iteration\t" + i);
-      inferenceInterface.runTarget(new String[]{"train"});
+    //  inferenceInterface.runTarget(new String[]{"train"});
     //  reportTime("training end dummy:\t" + "iteration\t" + i);
 
     }

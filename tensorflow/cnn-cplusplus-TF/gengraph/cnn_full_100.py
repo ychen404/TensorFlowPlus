@@ -82,6 +82,7 @@ with tf.Session() as sess:
 								 trainable=True, name='biases')
 		out = tf.nn.bias_add(conv, biases)
 		conv5_1 = tf.nn.relu(out, name=scope)
+                print(conv5_1.get_shape())
 
 	pool5 = tf.nn.max_pool (conv5_1,
 							ksize=[1, 2, 2, 1],
@@ -92,12 +93,14 @@ with tf.Session() as sess:
         with tf.name_scope("fc0") as scope:
 		#fc0w = tf.Variable(tf.truncated_normal([IMAGE_WIDTH*IMAGE_HEIGHT, 4096],stddev=1e-2), name='weights')
                 shape = int(np.prod(pool5.get_shape()[1:]))
+                print (shape)
 		fc0w = tf.Variable(tf.truncated_normal([shape, 102],stddev=1e-2), name='weights')
 		fc0b = tf.Variable(tf.constant(1.0, shape=[102],dtype=tf.float32),trainable=True, name='biases')
 		pool5_flat = tf.reshape(pool5, [-1, shape])
 		#fc0l = tf.nn.bias_add(tf.matmul(images_placeholder, fc0w), fc0b)
 		fc0l = tf.nn.bias_add(tf.matmul(pool5_flat, fc0w), fc0b)
 		fc0 = tf.nn.relu(fc0l)
+                print (shape)
 
 	with tf.name_scope('fc1') as scope:
                 #shape = 802816

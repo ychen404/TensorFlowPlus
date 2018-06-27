@@ -11,12 +11,12 @@ import pdb
 IMAGE_HEIGHT = 32
 #IMAGE_WIDTH = 100
 IMAGE_WIDTH = 32
-BATCH_SIZE = 128
+BATCH_SIZE = 96
 NUM_CHANNELS = 3
 LEARNING_RATE = 0.0001
 OUTPUT = 10
 NUM_CLASSES = 10
-NUM_CONV = 6
+NUM_CONV = 5
 #STR = "graph_fc_2_256.pb"
 #STR = "graph_conv_1_bat_4_" + str(OUTPUT) + ".pb"
 STR = "mobilenet_bat_" + str(BATCH_SIZE) + "_" + "conv_" + str(NUM_CONV) + ".pb"

@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   // when using `bazel run` since the cwd isn't where you call
   // `bazel run` but from inside a temp folder.)
   GraphDef graph_def;
-  status = ReadBinaryProto(Env::Default(), "models/graph.pb", &graph_def);
+  status = ReadBinaryProto(Env::Default(), "/home/yitao/tensorflow_android/tensorflow/tensorflow/loader/models/graph.pb", &graph_def);
   if (!status.ok()) {
     std::cout << status.ToString() << "\n";
     return 1;
