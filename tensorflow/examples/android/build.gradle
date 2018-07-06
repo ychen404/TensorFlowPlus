@@ -56,6 +56,22 @@ def nativeOutDir = 'libs/' + cpuType
 def nativeBuildRule = 'buildNativeBazel'
 def demoLibPath = '../../../bazel-bin/tensorflow/examples/android/libtensorflow_demo.so'
 def inferenceLibPath = '../../../bazel-bin/tensorflow/contrib/android/libtensorflow_inference.so'
+
+
+// Add RenderScript related libraries
+
+def blasLib = '../../contrib/android_renderscript_ops/rs/so/libblasV8.so'
+def gnustlLib = '../../contrib/android_renderscript_ops/rs/so/libgnustl_shared.so'
+def decodeFilterLib = '../../contrib/android_renderscript_ops/rs/so/librs.decodeFilter.so'
+def decodeInputLib = '../../contrib/android_renderscript_ops/rs/so/librs.decodeInput.so'
+def decodeOutputLib = '../../contrib/android_renderscript_ops/rs/so/librs.decodeOutput.so'
+def rsKernelLib = '../../contrib/android_renderscript_ops/rs/so/librsKernels_jni.so'
+def mScriptConvLib = '../../contrib/android_renderscript_ops/rs/so/librs.mScriptConv.so'
+def RSSupportIOLib = '../../contrib/android_renderscript_ops/rs/so/libRSSupportIO.so'
+def RSSupportLib = '../../contrib/android_renderscript_ops/rs/so/libRSSupport.so'
+def rsUtilLib = '../../contrib/android_renderscript_ops/rs/so/librs.utils.so'
+
+
 if (nativeBuildSystem == 'makefile') {
     nativeBuildRule = 'buildNativeMake'
     demoLibPath = '../../../tensorflow/contrib/makefile/gen/lib/libtensorflow_demo.so'
@@ -162,6 +178,16 @@ task buildNativeMake(type: Exec) {
 task copyNativeLibs(type: Copy) {
     from demoLibPath
     from inferenceLibPath
+    from blasLib
+    from gnustlLib
+    from decodeFilterLib
+    from decodeInputLib
+    from decodeOutputLib
+    from rsKernelLib
+    from mScriptConvLib
+    from RSSupportIOLib
+    from RSSupportLib
+    from rsUtilLib
     into nativeOutDir
     duplicatesStrategy = 'include'
     dependsOn nativeBuildRule
