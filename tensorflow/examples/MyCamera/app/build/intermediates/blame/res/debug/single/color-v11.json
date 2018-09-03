@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/build/intermediates/res/merged/debug/color-v11/abc_background_cache_hint_selector_material_light.xml",
+        "source": "/home/yitao/.android/build-cache/5b1f90da2d459bd1f498dc628a550bb762370777/output/res/color-v11/abc_background_cache_hint_selector_material_light.xml"
+    },
+    {
+        "merged": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/build/intermediates/res/merged/debug/color-v11/abc_background_cache_hint_selector_material_dark.xml",
+        "source": "/home/yitao/.android/build-cache/5b1f90da2d459bd1f498dc628a550bb762370777/output/res/color-v11/abc_background_cache_hint_selector_material_dark.xml"
+    }
+]

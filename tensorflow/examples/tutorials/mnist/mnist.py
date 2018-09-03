@@ -79,7 +79,9 @@ def inference(images, hidden1_units, hidden2_units):
         name='weights')
     biases = tf.Variable(tf.zeros([NUM_CLASSES]),
                          name='biases')
-    logits = tf.matmul(hidden2, weights) + biases
+    #logits = tf.matmul(hidden2, weights) + biases
+    # Add a name to the logit as output node for freezing the graph --- Yitao
+    logits = tf.nn.bias_add(tf.matmul(hidden2, weights), biases, name="y_pred")
   return logits
 
 

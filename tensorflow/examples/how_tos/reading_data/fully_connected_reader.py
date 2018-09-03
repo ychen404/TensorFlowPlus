@@ -145,9 +145,17 @@ def run_training():
     # Create a session for running operations in the Graph.
     sess = tf.Session()
 
+
+    # Create a saver for checkpoints --- Yitao
+    saver = tf.train.Saver()
+
     # Initialize the variables (the trained variables and the
     # epoch counter).
     sess.run(init_op)
+
+
+    # Write pbtxt model --- Yitao
+    tf.train.write_graph(sess.graph_def, './', 'train-2.pbtxt')
 
     # Start input enqueue threads.
     coord = tf.train.Coordinator()
@@ -172,9 +180,13 @@ def run_training():
         if step % 100 == 0:
           print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value,
                                                      duration))
+          # TF 1.8 needs to define the path before saving checkpoints
+          save_path = saver.save(sess, "./my_test_model")
+          #saver.save(sess, 'my_test_model')
         step += 1
     except tf.errors.OutOfRangeError:
       print('Done training for %d epochs, %d steps.' % (FLAGS.num_epochs, step))
+      print("Model saved in path %s" % save_path)
     finally:
       # When done, ask the threads to stop.
       coord.request_stop()
@@ -182,6 +194,14 @@ def run_training():
     # Wait for threads to finish.
     coord.join(threads)
     sess.close()
+
+
+def export():
+    """ Create a new graph for exporting """
+    g = tf.Graph()
+    with g.as_default():
+
+
 
 
 def main(_):

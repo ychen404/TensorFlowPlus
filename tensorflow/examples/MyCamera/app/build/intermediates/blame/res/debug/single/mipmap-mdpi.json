@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/build/intermediates/res/merged/debug/mipmap-mdpi/ic_launcher.png",
+        "source": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/src/main/res/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/build/intermediates/res/merged/debug/mipmap-mdpi/ic_launcher_round.png",
+        "source": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/src/main/res/mipmap-mdpi/ic_launcher_round.png"
+    }
+]

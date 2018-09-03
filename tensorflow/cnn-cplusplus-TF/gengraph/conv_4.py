@@ -8,13 +8,14 @@ import pdb
 
 IMAGE_HEIGHT = 32
 IMAGE_WIDTH = 32
-BATCH_SIZE = 64 
+BATCH_SIZE = 128 
 NUM_CHANNELS = 3
 LEARNING_RATE = 0.0001
 OUTPUT = 64
 NUM_CLASSES = OUTPUT
 #STR = "graph_fc_2_256.pb"
-STR = "graph_conv_4_bat_" + str(BATCH_SIZE) + "_" + "w_" + str(OUTPUT) + ".pb"
+#STR = "graph_conv_4_bat_" + str(BATCH_SIZE) + "_" + "w_" + str(OUTPUT) + ".pbtxt"
+STR = "graph_conv_4_bat_" + str(BATCH_SIZE) + "_" + "w_env_" + str(OUTPUT) + ".pbtxt"
 
 with tf.Session() as sess:
 
@@ -78,4 +79,5 @@ with tf.Session() as sess:
     optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(loss, name = "train") 
     init = tf.initialize_variables (tf.all_variables(), name='init_all_vars_op')
 #   tf.train.write_graph (sess.graph_def, "models/", "graph_fc_2_128.pb", as_text=False)
-    tf.train.write_graph (sess.graph_def, "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/android/assets/", STR, as_text=False)
+    tf.train.write_graph (sess.graph_def, ".", STR, as_text=True)
+#    tf.train.write_graph (sess.graph_def, "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/android/assets/", STR, as_text=False)

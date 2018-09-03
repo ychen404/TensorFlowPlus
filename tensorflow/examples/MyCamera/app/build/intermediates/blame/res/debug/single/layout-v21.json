@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/build/intermediates/res/merged/debug/layout-v21/notification_template_custom_big.xml",
+        "source": "/home/yitao/.android/build-cache/5b1f90da2d459bd1f498dc628a550bb762370777/output/res/layout-v21/notification_template_custom_big.xml"
+    },
+    {
+        "merged": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/build/intermediates/res/merged/debug/layout-v21/notification_action_tombstone.xml",
+        "source": "/home/yitao/.android/build-cache/5b1f90da2d459bd1f498dc628a550bb762370777/output/res/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/build/intermediates/res/merged/debug/layout-v21/notification_action.xml",
+        "source": "/home/yitao/.android/build-cache/5b1f90da2d459bd1f498dc628a550bb762370777/output/res/layout-v21/notification_action.xml"
+    },
+    {
+        "merged": "/home/yitao/tensorflow_android/tensorflow/tensorflow/examples/MyCamera/app/build/intermediates/res/merged/debug/layout-v21/notification_template_icon_group.xml",
+        "source": "/home/yitao/.android/build-cache/5b1f90da2d459bd1f498dc628a550bb762370777/output/res/layout-v21/notification_template_icon_group.xml"
+    }
+]
