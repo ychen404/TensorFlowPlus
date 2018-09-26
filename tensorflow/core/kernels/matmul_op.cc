@@ -308,19 +308,21 @@ class MatMulOp : public OpKernel {
       f(ctx->eigen_device<Device>(), out->flat<T>());
       return;
     }
-    
+   
+    // Commented out the Matmul for testing ---- Yitao
+
     //////////////////////// renderscript support
-    std::stringstream ss;
-    double start, finish;
-    start = (double)(clock()/(double)CLOCKS_PER_SEC);
-    androidrs::matmul::rsMatmul_sgemm(static_cast<void*>(const_cast<char*>(a.tensor_data().data())), 0,
-                                  static_cast<void*>(const_cast<char*>(b.tensor_data().data())), 0,
-                                  static_cast<void*>(const_cast<char*>(out->tensor_data().data())),
-                                  a.dim_size(0), b.dim_size(1), a.dim_size(1), 1, 0);
-    finish = (double)(clock()/(double)CLOCKS_PER_SEC);
-    ss << "Matmul consume time: " << (finish - start) << " sec";
-    android_log_print(ss.str().c_str());
-    return;
+    // std::stringstream ss;
+    // double start, finish;
+    // start = (double)(clock()/(double)CLOCKS_PER_SEC);
+    // androidrs::matmul::rsMatmul_sgemm(static_cast<void*>(const_cast<char*>(a.tensor_data().data())), 0,
+    //                               static_cast<void*>(const_cast<char*>(b.tensor_data().data())), 0,
+    //                               static_cast<void*>(const_cast<char*>(out->tensor_data().data())),
+    //                               a.dim_size(0), b.dim_size(1), a.dim_size(1), 1, 0);
+    // finish = (double)(clock()/(double)CLOCKS_PER_SEC);
+    // ss << "Matmul consume time: " << (finish - start) << " sec";
+    // android_log_print(ss.str().c_str());
+    // return;
     //////////////////////// renderscript support
 
     LaunchMatMul<Device, T, USE_CUBLAS>::launch(ctx, this, a, b, dim_pair, out);

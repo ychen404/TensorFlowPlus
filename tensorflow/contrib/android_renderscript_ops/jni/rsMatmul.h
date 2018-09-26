@@ -70,6 +70,8 @@ static void rsMatmul_sgemm_tom(void* a_ptr, bool a_trans, void* b_ptr, bool b_tr
                     int m, int n, int k, const float alpha, float beta)
 {
 
+    LOGI("Entering rsMatmul_sgemm_tom");
+
     LOGI ("The alpha is %f", alpha);
     LOGI ("The beta is %f", beta);
     LOGI ("The sizes a, b and c are: %lld, %lld, %lld", sizeof(a_ptr), sizeof(b_ptr), sizeof(c_ptr));
@@ -80,6 +82,7 @@ static void rsMatmul_sgemm_tom(void* a_ptr, bool a_trans, void* b_ptr, bool b_tr
     }
 
     if(a_alloc_map.find(std::make_pair(k, m))==a_alloc_map.end()){
+        
         sp<const Element> e = Element::F32(androidrs::matmul::mRS);
         sp<const Type> a_t = Type::create(androidrs::matmul::mRS, e, k, m, 0);
         sp<Allocation> a_alloc = Allocation::createTyped(androidrs::matmul::mRS,\
@@ -146,7 +149,7 @@ static void rsMatmul_sgemm_tom(void* a_ptr, bool a_trans, void* b_ptr, bool b_tr
         LOGD("Not able to find pair");   
     } else {
         LOGD("c_alloc_map find");
-        //c_alloc_map[std::make_pair(n, m)]->copy2DRangeTo(0, 0, n, m, c_ptr);
+        c_alloc_map[std::make_pair(n, m)]->copy2DRangeTo(0, 0, n, m, c_ptr);
         LOGD("c_alloc_map ends");
         LOGD("c_ptr, %p", &c_ptr);
     }
@@ -162,8 +165,6 @@ static void rsMatmul_sgemm(void* a_ptr, bool a_trans, void* b_ptr, bool b_trans,
                     int m, int n, int k, float alpha, float beta)
 {
 
-    LOGI ("rsMatmul_sgemm: The sizes a, b and c are: %lld, %lld, %lld", sizeof(a_ptr), sizeof(b_ptr), sizeof(c_ptr));
-
     if(!androidrs::matmul::mRS->getContext()){
         androidrs::matmul::mRS->init(androidrs::matmul::cachePath);
     }
@@ -173,50 +174,32 @@ static void rsMatmul_sgemm(void* a_ptr, bool a_trans, void* b_ptr, bool b_trans,
         sp<const Type> a_t = Type::create(androidrs::matmul::mRS, e, k, m, 0);
         sp<Allocation> a_alloc = Allocation::createTyped(androidrs::matmul::mRS, a_t, RS_ALLOCATION_USAGE_SHARED | RS_ALLOCATION_USAGE_SCRIPT);
         a_alloc_map[std::make_pair(k, m)] = a_alloc;
-    } else { LOGD("a ptr find");}
+    }
 
     if(b_alloc_map.find(std::make_pair(n, k))==b_alloc_map.end()){
         sp<const Element> e = Element::F32(androidrs::matmul::mRS);
         sp<const Type> b_t = Type::create(androidrs::matmul::mRS, e, n, k, 0);
         sp<Allocation> b_alloc = Allocation::createTyped(androidrs::matmul::mRS, b_t, RS_ALLOCATION_USAGE_SHARED | RS_ALLOCATION_USAGE_SCRIPT);
         b_alloc_map[std::make_pair(n, k)] = b_alloc;
-    } else { LOGD("b ptr find");}
+    }
+
     if(c_alloc_map.find(std::make_pair(n, m))==c_alloc_map.end()){
         sp<const Element> e = Element::F32(androidrs::matmul::mRS);
         sp<const Type> c_t = Type::create(androidrs::matmul::mRS, e, n, m, 0);
         sp<Allocation> c_alloc = Allocation::createTyped(androidrs::matmul::mRS, c_t, RS_ALLOCATION_USAGE_SHARED | RS_ALLOCATION_USAGE_SCRIPT);
         c_alloc_map[std::make_pair(n, m)] = c_alloc;
-    } else {{ LOGD("c ptr find");}}
-
-    LOGD("test1");
+    }
 
     a_alloc_map[std::make_pair(k, m)]->copy2DRangeFrom(0, 0, k, m, a_ptr);
     b_alloc_map[std::make_pair(n, k)]->copy2DRangeFrom(0, 0, n, k, b_ptr);
 
-    LOGD("test2");
     RsBlasTranspose a_transpose = a_trans ? RsBlasTranspose::RsBlasTrans : RsBlasTranspose::RsBlasNoTrans;
     RsBlasTranspose b_transpose = b_trans ? RsBlasTranspose::RsBlasTrans : RsBlasTranspose::RsBlasNoTrans;
-    LOGD("test3");
 
     sp<ScriptIntrinsicBLAS> script = initSC();
-    LOGI ("%d, %d", a_transpose, b_transpose);
 
     script->SGEMM(a_transpose, b_transpose, alpha, a_alloc_map[std::make_pair(k, m)], b_alloc_map[std::make_pair(n, k)], beta, c_alloc_map[std::make_pair(n, m)]);
-    LOGD("test4");
     c_alloc_map[std::make_pair(n, m)]->copy2DRangeTo(0, 0, n, m, c_ptr);
-    LOGD("test5");
-
-        /**
-     * Copy from this Allocation into a rectangular region in an array. The
-     * array is assumed to be tightly packed.
-     * @param[in] xoff X offset of region to copy from this Allocation
-     * @param[in] yoff Y offset of region to copy from this Allocation
-     * @param[in] w Width of region to update
-     * @param[in] h Height of region to update
-     * @param[in] data destination array
-     */
-    //void copy2DRangeTo(uint32_t xoff, uint32_t yoff, uint32_t w, uint32_t h,
-    //                   void *data);
 
 };
 

@@ -22,7 +22,7 @@ android_sdk_repository(
     api_level = 25,
     # Ensure that you have the build_tools_version below installed in the
     # SDK manager as it updates periodically.
-    build_tools_version = "25.0.3",
+    build_tools_version = "26.0.2",
     # Replace with path to Android SDK on your system
     path = "/home/yitao/Android/Sdk",
 )

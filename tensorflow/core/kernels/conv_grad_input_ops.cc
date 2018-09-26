@@ -618,7 +618,9 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
             //LOGI("%s, time elapse:\t%f", str, elapse);
 
             //android_log_print(ss.str().c_str());
-            LOGD("rsMatmul begins");
+            
+
+            //LOGD("rsMatmul begins");
 
             // LOGI ("%d, %d, %d, %ld, %ld", 
             //   output_image_size, 
@@ -664,34 +666,24 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
             }
             */
 
-            // for test purpose
-            // androidrs::matmul::rsMatmul_sgemm_tom (
-            //   static_cast<void*>(const_cast<float*>(a_ori)), false,
-            //   static_cast<void*>(const_cast<float*>(b_ori)), false,
-            //   static_cast<void*>(c_out),
-            //   m, n, k, 1.0, 0);
 
-            // Use reference
-            // androidrs::matmul::rsMatmul_sgemm_tom (
-            //   static_cast<void*>(const_cast<float*>(a_ori)), false,
-            //   static_cast<void*>(const_cast<float*>(b_ori)), false,
-            //   static_cast<void*>(c_out),
-            //   m, n, k, alpha_ptr, 0);
+
+
 
             // for (int i = 0; i < c_sz; ++i) {
             //     LOGI("c_out %f", ((float *) c_out)[i]);
             // }
-            LOGD("Done with test");
-            LOGI ("The sizes in grad_input, a, b and c are: %lld, %lld, %lld", sizeof(out_data), sizeof(filter_data), sizeof(im2col_buf));
-
             
+            //LOGD("Done with test");
+            //LOGI ("The sizes in grad_input, a, b and c are: %lld, %lld, %lld", sizeof(out_data), sizeof(filter_data), sizeof(im2col_buf));
+
             androidrs::matmul::rsMatmul_sgemm_tom (
               static_cast<void*>(const_cast<float*>(out_data)), false,
               static_cast<void*>(const_cast<float*>(filter_data)), false,
               static_cast<void*>(im2col_buf),
               output_image_size, filter_total_size, static_cast<int>(dims.out_depth), 1.0, 0.0);
             
-            LOGD("rsMatmul ends");
+            //LOGD("rsMatmul ends");
               
             // SAMAN
             // Also will replace below computation with above
@@ -704,26 +696,24 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
                       dims.spatial_dims[1].filter_size, pad_top, pad_left,
                       pad_bottom, pad_right, dims.spatial_dims[0].stride,
                       dims.spatial_dims[1].stride, input_data);
-            LOGD("Col2im ends");
+            //LOGD("Col2im ends");
 
           }
         };
-
-
-        LOGD("Shard starts");
+        //LOGD("Shard starts");
 
         Shard(worker_threads.num_threads, worker_threads.workers, shard_limit,
               work_unit_size, shard);
-        LOGD("Shard ends");
+        //LOGD("Shard ends");
 
         input_backprop_data += input_offset * shard_limit;
-        LOGD("input_backprop_data");
+        //LOGD("input_backprop_data");
 
         out_backprop_data += output_offset * shard_limit;
-        LOGD("out_backprop_data");
+        //LOGD("out_backprop_data");
       }
     }
-      LOGD("conv_grad_input_ops::Conv2DCustomBackpropInputOp::Compute ends");
+      //LOGD("conv_grad_input_ops::Conv2DCustomBackpropInputOp::Compute ends");
   }
 
  private:

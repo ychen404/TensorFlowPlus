@@ -64,6 +64,7 @@ public class TensorFlowImageClassifier implements Classifier {
   private float[] floatValues;
   private float[] outputs;
   private String[] outputNames;
+  private String MY_LOG = "TF_MY_LOG";
 
   // For storing the size of an image in the dataset
   int width = 32;
@@ -220,33 +221,43 @@ public class TensorFlowImageClassifier implements Classifier {
 //        outSignals[index] = (float) Math.random();
 //      }
 
-
       //writeToSDFile("Start batch size of " + String.valueOf(batch));
-      inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
+        inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
+
         inferenceInterface.feed("input", bigCon, batch, inputSize);
-    //    Log.d("readImages", "feed input");
+    //  Log.d("readImages", "feed input");
         inferenceInterface.feed("label", labels_float, batch);
 //      inferenceInterface.feed("label", outSignals, batch);
 
+        reportTime("inference starts");
         inferenceInterface.run(new String[]{"loss"}, logStats);
+        reportTime("inference ends");
+
 
         float[] resu = new float[1];
-//      inferenceInterface.fetch("loss", resu);
         inferenceInterface.fetch("loss", resu);
+
         Log.d(TAG, "The loss is " + resu[0]);
 
-        inferenceInterface.feed("input", bigCon, batch, inputSize);
-        inferenceInterface.feed("label", labels_float, batch);
-//      inferenceInterface.feed("label", outSignals, batch);
-        //writeToSDFile("Start a new iteration");
-        reportTime("training start:\t" + "iteration\t" + iter);
-        inferenceInterface.runTarget(new String[]{"train"});
-        reportTime("training ends:\t" + "iteration\t" + iter);
-    //    writeToSDFile("End an iteration");
-      //Log.d("readImages", "done training");
+//        for (int i = 0; i < 1; i++) {
+//          inferenceInterface.feed("input", bigCon, batch, inputSize);
+//          inferenceInterface.feed("label", labels_float, batch);
+//
+//
+//          reportTime("training start:\t" + "iteration\t" + i);
+//          inferenceInterface.runTarget(new String[]{"train"});
+//          reportTime("training ends:\t" + "iteration\t" + i);
+//        }
 
+          for (int i = 0; i < 1; i ++) {
+            inferenceInterface.feed("input", bigCon, batch, inputSize);
+            inferenceInterface.feed("label", labels_float, batch);
+              reportTime("training start:\t" + "iteration\t" + i);
+              inferenceInterface.runTarget(new String[]{"train"});
+              reportTime("training ends:\t" + "iteration\t" + i);
+
+          }
     }
-
     return bigCon;
   }
 
@@ -302,11 +313,6 @@ public class TensorFlowImageClassifier implements Classifier {
       while ((line = br.readLine()) != null) {
         // use comma as separator
         labels_str = line.split(cvsSplitBy);
-     //   System.out.println(labels_str.length);
-     //   System.out.println("labels_str [code= " + labels_str[3] + " , name=" + labels_str[4] + "]");
-     //   System.out.println(labels_str.length);
-     //   labels_float = new float[labels_str.length];
-
           labels_float[idx_j] = Float.parseFloat(labels_str[idx_i * batch + idx_j]);
       }
 
@@ -400,7 +406,7 @@ public class TensorFlowImageClassifier implements Classifier {
     int Tid = android.os.Process.myTid();
     // Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t"+str+"\t"+"Current time: "+time + " Pid: " + Pid + " Tid: " + Tid );
     Log.d("TFClassifier","Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
-    writeToSDFile("Time elapsed:\t"+elapsed+"\t\t"+str+"\t");
+    writeToSDFile("Time elapsed:\t"+elapsed+"\t"+str+"\t");
     lastTime=System.currentTimeMillis();
 
   }
@@ -454,7 +460,7 @@ public class TensorFlowImageClassifier implements Classifier {
     //Log.d(TAG, "Classifier::variables initialization");
 
 
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 2; i++) {
       //Log.d(TAG, "The " + i + " iteration:");
 
       // Copy the input data into TensorFlow.

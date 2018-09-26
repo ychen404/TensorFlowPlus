@@ -18,9 +18,9 @@ package org.tensorflow.examples;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+//import java.nio.file.Files;
+//import java.nio.file.Path;
+//import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import org.tensorflow.DataType;
@@ -56,19 +56,19 @@ public class LabelImage {
     String modelDir = args[0];
     String imageFile = args[1];
 
-    byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));
-    List<String> labels =
-        readAllLinesOrExit(Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
-    byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
+    //byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));
+    //List<String> labels =
+    //    readAllLinesOrExit(Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
+    //byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
 
-    try (Tensor image = constructAndExecuteGraphToNormalizeImage(imageBytes)) {
-      float[] labelProbabilities = executeInceptionGraph(graphDef, image);
-      int bestLabelIdx = maxIndex(labelProbabilities);
-      System.out.println(
-          String.format(
-              "BEST MATCH: %s (%.2f%% likely)",
-              labels.get(bestLabelIdx), labelProbabilities[bestLabelIdx] * 100f));
-    }
+    //try (Tensor image = constructAndExecuteGraphToNormalizeImage(imageBytes)) {
+    //  float[] labelProbabilities = executeInceptionGraph(graphDef, image);
+    //  int bestLabelIdx = maxIndex(labelProbabilities);
+    //  System.out.println(
+    //      String.format(
+    //          "BEST MATCH: %s (%.2f%% likely)",
+    //          labels.get(bestLabelIdx), labelProbabilities[bestLabelIdx] * 100f));
+    //}
   }
 
   private static Tensor constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
@@ -133,25 +133,25 @@ public class LabelImage {
     return best;
   }
 
-  private static byte[] readAllBytesOrExit(Path path) {
-    try {
-      return Files.readAllBytes(path);
-    } catch (IOException e) {
-      System.err.println("Failed to read [" + path + "]: " + e.getMessage());
-      System.exit(1);
-    }
-    return null;
-  }
+//  private static byte[] readAllBytesOrExit(Path path) {
+//    try {
+//      return Files.readAllBytes(path);
+//    } catch (IOException e) {
+//      System.err.println("Failed to read [" + path + "]: " + e.getMessage());
+//      System.exit(1);
+//    }
+//    return null;
+//  }
 
-  private static List<String> readAllLinesOrExit(Path path) {
-    try {
-      return Files.readAllLines(path, Charset.forName("UTF-8"));
-    } catch (IOException e) {
-      System.err.println("Failed to read [" + path + "]: " + e.getMessage());
-      System.exit(0);
-    }
-    return null;
-  }
+//  private static List<String> readAllLinesOrExit(Path path) {
+//    try {
+//      return Files.readAllLines(path, Charset.forName("UTF-8"));
+//    } catch (IOException e) {
+//      System.err.println("Failed to read [" + path + "]: " + e.getMessage());
+//      System.exit(0);
+//    }
+//    return null;
+//  }
 
   // In the fullness of time, equivalents of the methods of this class should be auto-generated from
   // the OpDefs linked into libtensorflow_jni.so. That would match what is done in other languages

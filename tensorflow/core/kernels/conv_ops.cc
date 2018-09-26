@@ -470,7 +470,7 @@ class Conv2DOp : public BinaryOp<T> {
    // double start, finish;
    // start = (double)(clock()/(double)CLOCKS_PER_SEC);
     //reportTime("conv_ops::start of rsConv");
-    LOGD("conv_ops::start of rsConv");
+    //LOGD("conv_ops::start of rsConv");
 
     androidrs::conv::rsConvInfo convInfo(in_depth, input_rows, input_cols, filter_rows, filter_cols,
                                          stride_rows, stride_cols, pad_rows, pad_cols,
@@ -490,7 +490,7 @@ class Conv2DOp : public BinaryOp<T> {
     long long int ms = tp.tv_sec * 1000 + tp.tv_usec /1000;
     //reportTime("conv_ops::end of rsConv");
     //ss << "conv_ops::current time: " << ms << " milliseconds";
-    LOGD("conv_ops::end of rsConv");
+    //LOGD("conv_ops::end of rsConv");
 
     android_log_print(ss.str().c_str()); 
     return;
