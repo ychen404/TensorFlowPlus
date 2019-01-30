@@ -96,10 +96,8 @@
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/incremental-verifier" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/instant-run-apk" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/instant-run-main-apk-res" />
-      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/instant-run-resources" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/javaPrecompile" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/jniLibs" />
-      <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/lint" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/manifest-checker" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/manifests" />
       <excludeFolder url="file://$MODULE_DIR$/gradleBuild/intermediates/prebuild" />

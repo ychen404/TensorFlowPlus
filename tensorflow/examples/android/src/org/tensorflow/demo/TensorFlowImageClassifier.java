@@ -54,7 +54,7 @@ public class TensorFlowImageClassifier implements Classifier {
   private int inputSize;
   private int imageMean;
   private float imageStd;
-  private int batch = 128;
+  private int batch = 32;
   private int total_pic = 1024;
   //private int bat = 4; // temp variable for grouping as a batch
 
@@ -153,7 +153,6 @@ public class TensorFlowImageClassifier implements Classifier {
     //c.floatValues = new float[inputSize * inputSize * 3];
     c.floatValues = new float[inputSize * batch];
 //    c.outputs = new float[numClasses];
-
 //    c.outputs = new float[batch * outputsize];
     c.outputs = new float[batch];
 
@@ -420,121 +419,22 @@ public class TensorFlowImageClassifier implements Classifier {
 
     Trace.beginSection("preprocessBitmap");
 
-    // Preprocess the image data from 0-255 int to normalized float based
-    // on the provided parameters.
-    //Log.d(TAG, "Classifier::recognizeImage:preprocess");
-//    bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-//    for (int i = 0; i < intValues.length; ++i) {
-//      final int val = intValues[i];
-//      floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - imageMean) / imageStd;
-//      floatValues[i * 3 + 1] = (((val >> 8) & 0xFF) - imageMean) / imageStd;
-//      floatValues[i * 3 + 2] = ((val & 0xFF) - imageMean) / imageStd;
-//    }
     Trace.endSection();
 
     checkExternalMedia();
-    //reportTime("Create empty array");
 
-    // Get the input from images
     float[] inputSignals = readImages();
-//    readImages();
 
-//    float[][][][] inputSignals = new float[batch][image_width][image_length][num_channels];
     float[] outSignals = new float[batch];
-   // reportTime("Start filling array");
-    // Assign image array to input
-//    inputSignals = readImages();
+
 
     for ( int i = 0; i < inputSize * batch; i ++) {
       inputSignals[i] = (float) Math.random();
     }
 
-    //Log.d(TAG, "Classifier::filled array");
-
     for ( int i = 0; i < batch; i ++) {
       outSignals[i] = (float) Math.random();
     }
-    //reportTime("End filling array");
-    inferenceInterface.runTarget(new String[] {"init_all_vars_op"});
-    //reportTime("init_all_vars_op");
-    //Log.d(TAG, "Classifier::variables initialization");
-
-
-    for (int i = 0; i < 2; i++) {
-      //Log.d(TAG, "The " + i + " iteration:");
-
-      // Copy the input data into TensorFlow.
-      //Log.d(TAG, "Classifier::feed");
-//    Trace.beginSection("feed");
-//    inferenceInterface.feed(inputName, floatValues, 1, inputSize, inputSize, 3);
-
-    /*
-    Need to make sure the content of src float array can feed the tensor with a size of the tensor
-    For example, here float[] inputSignals is a [100 * 32] vector; the content is fed into a tensor
-    of 100 (batch size defined here) * 32
-     */
-
-
-//      Feed x and y again to find the loss
-//    inferenceInterface.feed("x", inputSignals, batch, 32);
-//    inferenceInterface.feed("input", inputSignals, batch, inputSize);
-      inferenceInterface.feed("input", inputSignals, batch, inputSize);
-//      reportTime("feed input\t" + "iteration\t" + i);
-     // Log.d(TAG, "Classifier::feed input");
-
-//    inferenceInterface.feed("x", floatValues, batch, 32);
-      // floatValues = new float[inputSize * 100];
-      //  Log.d(TAG,"feed x");
-      inferenceInterface.feed("label", outSignals, batch);
-      reportTime("feed label\t" + "iteration\t" + i);
-    //    Log.d(TAG, "Classifier::feed label");
-//    inferenceInterface.feed("y", outputs, batch, 8);
-      // outputs = new float[800];
-      //  Log.d(TAG,"feed y");
-
-//    Trace.endSection();
-
-      // Run the inference call.
-      //Log.d(TAG, "Classifier::recognizeImage:inferenceCall");
-
-      //  Trace.beginSection("run");
-
-//    inferenceInterface.run(outputNames, logStats);
-      inferenceInterface.run(new String[]{"loss"}, logStats);
-
-    //  reportTime("run loss\t" + "iteration\t" + i);
-//      inferenceInterface.run(new String[]{"loss"}, logStats);
-//      Trace.endSection();
-
-      // Copy the output Tensor back into the output array.
-      Log.d(TAG, "Classifier::fetch");
-      Trace.beginSection("fetch");
-//    inferenceInterface.fetch(outputName, outputs);
-      float[] resu = new float[1];
-//      inferenceInterface.fetch("loss", resu);
-      inferenceInterface.fetch("loss", resu);
-//      Log.d(TAG, "The loss of " + i + " iteration is " + resu[0]);
-
-      Trace.endSection();
-/*
-  Feed x and y again for the training
- */
-
-      inferenceInterface.feed("input", inputSignals, batch, inputSize);
-
-      // Log.d(TAG, "feed x");
-      inferenceInterface.feed("label", outSignals, batch);
-
-      //  Log.d(TAG, "feed y");
-
-    //  reportTime("training start dummy:\t" + "iteration\t" + i);
-      inferenceInterface.runTarget(new String[]{"train"});
-    //  reportTime("training end dummy:\t" + "iteration\t" + i);
-
-    }
-   /*Write to a file for plotting */
-
-  //  writeToSDFile("Hello!!");
 
     // Find the best classifications.
     PriorityQueue<Recognition> pq =

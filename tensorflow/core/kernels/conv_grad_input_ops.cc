@@ -525,55 +525,6 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
                                              Eigen::RowMajor>>
           ConstMatrixMap;
 
-      
-      /* Unit test 
-      const int m = 2, n = 2, k = 3, alpha = 1;
-      const int& alpha_ptr = alpha;
-
-      int a_sz = m * k, b_sz = n * k, c_sz = m * n;
-      T* a_ori = new T[a_sz];
-      T* b_ori = new T[b_sz];
-
-
-      T a_data[] = {
-                    1, 2, 3, 
-                    4, 5, 6
-                  };
-      T b_data[] = {
-                    1, 2, 3,
-                    4, 6, 2,
-      };
-
-
-      for (int i = 0; i < a_sz; ++i) {
-        a_ori[i] = a_data[i];
-      }
-
-      for (int i = 0; i < b_sz; ++i) {
-        b_ori[i] = b_data[i];
-      }
-      */
-
-      //T& a_ori_ptr = a_ori;
-      //T& b_ori_ptr = b_ori; 
-
-      //T *c_out = new T[m * n];
-      
-      //for (int i = 0; i < c_sz; ++i) {
-      //      c_out[i] = 0;
-     // }
-
-      // Try to take the matmul out of the shard 
-
-      /*androidrs::matmul::rsMatmul_sgemm_tom (
-        static_cast<void*>(const_cast<float*>(a_ori)), false,
-        static_cast<void*>(const_cast<float*>(b_ori)), false,
-        static_cast<void*>(c_out),
-        m, n, k, 1.0, 0); */
-
-      /*for (int i = 0; i < c_sz; ++i) {
-          LOGI("c_out %f", ((float *) c_out)[i]);
-      }*/
 
       for (int image_id = 0; image_id < dims.batch_size;
            image_id += shard_size) {
@@ -665,10 +616,6 @@ class Conv2DCustomBackpropInputOp : public OpKernel {
                   c_out[i] = 0;
             }
             */
-
-
-
-
 
             // for (int i = 0; i < c_sz; ++i) {
             //     LOGI("c_out %f", ((float *) c_out)[i]);
